@@ -43,6 +43,49 @@ service cloud.firestore {
       allow create: if isAdmin() || validOwnCreate(uid);
       allow update: if isAdmin() || (isOwner(uid) && validOwnUpdate());
       allow delete: if false;
+
+      match /favorites/{gptId} {
+        allow get, list: if isOwner(uid);
+        allow create: if isOwner(uid)
+          && request.resource.data.keys().hasOnly(["gptId", "createdAt"])
+          && request.resource.data.gptId == gptId
+          && request.resource.data.createdAt == request.time;
+        allow update: if false;
+        allow delete: if isOwner(uid);
+      }
+    }
+
+    match /announcements/{announcementId} {
+      allow get, list: if true;
+      allow create, update: if isAdmin()
+        && announcementId == "current"
+        && request.resource.data.keys().hasOnly([
+          "enabled",
+          "message",
+          "updatedAt",
+          "updatedBy"
+        ])
+        && request.resource.data.enabled is bool
+        && request.resource.data.message is string
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.token.email;
+      allow delete: if false;
+    }
+
+    match /gptSettings/{gptId} {
+      allow get, list: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly([
+          "order",
+          "visible",
+          "updatedAt",
+          "updatedBy"
+        ])
+        && request.resource.data.order is number
+        && request.resource.data.visible is bool
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.token.email;
+      allow delete: if false;
     }
 
     match /analyticsEvents/{eventId} {

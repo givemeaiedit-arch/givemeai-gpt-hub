@@ -13,6 +13,12 @@ import {
   watchAuth,
 } from "./auth-shared.js";
 import { GPTS, GPTS_BY_ID } from "./gpt-data.js";
+import {
+  saveAnnouncement,
+  saveGptSetting,
+  watchAnnouncement,
+  watchGptSettings,
+} from "./hub-state.js";
 
 const loginButton = document.querySelector("#loginButton");
 const logoutButton = document.querySelector("#logoutButton");
@@ -30,12 +36,20 @@ const totalOpenCount = document.querySelector("#totalOpenCount");
 const signupCtaCount = document.querySelector("#signupCtaCount");
 const lockedClickCount = document.querySelector("#lockedClickCount");
 const analyticsBody = document.querySelector("#analyticsBody");
+const announcementEnabled = document.querySelector("#announcementEnabled");
+const announcementMessage = document.querySelector("#announcementMessage");
+const saveAnnouncementButton = document.querySelector("#saveAnnouncementButton");
+const gptSettingsBody = document.querySelector("#gptSettingsBody");
 
 let currentUser = null;
 let users = [];
 let analyticsEvents = [];
+let announcement = null;
+let gptSettings = {};
 let unsubscribeUsers = null;
 let unsubscribeAnalytics = null;
+let unsubscribeAnnouncement = null;
+let unsubscribeGptSettings = null;
 
 function showToast(message) {
   if (!toast) return;
@@ -158,6 +172,34 @@ function renderAnalytics() {
   }
 }
 
+function renderAnnouncement() {
+  if (announcementEnabled) announcementEnabled.checked = Boolean(announcement?.enabled);
+  if (announcementMessage) announcementMessage.value = announcement?.message || "";
+}
+
+function renderGptSettings() {
+  if (!gptSettingsBody) return;
+  gptSettingsBody.innerHTML = "";
+
+  GPTS.forEach((gpt, index) => {
+    const setting = gptSettings[gpt.id] || {};
+    const order = Number.isFinite(Number(setting.order)) ? Number(setting.order) : index + 1;
+    const visible = setting.visible !== false;
+    const tr = document.createElement("tr");
+    tr.dataset.gptId = gpt.id;
+    tr.innerHTML = `
+      <td>
+        <strong>${gpt.title}</strong>
+        <small>${gpt.id}</small>
+      </td>
+      <td><input class="order-input" type="number" min="1" step="1" value="${order}" data-field="order" /></td>
+      <td><input class="visible-toggle" type="checkbox" ${visible ? "checked" : ""} data-field="visible" /></td>
+      <td><button class="primary-button" type="button" data-action="save-gpt-setting">บันทึก</button></td>
+    `;
+    gptSettingsBody.appendChild(tr);
+  });
+}
+
 function startUsersListener() {
   if (unsubscribeUsers) return;
   const svc = getFirebaseServices();
@@ -192,6 +234,25 @@ function startAnalyticsListener() {
   );
 }
 
+function startAdminConfigListeners() {
+  const svc = getFirebaseServices();
+  if (!svc) return;
+
+  if (!unsubscribeAnnouncement) {
+    unsubscribeAnnouncement = watchAnnouncement((value) => {
+      announcement = value;
+      renderAnnouncement();
+    });
+  }
+
+  if (!unsubscribeGptSettings) {
+    unsubscribeGptSettings = watchGptSettings((settings) => {
+      gptSettings = settings;
+      renderGptSettings();
+    });
+  }
+}
+
 function stopUsersListener() {
   if (!unsubscribeUsers) return;
   unsubscribeUsers();
@@ -202,6 +263,17 @@ function stopAnalyticsListener() {
   if (!unsubscribeAnalytics) return;
   unsubscribeAnalytics();
   unsubscribeAnalytics = null;
+}
+
+function stopAdminConfigListeners() {
+  if (unsubscribeAnnouncement) {
+    unsubscribeAnnouncement();
+    unsubscribeAnnouncement = null;
+  }
+  if (unsubscribeGptSettings) {
+    unsubscribeGptSettings();
+    unsubscribeGptSettings = null;
+  }
 }
 
 loginButton?.addEventListener("click", async () => {
@@ -233,6 +305,47 @@ usersBody?.addEventListener("click", async (event) => {
   }
 });
 
+saveAnnouncementButton?.addEventListener("click", async () => {
+  if (!currentUser) return;
+  saveAnnouncementButton.disabled = true;
+  try {
+    await saveAnnouncement({
+      enabled: announcementEnabled?.checked,
+      message: announcementMessage?.value,
+      adminEmail: currentUser.email,
+    });
+    showToast("บันทึกประกาศแล้ว");
+  } catch (error) {
+    showToast(`บันทึกประกาศไม่สำเร็จ: ${error.message}`);
+  } finally {
+    saveAnnouncementButton.disabled = false;
+  }
+});
+
+gptSettingsBody?.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-action='save-gpt-setting']");
+  if (!button || !currentUser) return;
+
+  const row = button.closest("tr[data-gpt-id]");
+  const orderInput = row?.querySelector("[data-field='order']");
+  const visibleInput = row?.querySelector("[data-field='visible']");
+  if (!row || !orderInput || !visibleInput) return;
+
+  button.disabled = true;
+  try {
+    await saveGptSetting(row.dataset.gptId, {
+      order: Number(orderInput.value || 999),
+      visible: visibleInput.checked,
+      adminEmail: currentUser.email,
+    });
+    showToast("บันทึกการตั้งค่า GPT แล้ว");
+  } catch (error) {
+    showToast(`บันทึกการตั้งค่าไม่สำเร็จ: ${error.message}`);
+  } finally {
+    button.disabled = false;
+  }
+});
+
 if (!isFirebaseConfigured()) {
   loginButton?.setAttribute("disabled", "true");
   adminPanel.hidden = true;
@@ -247,6 +360,7 @@ if (!isFirebaseConfigured()) {
       setMessage(`ตรวจสอบสิทธิ์ไม่สำเร็จ: ${error.message}`, true);
       stopUsersListener();
       stopAnalyticsListener();
+      stopAdminConfigListeners();
       return;
     }
 
@@ -255,6 +369,7 @@ if (!isFirebaseConfigured()) {
       setMessage(`กรุณาเข้าสู่ระบบด้วย Gmail admin: ${ADMIN_EMAIL}`);
       stopUsersListener();
       stopAnalyticsListener();
+      stopAdminConfigListeners();
       return;
     }
 
@@ -263,6 +378,7 @@ if (!isFirebaseConfigured()) {
       setMessage("บัญชีนี้ไม่ใช่ Admin จึงไม่มีสิทธิ์ดูหรืออนุมัติผู้ใช้", true);
       stopUsersListener();
       stopAnalyticsListener();
+      stopAdminConfigListeners();
       return;
     }
 
@@ -270,5 +386,6 @@ if (!isFirebaseConfigured()) {
     adminPanel.hidden = false;
     startUsersListener();
     startAnalyticsListener();
+    startAdminConfigListeners();
   });
 }

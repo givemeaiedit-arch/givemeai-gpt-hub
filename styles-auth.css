@@ -60,6 +60,71 @@
   position: relative;
 }
 
+.card.is-admin-hidden {
+  opacity: 0.58;
+}
+
+.card.is-admin-hidden::before {
+  content: "ซ่อนจากผู้ใช้";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 4;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 5px 9px;
+  color: #ffe5ba;
+  background: rgba(0, 0, 0, 0.72);
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.favorite-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.52);
+  cursor: pointer;
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.favorite-button[hidden] {
+  display: none !important;
+}
+
+.favorite-button.is-active {
+  border-color: rgba(255, 209, 102, 0.62);
+  color: #160c00;
+  background: linear-gradient(135deg, var(--gold), #ffb020);
+}
+
+.announcement-banner {
+  display: none;
+  margin: 0 0 18px;
+  border: 1px solid rgba(255, 209, 102, 0.34);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: #fff1c7;
+  background: rgba(255, 138, 0, 0.12);
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.announcement-banner.show {
+  display: block;
+}
+
 .card.is-locked .card-media img,
 .card.is-locked .card-body > :not(.member-lock) {
   filter: brightness(0.62) saturate(0.72);

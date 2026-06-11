@@ -620,17 +620,20 @@
       const visibleCount = document.querySelector("#visibleCount");
       const toast = document.querySelector("#toast");
 
-      search.addEventListener("input", () => {
+      window.applyCardSearch = () => {
         const value = search.value.trim().toLowerCase();
         let total = 0;
         cards.forEach((card) => {
           const text = card.textContent.toLowerCase() + " " + card.dataset.search.toLowerCase();
-          const show = !value || text.includes(value);
-          card.style.display = show ? "" : "none";
+          const hiddenByAdmin = card.dataset.hiddenByAdmin === "true";
+          const show = !hiddenByAdmin && (!value || text.includes(value));
+          card.hidden = !show;
           if (show) total += 1;
         });
         visibleCount.textContent = total;
-      });
+      };
+
+      search.addEventListener("input", window.applyCardSearch);
 
       document.querySelectorAll("[data-copy]").forEach((button) => {
         button.addEventListener("click", async () => {

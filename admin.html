@@ -122,6 +122,48 @@
         border-bottom: 1px solid var(--line);
       }
 
+      .admin-config {
+        display: grid;
+        gap: 18px;
+        padding: 14px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .config-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 14px;
+      }
+
+      .config-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .config-card textarea,
+      .order-input {
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.06);
+        padding: 10px 12px;
+        font: inherit;
+      }
+
+      .config-card textarea {
+        min-height: 86px;
+        resize: vertical;
+      }
+
+      .order-input {
+        max-width: 86px;
+      }
+
       .stats-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -236,6 +278,11 @@
         gap: 8px;
       }
 
+      .visible-toggle {
+        width: 18px;
+        height: 18px;
+      }
+
       .empty,
       .denied {
         padding: 24px;
@@ -290,6 +337,34 @@
       <div id="adminMessage" class="system-note show">กำลังตรวจสอบสิทธิ์ Admin...</div>
 
       <section class="panel" id="adminPanel" hidden>
+        <div class="admin-config">
+          <section class="config-card">
+            <p class="section-title">Announcement</p>
+            <label class="config-row">
+              <input id="announcementEnabled" type="checkbox" />
+              <span>เปิดประกาศหน้าเว็บ</span>
+            </label>
+            <textarea id="announcementMessage" placeholder="พิมพ์ประกาศ เช่น เพิ่ม GPT ใหม่ หรือแจ้งโปรสมัครสมาชิก"></textarea>
+            <button class="primary-button" id="saveAnnouncementButton" type="button">บันทึกประกาศ</button>
+          </section>
+
+          <section class="config-card">
+            <p class="section-title">GPT Display</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>GPT</th>
+                    <th>ลำดับ</th>
+                    <th>แสดง</th>
+                    <th>จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="gptSettingsBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
         <div class="analytics-section">
           <p class="section-title">Analytics</p>
           <div class="stats-grid">

@@ -187,6 +187,12 @@
         line-height: 1.55;
       }
 
+      .detail-favorite.is-active {
+        border-color: rgba(255, 209, 102, 0.62);
+        color: #160c00;
+        background: linear-gradient(135deg, var(--gold), #ffb020);
+      }
+
       .not-found {
         text-align: center;
         padding: 80px 0;
@@ -245,6 +251,7 @@
           <p class="lead" id="gptDescription"></p>
           <div class="actions">
             <a class="primary-button" id="openGptButton" href="#" target="_blank" rel="noopener">เปิด GPT</a>
+            <button class="ghost-button detail-favorite" id="favoriteButton" type="button" hidden>☆ ปักหมุด</button>
             <a class="ghost-button" href="index.html#links">ดู GPT ทั้งหมด</a>
           </div>
           <p class="locked-note" id="lockedNote" hidden>
@@ -280,19 +287,44 @@
       import { getGptById } from "./gpt-data.js";
       import { trackEvent } from "./analytics.js";
       import { isAdminEmail, watchAuth } from "./auth-shared.js";
+      import { setFavorite, watchFavorites, watchGptSettings } from "./hub-state.js";
 
       const params = new URLSearchParams(window.location.search);
       const gpt = getGptById(params.get("id"));
       const notFound = document.querySelector("#notFound");
       const detailView = document.querySelector("#detailView");
       const openButton = document.querySelector("#openGptButton");
+      const favoriteButton = document.querySelector("#favoriteButton");
       const lockedNote = document.querySelector("#lockedNote");
+      let currentUser = null;
+      let currentIsAdmin = false;
+      let gptSettings = {};
+      let favoriteIds = new Set();
+      let unsubscribeFavorites = null;
 
       function fillList(selector, items) {
         document.querySelector(selector).innerHTML = items.map((item) => `<li>${item}</li>`).join("");
       }
 
+      function renderFavorite() {
+        if (!favoriteButton || !gpt) return;
+        const active = favoriteIds.has(gpt.id);
+        favoriteButton.hidden = !currentUser;
+        favoriteButton.classList.toggle("is-active", active);
+        favoriteButton.textContent = active ? "★ ปักหมุดแล้ว" : "☆ ปักหมุด";
+        favoriteButton.setAttribute("aria-pressed", active ? "true" : "false");
+      }
+
+      function syncVisibility() {
+        if (!gpt) return;
+        const hiddenForUsers = gptSettings[gpt.id]?.visible === false && !currentIsAdmin;
+        notFound.hidden = !hiddenForUsers;
+        detailView.hidden = hiddenForUsers;
+      }
+
       function setAccess(user, profile) {
+        currentUser = user;
+        currentIsAdmin = Boolean(user && isAdminEmail(user.email));
         const approved = Boolean(user && (isAdminEmail(user.email) || profile?.status === "approved"));
         const locked = Boolean(gpt?.protected && !approved);
         lockedNote.hidden = !locked;
@@ -300,6 +332,8 @@
         openButton.target = locked ? "_self" : "_blank";
         openButton.rel = locked ? "" : "noopener";
         openButton.textContent = locked ? "ดูรายละเอียดการสมัคร" : "เปิด GPT";
+        renderFavorite();
+        syncVisibility();
       }
 
       if (!gpt) {
@@ -319,6 +353,11 @@
         setAccess(null, null);
         trackEvent("detail_view", gpt.id);
 
+        watchGptSettings((settings) => {
+          gptSettings = settings;
+          syncVisibility();
+        });
+
         openButton.addEventListener("click", (event) => {
           if (openButton.href.endsWith("pricing.html")) {
             trackEvent("locked_click", gpt.id);
@@ -327,7 +366,27 @@
           trackEvent("gpt_open", gpt.id);
         });
 
-        watchAuth(({ user, profile }) => setAccess(user, profile));
+        favoriteButton.addEventListener("click", async () => {
+          if (!currentUser) return;
+          await setFavorite(currentUser.uid, gpt.id, !favoriteIds.has(gpt.id));
+        });
+
+        watchAuth(({ user, profile }) => {
+          setAccess(user, profile);
+          if (unsubscribeFavorites) {
+            unsubscribeFavorites();
+            unsubscribeFavorites = null;
+          }
+          if (user) {
+            unsubscribeFavorites = watchFavorites(user.uid, (favorites) => {
+              favoriteIds = favorites;
+              renderFavorite();
+            });
+          } else {
+            favoriteIds = new Set();
+            renderFavorite();
+          }
+        });
       }
     </script>
   </body>

@@ -7,6 +7,13 @@ import {
   watchAuth,
 } from "./auth-shared.js";
 import { trackEvent } from "./analytics.js";
+import { GPTS } from "./gpt-data.js";
+import {
+  setFavorite,
+  watchAnnouncement,
+  watchFavorites,
+  watchGptSettings,
+} from "./hub-state.js";
 
 const loginButton = document.querySelector("#loginButton");
 const logoutButton = document.querySelector("#logoutButton");
@@ -16,10 +23,17 @@ const userName = document.querySelector("#userName");
 const userStatus = document.querySelector("#userStatus");
 const adminLink = document.querySelector("#adminLink");
 const toast = document.querySelector("#toast");
+const cardsGrid = document.querySelector("#cards");
+const allCards = [...document.querySelectorAll(".card")];
 const protectedCards = [...document.querySelectorAll(".card[data-protected='true']")];
+const defaultOrder = new Map(GPTS.map((gpt, index) => [gpt.id, index + 1]));
 
 let currentUser = null;
 let currentProfile = null;
+let currentIsAdmin = false;
+let gptSettings = {};
+let favoriteIds = new Set();
+let unsubscribeFavorites = null;
 
 function showToast(message) {
   if (!toast) return;
@@ -101,6 +115,77 @@ function setMemberStatus(user, profile, approved) {
   status.innerHTML = `รออนุมัติจาก Admin - ติดต่อ Email เพื่อสมัคร <a href="mailto:${ADMIN_EMAIL}">${ADMIN_EMAIL}</a>`;
 }
 
+function ensureAnnouncementBanner() {
+  let banner = document.querySelector("#announcementBanner");
+  if (banner) return banner;
+
+  banner = document.createElement("div");
+  banner.id = "announcementBanner";
+  banner.className = "announcement-banner";
+  banner.setAttribute("role", "status");
+  const linksSection = document.querySelector("#links");
+  linksSection?.insertAdjacentElement("afterbegin", banner);
+  return banner;
+}
+
+function setAnnouncement(announcement) {
+  const banner = ensureAnnouncementBanner();
+  const message = String(announcement?.message || "").trim();
+  const show = Boolean(announcement?.enabled && message);
+  banner.textContent = show ? message : "";
+  banner.classList.toggle("show", show);
+}
+
+function ensureFavoriteButtons() {
+  allCards.forEach((card) => {
+    if (card.querySelector(".favorite-button")) return;
+    const button = document.createElement("button");
+    button.className = "favorite-button";
+    button.type = "button";
+    button.setAttribute("aria-label", "ปักหมุด GPT");
+    button.textContent = "☆";
+    card.appendChild(button);
+  });
+}
+
+function setFavoriteUi() {
+  allCards.forEach((card) => {
+    const button = card.querySelector(".favorite-button");
+    if (!button) return;
+    const active = favoriteIds.has(card.dataset.gptId);
+    button.hidden = !currentUser;
+    button.classList.toggle("is-active", active);
+    button.textContent = active ? "★" : "☆";
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+}
+
+function getCardOrder(card) {
+  const settingOrder = Number(gptSettings[card.dataset.gptId]?.order);
+  if (Number.isFinite(settingOrder)) return settingOrder;
+  return defaultOrder.get(card.dataset.gptId) || 999;
+}
+
+function renderCardSettings() {
+  if (!cardsGrid) return;
+
+  const sortedCards = [...allCards].sort((a, b) => {
+    const favoriteDiff = Number(favoriteIds.has(b.dataset.gptId)) - Number(favoriteIds.has(a.dataset.gptId));
+    if (favoriteDiff !== 0) return favoriteDiff;
+    return getCardOrder(a) - getCardOrder(b);
+  });
+
+  sortedCards.forEach((card) => {
+    const hiddenForUsers = gptSettings[card.dataset.gptId]?.visible === false;
+    card.classList.toggle("is-admin-hidden", hiddenForUsers && currentIsAdmin);
+    card.dataset.hiddenByAdmin = hiddenForUsers && !currentIsAdmin ? "true" : "false";
+    cardsGrid.appendChild(card);
+  });
+
+  window.applyCardSearch?.();
+  setFavoriteUi();
+}
+
 function ensureLockOverlay(card) {
   let overlay = card.querySelector(".member-lock");
   if (overlay) return overlay;
@@ -157,6 +242,7 @@ function setProtectedAccess(approved) {
 function updateAuthUi(user, profile) {
   currentUser = user;
   currentProfile = profile;
+  currentIsAdmin = Boolean(user && isAdminEmail(user.email));
   const approved = Boolean(user && (isAdminEmail(user.email) || profile?.status === "approved"));
 
   if (loginButton) loginButton.hidden = Boolean(user);
@@ -176,10 +262,42 @@ function updateAuthUi(user, profile) {
 
   setProtectedAccess(approved);
   setMemberStatus(user, profile, approved);
+  setFavoriteUi();
+  renderCardSettings();
 }
 
+ensureFavoriteButtons();
 prepareProtectedCards();
 setProtectedAccess(false);
+renderCardSettings();
+
+watchAnnouncement(setAnnouncement);
+watchGptSettings((settings) => {
+  gptSettings = settings;
+  renderCardSettings();
+});
+
+allCards.forEach((card) => {
+  const button = card.querySelector(".favorite-button");
+  button?.addEventListener("click", async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!currentUser) {
+      showToast("กรุณาเข้าสู่ระบบก่อนปักหมุด GPT");
+      return;
+    }
+
+    const gptId = card.dataset.gptId || "";
+    const next = !favoriteIds.has(gptId);
+    try {
+      await setFavorite(currentUser.uid, gptId, next);
+      showToast(next ? "ปักหมุด GPT แล้ว" : "ยกเลิกปักหมุดแล้ว");
+    } catch (error) {
+      showToast(`บันทึก Favorite ไม่สำเร็จ: ${error.message}`);
+    }
+  });
+});
 
 protectedCards.forEach((card) => {
   const link = card.querySelector(".primary-button");
@@ -237,5 +355,20 @@ if (!isFirebaseConfigured()) {
     }
 
     updateAuthUi(user, profile);
+
+    if (unsubscribeFavorites) {
+      unsubscribeFavorites();
+      unsubscribeFavorites = null;
+    }
+
+    if (user) {
+      unsubscribeFavorites = watchFavorites(user.uid, (favorites) => {
+        favoriteIds = favorites;
+        renderCardSettings();
+      });
+    } else {
+      favoriteIds = new Set();
+      renderCardSettings();
+    }
   });
 }
