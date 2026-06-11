@@ -1,12 +1,13 @@
 export const ADMIN_EMAIL = "Givemeai.edit@gmail.com";
 
-// Fill these values from Firebase Console > Project settings > Your apps > Web app.
-// The site works as a locked static preview until this config is replaced.
 export const firebaseConfig = {
-  apiKey: "REPLACE_WITH_FIREBASE_API_KEY",
-  authDomain: "REPLACE_WITH_FIREBASE_AUTH_DOMAIN",
-  projectId: "REPLACE_WITH_FIREBASE_PROJECT_ID",
-  appId: "REPLACE_WITH_FIREBASE_APP_ID",
+  apiKey: "AIzaSyCy3br7ODGFRJpSqTZCAV8fnQMQVJRI6yk",
+  authDomain: "givemeai-gpt-hub.firebaseapp.com",
+  projectId: "givemeai-gpt-hub",
+  storageBucket: "givemeai-gpt-hub.firebasestorage.app",
+  messagingSenderId: "941393009046",
+  appId: "1:941393009046:web:645b8727c4b60443aca5b7",
+  measurementId: "G-FR6WNVS5CR",
 };
 
 export function isFirebaseConfigured() {
