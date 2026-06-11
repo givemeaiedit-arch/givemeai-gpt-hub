@@ -1,0 +1,159 @@
+.auth-panel [hidden] {
+  display: none !important;
+}
+
+.auth-panel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.auth-button,
+.admin-link {
+  white-space: nowrap;
+}
+
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 260px;
+  min-height: 42px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.user-badge img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.user-badge span {
+  min-width: 0;
+}
+
+.user-badge strong,
+.user-badge small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-badge strong {
+  font-size: 0.86rem;
+  line-height: 1.2;
+}
+
+.user-badge small {
+  color: var(--muted);
+  font-size: 0.74rem;
+  margin-top: 2px;
+}
+
+.card {
+  position: relative;
+}
+
+.card.is-locked .card-media img,
+.card.is-locked .card-body > :not(.member-lock) {
+  filter: brightness(0.62) saturate(0.72);
+}
+
+.card.is-locked .primary-button,
+.card.is-locked .copy-button {
+  opacity: 0.5;
+}
+
+.member-lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(0.75px);
+  z-index: 3;
+}
+
+.member-lock strong {
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.member-lock span {
+  max-width: 220px;
+  color: #d5dde7;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.member-lock a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  border-radius: 8px;
+  padding: 0 12px;
+  background: linear-gradient(135deg, var(--orange), #ffb020);
+  color: #160c00;
+  font-weight: 800;
+}
+
+.system-note {
+  display: none;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 138, 0, 0.35);
+  border-radius: 8px;
+  color: #ffe5ba;
+  background: rgba(255, 138, 0, 0.1);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.system-note.show {
+  display: block;
+}
+
+@media (max-width: 720px) {
+  .auth-panel {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .auth-button,
+  .admin-link {
+    flex: 1;
+  }
+
+  .user-badge {
+    width: 100%;
+    max-width: none;
+  }
+
+  .card.is-locked {
+    min-height: 0;
+  }
+
+  .member-lock {
+    justify-content: center;
+    margin: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .member-lock span {
+    max-width: 260px;
+  }
+}

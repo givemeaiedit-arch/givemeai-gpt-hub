@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>รายละเอียดการสมัครใช้งาน | GivemeAI GPT Hub</title>
+    <link rel="icon" href="assets/favicon.png" />
+    <link rel="stylesheet" href="styles-auth.css" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #090d12;
+        --panel: rgba(18, 23, 31, 0.86);
+        --text: #f7fafc;
+        --muted: #a8b3c2;
+        --line: rgba(255, 255, 255, 0.12);
+        --orange: #ff8a00;
+        --gold: #ffd166;
+        --teal: #38d6c7;
+        --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 18% 16%, rgba(255, 138, 0, 0.2), transparent 28rem),
+          linear-gradient(135deg, #090d12 0%, #101822 48%, #090d12 100%);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "Noto Sans Thai", Arial, sans-serif;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .shell {
+        width: min(980px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .topbar,
+      .actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand img {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+      }
+
+      .ghost-button,
+      .primary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 14px;
+        font-weight: 800;
+      }
+
+      .ghost-button {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .primary-button {
+        border-color: transparent;
+        background: linear-gradient(135deg, var(--orange), #ffb020);
+        color: #160c00;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 28px;
+        align-items: center;
+        margin-top: 48px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.4rem, 7vw, 5rem);
+        line-height: 0.98;
+      }
+
+      .lead {
+        color: #d5dde7;
+        font-size: 1.08rem;
+        line-height: 1.7;
+        margin: 18px 0 0;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        padding: 22px;
+      }
+
+      .panel img {
+        width: 100%;
+        border-radius: 8px;
+        display: block;
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 30px;
+      }
+
+      .step {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 16px;
+      }
+
+      .step b {
+        display: block;
+        color: var(--gold);
+        margin-bottom: 8px;
+      }
+
+      .step p,
+      .fineprint {
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .actions {
+        justify-content: flex-start;
+        margin-top: 24px;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 760px) {
+        .topbar,
+        .hero {
+          grid-template-columns: 1fr;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .steps {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="index.html">
+          <img src="assets/favicon.png" alt="GivemeAI" />
+          <strong>GivemeAI GPT Hub</strong>
+        </a>
+        <div class="auth-panel">
+          <button class="ghost-button auth-button" id="loginButton" type="button">เข้าสู่ระบบด้วย Google</button>
+          <div class="user-badge" id="userBadge" hidden>
+            <img id="userAvatar" alt="" />
+            <span>
+              <strong id="userName">Guest</strong>
+              <small id="userStatus">ยังไม่ได้เข้าสู่ระบบ</small>
+            </span>
+          </div>
+          <a class="ghost-button admin-link" id="adminLink" href="admin.html" hidden>Admin</a>
+          <button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div>
+          <p style="color: var(--teal); font-weight: 900; margin: 0 0 12px">MEMBER ACCESS</p>
+          <h1>รายละเอียดการสมัครใช้งาน</h1>
+          <p class="lead">
+            เครื่องมือสมาชิกจะเปิดให้ใช้งานหลังเข้าสู่ระบบด้วย Gmail และได้รับการอนุมัติจาก Admin
+            ระบบนี้ยังไม่มีการชำระเงินอัตโนมัติในเวอร์ชันแรก
+          </p>
+          <div class="actions">
+            <button class="primary-button" id="pricingLoginButton" type="button">เข้าสู่ระบบด้วย Google</button>
+            <a class="ghost-button" href="index.html#links">กลับไปหน้า GPT Hub</a>
+          </div>
+          <p class="fineprint">Admin ผู้อนุมัติ: Givemeai.edit@gmail.com</p>
+        </div>
+        <div class="panel">
+          <img src="assets/hero-gpt-hub.jpg" alt="GivemeAI GPT Hub" />
+        </div>
+      </section>
+
+      <section class="steps" aria-label="ขั้นตอนสมัคร">
+        <div class="step">
+          <b>1. Login Gmail</b>
+          <p>เข้าสู่ระบบด้วยบัญชี Google/Gmail ที่ต้องการใช้เข้าเครื่องมือสมาชิก</p>
+        </div>
+        <div class="step">
+          <b>2. รออนุมัติ</b>
+          <p>บัญชีใหม่จะเป็นสถานะ pending จนกว่า Admin จะอนุมัติในหลังบ้าน</p>
+        </div>
+        <div class="step">
+          <b>3. ปลดล็อก GPT</b>
+          <p>หลังอนุมัติแล้ว การ์ดสมาชิกจะปลดล็อกและเปิดลิงก์ GPT ได้ทันที</p>
+        </div>
+      </section>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite">คัดลอกลิงก์แล้ว</div>
+    <script type="module" src="app.js"></script>
+    <script type="module">
+      import { signInWithGoogle } from "./auth-shared.js";
+
+      document.querySelector("#pricingLoginButton")?.addEventListener("click", async () => {
+        try {
+          await signInWithGoogle();
+        } catch {
+          document.querySelector("#loginButton")?.click();
+        }
+      });
+    </script>
+  </body>
+</html>

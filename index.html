@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GivemeAI GPT Hub</title>
+    <link rel="icon" href="assets/favicon.png" />
+    <link rel="stylesheet" href="styles-auth.css" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #090d12;
+        --panel: rgba(18, 23, 31, 0.82);
+        --panel-strong: rgba(27, 34, 45, 0.95);
+        --text: #f7fafc;
+        --muted: #a8b3c2;
+        --line: rgba(255, 255, 255, 0.12);
+        --orange: #ff8a00;
+        --gold: #ffd166;
+        --teal: #38d6c7;
+        --blue: #8bb8ff;
+        --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 18% 16%, rgba(255, 138, 0, 0.18), transparent 28rem),
+          radial-gradient(circle at 82% 22%, rgba(56, 214, 199, 0.12), transparent 24rem),
+          linear-gradient(135deg, #090d12 0%, #101822 48%, #090d12 100%);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "Noto Sans Thai", Arial, sans-serif;
+        letter-spacing: 0;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 44px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .brand img {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 10px 30px rgba(255, 138, 0, 0.2);
+      }
+
+      .brand strong {
+        display: block;
+        font-size: 1rem;
+        line-height: 1.2;
+      }
+
+      .brand span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.86rem;
+        margin-top: 2px;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .ghost-button,
+      .primary-button,
+      .copy-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 14px;
+        color: var(--text);
+        font-weight: 750;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+      }
+
+      .ghost-button,
+      .copy-button {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .primary-button {
+        background: linear-gradient(135deg, var(--orange), #ffb020);
+        color: #160c00;
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .ghost-button:hover,
+      .primary-button:hover,
+      .copy-button:hover {
+        transform: translateY(-1px);
+        border-color: rgba(255, 255, 255, 0.28);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.82fr) minmax(420px, 1.18fr);
+        gap: 28px;
+        align-items: stretch;
+        min-height: 480px;
+      }
+
+      .hero-copy {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 28px 0;
+      }
+
+      .eyebrow {
+        color: var(--teal);
+        font-weight: 800;
+        font-size: 0.86rem;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 720px;
+        font-size: clamp(2.4rem, 7vw, 5.8rem);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        color: #d5dde7;
+        max-width: 620px;
+        font-size: clamp(1rem, 2vw, 1.18rem);
+        line-height: 1.7;
+        margin: 20px 0 0;
+      }
+
+      .hero-panel {
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #111922;
+        box-shadow: var(--shadow);
+      }
+
+      .hero-panel img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 26px;
+        max-width: 560px;
+      }
+
+      .stat {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        padding: 14px;
+      }
+
+      .stat b {
+        display: block;
+        font-size: 1.25rem;
+      }
+
+      .stat span {
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        margin: 34px 0 18px;
+      }
+
+      .search {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 48px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.07);
+        padding: 0 14px;
+      }
+
+      .search svg {
+        flex: 0 0 auto;
+        color: var(--muted);
+      }
+
+      .search input {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        min-width: 0;
+      }
+
+      .search input::placeholder {
+        color: #7f8b9b;
+      }
+
+      .count {
+        color: var(--muted);
+        font-size: 0.92rem;
+        white-space: nowrap;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        overflow: hidden;
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+      }
+
+      .card-media {
+        aspect-ratio: 1 / 1;
+        background:
+          linear-gradient(135deg, rgba(255, 138, 0, 0.15), rgba(56, 214, 199, 0.06)),
+          #111821;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .card-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .card-body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        padding: 15px;
+      }
+
+      .tag {
+        align-self: flex-start;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 999px;
+        color: var(--gold);
+        font-weight: 750;
+        font-size: 0.72rem;
+        padding: 5px 9px;
+        margin-bottom: 10px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.35;
+      }
+
+      .description {
+        margin: 9px 0 14px;
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.55;
+      }
+
+      .card-actions {
+        display: grid;
+        grid-template-columns: 1fr 44px;
+        gap: 8px;
+        margin-top: auto;
+      }
+
+      .copy-button {
+        min-width: 44px;
+        padding: 0;
+      }
+
+      .copy-button svg,
+      .primary-button svg,
+      .ghost-button svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .primary-button svg {
+        margin-left: 8px;
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 28px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        transform: translate(-50%, 20px);
+        opacity: 0;
+        pointer-events: none;
+        background: var(--panel-strong);
+        color: var(--text);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px 14px;
+        box-shadow: var(--shadow);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+
+      @media (max-width: 1050px) {
+        .grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .hero {
+          grid-template-columns: 1fr;
+          min-height: 0;
+        }
+
+        .hero-panel {
+          min-height: 360px;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .shell {
+          width: min(100% - 24px, 1180px);
+          padding-top: 18px;
+        }
+
+        .topbar,
+        .footer {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .top-actions {
+          width: 100%;
+        }
+
+        .ghost-button {
+          width: 100%;
+        }
+
+        .hero-copy {
+          padding: 8px 0 0;
+        }
+
+        .hero-panel {
+          min-height: 280px;
+        }
+
+        .stats {
+          grid-template-columns: 1fr;
+        }
+
+        .toolbar {
+          grid-template-columns: 1fr;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .card {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .card-media {
+          width: 100%;
+          height: auto;
+          aspect-ratio: 1 / 1;
+          max-height: none;
+        }
+
+        .card-body {
+          padding: 14px;
+          background: rgba(12, 17, 24, 0.96);
+        }
+
+        .description {
+          font-size: 0.9rem;
+          line-height: 1.62;
+        }
+
+        .card-actions {
+          grid-template-columns: minmax(0, 1fr) 46px;
+        }
+
+        .primary-button {
+          min-width: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar" aria-label="หัวเว็บ">
+        <a class="brand" href="#links" aria-label="ไปที่ลิงก์ GPT">
+          <img src="assets/favicon.png" alt="GivemeAI" />
+          <span>
+            <strong>GivemeAI GPT Hub</strong>
+            <span>รวมเครื่องมือ AI พร้อมใช้</span>
+          </span>
+        </a>
+        <div class="top-actions">
+          <div class="auth-panel" aria-label="สถานะสมาชิก">
+            <button class="ghost-button auth-button" id="loginButton" type="button">เข้าสู่ระบบด้วย Google</button>
+            <div class="user-badge" id="userBadge" hidden>
+              <img id="userAvatar" alt="" />
+              <span>
+                <strong id="userName">Guest</strong>
+                <small id="userStatus">ยังไม่ได้เข้าสู่ระบบ</small>
+              </span>
+            </div>
+            <a class="ghost-button admin-link" id="adminLink" href="admin.html" hidden>Admin</a>
+            <button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
+          </div>
+          <a class="ghost-button" href="#links">
+            ดูลิงก์ทั้งหมด
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </div>
+      </header>
+
+      <section class="hero" aria-label="GivemeAI GPT Hub">
+        <div class="hero-copy">
+          <div class="eyebrow">CUSTOM GPT COLLECTION</div>
+          <h1>GivemeAI GPT Hub</h1>
+          <p class="lead">
+            รวมลิงก์ Custom GPT สำหรับงานโฆษณา วิเคราะห์ Andromeda สร้างภาพโปรโมท
+            ปรับภาพสินค้า และคำนวณ BOQ ไว้ในหน้าเดียว เปิดใช้งานได้เร็วบนมือถือและเดสก์ท็อป
+          </p>
+          <div class="stats" aria-label="สรุปจำนวนเครื่องมือ">
+            <div class="stat">
+              <b>5</b>
+              <span>GPT พร้อมใช้งาน</span>
+            </div>
+            <div class="stat">
+              <b>1K+</b>
+              <span>แชตใน GPT โปรโมท</span>
+            </div>
+            <div class="stat">
+              <b>Link</b>
+              <span>เปิดได้สำหรับคนที่มีลิงก์</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-panel">
+          <img src="assets/hero-gpt-hub.jpg" alt="ภาพรวมโลโก้ GPT ของ GivemeAI" />
+        </div>
+      </section>
+
+      <section id="links" aria-label="ลิงก์ GPT">
+        <div class="toolbar">
+          <label class="search">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+              <path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <input id="search" type="search" placeholder="ค้นหา เช่น Andromeda, BOQ, รูปโปรโมท" autocomplete="off" />
+          </label>
+          <div class="count"><span id="visibleCount">5</span> / 5 เครื่องมือ</div>
+        </div>
+
+        <div class="grid" id="cards">
+          <article class="card" data-search="สร้างรูปโปรโมท โปรโมทอัตโนมัติ gpt image อัปโหลดรูป สินค้า ร้าน ราคา ติดต่อ">
+            <div class="card-media">
+              <img src="assets/promo-builder.webp" alt="สร้างรูปโปรโมท By Ai" />
+            </div>
+            <div class="card-body">
+              <span class="tag">Promo Builder</span>
+              <h2>สร้างรูปโปรโมท</h2>
+              <p class="description">วิเคราะห์รูปแล้วสร้างภาพโปรโมทอัตโนมัติด้วย GPT Image ใส่ชื่อสินค้า ร้าน ราคา รายละเอียด และช่องทางติดต่อได้</p>
+              <div class="card-actions">
+                <a class="primary-button" href="https://chatgpt.com/g/g-69fc59f80d088191b76b9b7ee01feb59-sraangruupopromth-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
+                <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-69fc59f80d088191b76b9b7ee01feb59-sraangruupopromth-by-ai-phaaphniiaihhn-y" aria-label="คัดลอกลิงก์สร้างรูปโปรโมท"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></button>
+              </div>
+            </div>
+          </article>
+          <article class="card" data-search="andromeda score วิเคราะห์ภาพนิ่ง วิดีโอ meta ads คะแนน จุดแข็ง จุดอ่อน audience">
+            <div class="card-media">
+              <img src="assets/andromeda-score.webp" alt="Andromeda Score By Ai" />
+            </div>
+            <div class="card-body">
+              <span class="tag">Audit Score</span>
+              <h2>Andromeda Score</h2>
+              <p class="description">วิเคราะห์ภาพนิ่งและวิดีโอโฆษณา Meta Ads ให้คะแนน จุดแข็ง จุดอ่อน และประเมินกลุ่มเป้าหมายในไทย</p>
+              <div class="card-actions">
+                <a class="primary-button" href="https://chatgpt.com/g/g-6a291dd04c448191a633b6691e9be820-andromeda-score-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
+                <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a291dd04c448191a633b6691e9be820-andromeda-score-by-ai-phaaphniiaihhn-y" aria-label="คัดลอกลิงก์ Andromeda Score"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></button>
+              </div>
+            </div>
+          </article>
+          <article class="card" data-protected="true" data-search="ads andromeda image โฆษณา creative signal target audience hook offer proof cta">
+            <div class="card-media">
+              <img src="assets/ads-andromeda-image.webp" alt="Ads Andromeda Image By Ai" />
+            </div>
+            <div class="card-body">
+              <span class="tag">Ads Creative</span>
+              <h2>Ads Andromeda Image</h2>
+              <p class="description">สร้างภาพโฆษณาพร้อมใช้จากรูปสินค้า/บริการ พร้อมวิเคราะห์ creative signal, audience, hook, offer, proof และ CTA</p>
+              <div class="card-actions">
+                <a class="primary-button" href="https://chatgpt.com/g/g-6a293fa148fc8191a1c66a1da8b2de48-ads-andromeda-image-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
+                <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a293fa148fc8191a1c66a1da8b2de48-ads-andromeda-image-by-ai-phaaphniiaihhn-y" aria-label="คัดลอกลิงก์ Ads Andromeda"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></button>
+              </div>
+            </div>
+          </article>
+          <article class="card" data-protected="true" data-search="boq คำนวณ ถอดปริมาณวัสดุ ประมาณราคา บ้าน อาคาร google sheet">
+            <div class="card-media">
+              <img src="assets/boq-calculator.webp" alt="คำนวณ BOQ By Ai" />
+            </div>
+            <div class="card-body">
+              <span class="tag">BOQ</span>
+              <h2>คำนวณ BOQ</h2>
+              <p class="description">ถอดปริมาณวัสดุและประมาณราคา BOQ สำหรับบ้านหรืออาคารเล็กจากแบบแปลน พร้อมสร้าง Google Sheet ผ่าน Action</p>
+              <div class="card-actions">
+                <a class="primary-button" href="https://chatgpt.com/g/g-6a2789efcb0081919216a422cf8c9611-khmaanwn-boq-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
+                <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a2789efcb0081919216a422cf8c9611-khmaanwn-boq-by-ai-phaaphniiaihhn-y" aria-label="คัดลอกลิงก์ BOQ"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></button>
+              </div>
+            </div>
+          </article>
+          <article class="card" data-protected="true" data-search="ai image pro อัปโหลดรูป ปรับภาพ ทำภาพดูดีขึ้น">
+            <div class="card-media">
+              <img src="assets/ai-image-pro.webp" alt="AI Image Pro By AI" />
+            </div>
+            <div class="card-body">
+              <span class="tag">Image Upgrade</span>
+              <h2>AI Image Pro</h2>
+              <p class="description">อัปโหลดรูปที่ต้องการปรับให้ภาพดูดีขึ้น เหมาะกับงานภาพสินค้า ภาพโปรไฟล์ และภาพประกอบโฆษณา</p>
+              <div class="card-actions">
+                <a class="primary-button" href="https://chatgpt.com/g/g-6a250d11a4548191bbbd4b05882273a7-ai-image-pro-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
+                <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a250d11a4548191bbbd4b05882273a7-ai-image-pro-by-ai-phaaphniiaihhn-y" aria-label="คัดลอกลิงก์ AI Image Pro"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></button>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span>GivemeAI GPT Hub</span>
+        <span>ดึงลิงก์จากหน้า My GPTs ของบัญชี Givemeai.edit@gmail.com</span>
+      </footer>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite">คัดลอกลิงก์แล้ว</div>
+
+    <script>
+      const search = document.querySelector("#search");
+      const cards = [...document.querySelectorAll(".card")];
+      const visibleCount = document.querySelector("#visibleCount");
+      const toast = document.querySelector("#toast");
+
+      search.addEventListener("input", () => {
+        const value = search.value.trim().toLowerCase();
+        let total = 0;
+        cards.forEach((card) => {
+          const text = card.textContent.toLowerCase() + " " + card.dataset.search.toLowerCase();
+          const show = !value || text.includes(value);
+          card.style.display = show ? "" : "none";
+          if (show) total += 1;
+        });
+        visibleCount.textContent = total;
+      });
+
+      document.querySelectorAll("[data-copy]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const link = button.dataset.copy;
+          try {
+            await navigator.clipboard.writeText(link);
+          } catch {
+            const temp = document.createElement("textarea");
+            temp.value = link;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            temp.remove();
+          }
+          toast.classList.add("show");
+          window.setTimeout(() => toast.classList.remove("show"), 1600);
+        });
+      });
+    </script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
