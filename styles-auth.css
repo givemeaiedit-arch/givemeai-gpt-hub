@@ -85,6 +85,10 @@
   z-index: 3;
 }
 
+.member-lock[hidden] {
+  display: none !important;
+}
+
 .member-lock strong {
   font-size: 1.05rem;
   line-height: 1.35;
