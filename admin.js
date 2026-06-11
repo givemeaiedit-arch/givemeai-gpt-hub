@@ -16,8 +16,10 @@ import { GPTS, GPTS_BY_ID } from "./gpt-data.js";
 import {
   saveAnnouncement,
   saveGptSetting,
+  savePricingPage,
   watchAnnouncement,
   watchGptSettings,
+  watchPricingPage,
 } from "./hub-state.js";
 
 const loginButton = document.querySelector("#loginButton");
@@ -40,16 +42,25 @@ const announcementEnabled = document.querySelector("#announcementEnabled");
 const announcementMessage = document.querySelector("#announcementMessage");
 const saveAnnouncementButton = document.querySelector("#saveAnnouncementButton");
 const gptSettingsBody = document.querySelector("#gptSettingsBody");
+const pricingPriceInput = document.querySelector("#pricingPriceInput");
+const pricingHeadlineInput = document.querySelector("#pricingHeadlineInput");
+const pricingDescriptionInput = document.querySelector("#pricingDescriptionInput");
+const pricingBenefitsInput = document.querySelector("#pricingBenefitsInput");
+const pricingCtaInput = document.querySelector("#pricingCtaInput");
+const pricingFacebookInput = document.querySelector("#pricingFacebookInput");
+const savePricingButton = document.querySelector("#savePricingButton");
 
 let currentUser = null;
 let users = [];
 let analyticsEvents = [];
 let announcement = null;
 let gptSettings = {};
+let pricingPage = null;
 let unsubscribeUsers = null;
 let unsubscribeAnalytics = null;
 let unsubscribeAnnouncement = null;
 let unsubscribeGptSettings = null;
+let unsubscribePricingPage = null;
 
 function showToast(message) {
   if (!toast) return;
@@ -177,6 +188,16 @@ function renderAnnouncement() {
   if (announcementMessage) announcementMessage.value = announcement?.message || "";
 }
 
+function renderPricingPage() {
+  if (!pricingPage) return;
+  if (pricingPriceInput) pricingPriceInput.value = pricingPage.price || "";
+  if (pricingHeadlineInput) pricingHeadlineInput.value = pricingPage.headline || "";
+  if (pricingDescriptionInput) pricingDescriptionInput.value = pricingPage.description || "";
+  if (pricingBenefitsInput) pricingBenefitsInput.value = (pricingPage.benefits || []).join("\n");
+  if (pricingCtaInput) pricingCtaInput.value = pricingPage.ctaText || "";
+  if (pricingFacebookInput) pricingFacebookInput.value = pricingPage.facebookUrl || "";
+}
+
 function renderGptSettings() {
   if (!gptSettingsBody) return;
   gptSettingsBody.innerHTML = "";
@@ -238,6 +259,13 @@ function startAdminConfigListeners() {
   const svc = getFirebaseServices();
   if (!svc) return;
 
+  if (!unsubscribePricingPage) {
+    unsubscribePricingPage = watchPricingPage((value) => {
+      pricingPage = value;
+      renderPricingPage();
+    });
+  }
+
   if (!unsubscribeAnnouncement) {
     unsubscribeAnnouncement = watchAnnouncement((value) => {
       announcement = value;
@@ -266,6 +294,10 @@ function stopAnalyticsListener() {
 }
 
 function stopAdminConfigListeners() {
+  if (unsubscribePricingPage) {
+    unsubscribePricingPage();
+    unsubscribePricingPage = null;
+  }
   if (unsubscribeAnnouncement) {
     unsubscribeAnnouncement();
     unsubscribeAnnouncement = null;
@@ -302,6 +334,27 @@ usersBody?.addEventListener("click", async (event) => {
     showToast(`บันทึกไม่สำเร็จ: ${error.message}`);
   } finally {
     button.disabled = false;
+  }
+});
+
+savePricingButton?.addEventListener("click", async () => {
+  if (!currentUser) return;
+  savePricingButton.disabled = true;
+  try {
+    await savePricingPage({
+      price: pricingPriceInput?.value,
+      headline: pricingHeadlineInput?.value,
+      description: pricingDescriptionInput?.value,
+      benefits: pricingBenefitsInput?.value,
+      ctaText: pricingCtaInput?.value,
+      facebookUrl: pricingFacebookInput?.value,
+      adminEmail: currentUser.email,
+    });
+    showToast("บันทึกหน้า Pricing แล้ว");
+  } catch (error) {
+    showToast(`บันทึกหน้า Pricing ไม่สำเร็จ: ${error.message}`);
+  } finally {
+    savePricingButton.disabled = false;
   }
 });
 

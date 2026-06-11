@@ -129,6 +129,34 @@
         border-bottom: 1px solid var(--line);
       }
 
+      .admin-head-menu {
+        position: sticky;
+        top: 0;
+        z-index: 8;
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(12, 17, 24, 0.96);
+        backdrop-filter: blur(12px);
+      }
+
+      .admin-head-menu a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 0 12px;
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.06);
+        font-size: 0.86rem;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
       .config-card {
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -144,6 +172,8 @@
       }
 
       .config-card textarea,
+      .config-card input[type="text"],
+      .config-card input[type="url"],
       .order-input {
         width: 100%;
         min-height: 42px;
@@ -158,6 +188,13 @@
       .config-card textarea {
         min-height: 86px;
         resize: vertical;
+      }
+
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        gap: 10px;
+        margin-bottom: 10px;
       }
 
       .order-input {
@@ -305,6 +342,10 @@
         .stats-grid {
           grid-template-columns: 1fr;
         }
+
+        .pricing-grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -337,8 +378,30 @@
       <div id="adminMessage" class="system-note show">กำลังตรวจสอบสิทธิ์ Admin...</div>
 
       <section class="panel" id="adminPanel" hidden>
+        <nav class="admin-head-menu" aria-label="Admin menu">
+          <a href="#membersSection">สมาชิก</a>
+          <a href="#pricingSection">Pricing</a>
+          <a href="#announcementSection">ประกาศ</a>
+          <a href="#gptDisplaySection">GPT Display</a>
+          <a href="#analyticsSection">Analytics</a>
+        </nav>
         <div class="admin-config">
-          <section class="config-card">
+          <section class="config-card" id="pricingSection">
+            <p class="section-title">Pricing Page</p>
+            <div class="pricing-grid">
+              <input id="pricingPriceInput" type="text" placeholder="390" />
+              <input id="pricingHeadlineInput" type="text" placeholder="หัวข้อหน้า pricing" />
+            </div>
+            <textarea id="pricingDescriptionInput" placeholder="คำโปรโมทการขายและความคุ้ม"></textarea>
+            <textarea id="pricingBenefitsInput" placeholder="รายการ benefit บรรทัดละ 1 ข้อ"></textarea>
+            <div class="pricing-grid">
+              <input id="pricingCtaInput" type="text" placeholder="สมัครผ่าน Inbox Fanpage" />
+              <input id="pricingFacebookInput" type="url" placeholder="https://www.facebook.com/AiCreativesN/" />
+            </div>
+            <button class="primary-button" id="savePricingButton" type="button">บันทึกหน้า Pricing</button>
+          </section>
+
+          <section class="config-card" id="announcementSection">
             <p class="section-title">Announcement</p>
             <label class="config-row">
               <input id="announcementEnabled" type="checkbox" />
@@ -348,7 +411,7 @@
             <button class="primary-button" id="saveAnnouncementButton" type="button">บันทึกประกาศ</button>
           </section>
 
-          <section class="config-card">
+          <section class="config-card" id="gptDisplaySection">
             <p class="section-title">GPT Display</p>
             <div class="table-wrap">
               <table>
@@ -365,7 +428,7 @@
             </div>
           </section>
         </div>
-        <div class="analytics-section">
+        <div class="analytics-section" id="analyticsSection">
           <p class="section-title">Analytics</p>
           <div class="stats-grid">
             <div class="stat-card">
@@ -396,7 +459,7 @@
             </table>
           </div>
         </div>
-        <div class="toolbar">
+        <div class="toolbar" id="membersSection">
           <input id="userSearch" type="search" placeholder="ค้นหา Gmail หรือชื่อผู้ใช้" />
           <a class="ghost-button" href="index.html#links">กลับไปหน้า GPT Hub</a>
         </div>

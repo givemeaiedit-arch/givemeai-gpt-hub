@@ -2,6 +2,26 @@
   display: none !important;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  animation: pageIn 0.42s ease both;
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .auth-panel {
   display: flex;
   align-items: center;
@@ -278,5 +298,15 @@
 
   .member-lock span {
     max-width: 260px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    animation: none;
   }
 }

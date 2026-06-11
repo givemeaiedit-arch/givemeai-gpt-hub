@@ -88,6 +88,31 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /sitePages/{pageId} {
+      allow get, list: if true;
+      allow create, update: if isAdmin()
+        && pageId == "pricing"
+        && request.resource.data.keys().hasOnly([
+          "price",
+          "headline",
+          "description",
+          "benefits",
+          "ctaText",
+          "facebookUrl",
+          "updatedAt",
+          "updatedBy"
+        ])
+        && request.resource.data.price is string
+        && request.resource.data.headline is string
+        && request.resource.data.description is string
+        && request.resource.data.benefits is list
+        && request.resource.data.ctaText is string
+        && request.resource.data.facebookUrl is string
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.token.email;
+      allow delete: if false;
+    }
+
     match /analyticsEvents/{eventId} {
       allow get, list: if isAdmin();
       allow create: if request.resource.data.keys().hasOnly([

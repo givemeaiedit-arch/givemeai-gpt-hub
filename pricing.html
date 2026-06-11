@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>รายละเอียดการสมัครใช้งาน | GivemeAI GPT Hub</title>
+    <title>สมัครสมาชิก 390 บาท | GivemeAI GPT Hub</title>
     <link rel="icon" href="assets/favicon.png" />
     <link rel="stylesheet" href="styles-auth.css" />
     <style>
@@ -28,7 +28,8 @@
         margin: 0;
         min-height: 100vh;
         background:
-          radial-gradient(circle at 18% 16%, rgba(255, 138, 0, 0.2), transparent 28rem),
+          radial-gradient(circle at 16% 14%, rgba(255, 138, 0, 0.22), transparent 28rem),
+          radial-gradient(circle at 84% 18%, rgba(56, 214, 199, 0.12), transparent 24rem),
           linear-gradient(135deg, #090d12 0%, #101822 48%, #090d12 100%);
         color: var(--text);
         font-family:
@@ -42,7 +43,7 @@
       }
 
       .shell {
-        width: min(980px, calc(100% - 32px));
+        width: min(1080px, calc(100% - 32px));
         margin: 0 auto;
         padding: 28px 0 48px;
       }
@@ -76,7 +77,8 @@
         border: 1px solid var(--line);
         border-radius: 8px;
         padding: 0 14px;
-        font-weight: 800;
+        font-weight: 850;
+        cursor: pointer;
       }
 
       .ghost-button {
@@ -91,98 +93,114 @@
 
       .hero {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 320px;
+        grid-template-columns: minmax(0, 1fr) 360px;
         gap: 28px;
-        align-items: center;
-        margin-top: 48px;
+        align-items: stretch;
+        margin-top: 42px;
+      }
+
+      .eyebrow {
+        color: var(--teal);
+        font-weight: 900;
+        margin: 0 0 12px;
       }
 
       h1 {
         margin: 0;
-        font-size: clamp(2.4rem, 7vw, 5rem);
-        line-height: 0.98;
+        font-size: clamp(2.3rem, 6vw, 5rem);
+        line-height: 1;
       }
 
       .lead {
         color: #d5dde7;
         font-size: 1.08rem;
-        line-height: 1.7;
+        line-height: 1.75;
         margin: 18px 0 0;
       }
 
-      .panel {
+      .price-card,
+      .panel,
+      .step {
         border: 1px solid var(--line);
         border-radius: 8px;
         background: var(--panel);
         box-shadow: var(--shadow);
+      }
+
+      .price-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
         padding: 22px;
       }
 
-      .panel img {
-        width: 100%;
-        border-radius: 8px;
-        display: block;
+      .price-label {
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-weight: 850;
+      }
+
+      .price {
+        margin: 10px 0;
+        color: var(--gold);
+        font-size: clamp(3.4rem, 10vw, 5.5rem);
+        font-weight: 950;
+        line-height: 0.9;
+      }
+
+      .price small {
+        color: var(--muted);
+        font-size: 1rem;
+      }
+
+      .actions {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        margin-top: 24px;
+      }
+
+      .benefits {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 30px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .panel h2,
+      .step b {
+        margin: 0 0 10px;
+        color: var(--gold);
+      }
+
+      .panel ul,
+      .panel ol {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .panel li,
+      .step p,
+      .fineprint {
+        color: #d5dde7;
+        line-height: 1.65;
       }
 
       .steps {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 14px;
-        margin-top: 30px;
-      }
-
-      .step {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.06);
-        padding: 16px;
-      }
-
-      .step b {
-        display: block;
-        color: var(--gold);
-        margin-bottom: 8px;
-      }
-
-      .step p,
-      .fineprint {
-        color: var(--muted);
-        line-height: 1.6;
-      }
-
-      .actions {
-        justify-content: flex-start;
-        margin-top: 24px;
-        flex-wrap: wrap;
-      }
-
-      .contact-panel {
-        margin-top: 26px;
-        border: 1px solid rgba(255, 138, 0, 0.34);
-        border-radius: 8px;
-        background: rgba(255, 138, 0, 0.1);
-        padding: 18px;
-      }
-
-      .contact-panel h2 {
-        margin: 0 0 8px;
-        font-size: 1.1rem;
-      }
-
-      .contact-panel p {
-        margin: 0;
-        color: #ffe5ba;
-        line-height: 1.65;
-      }
-
-      .contact-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
         margin-top: 14px;
       }
 
-      @media (max-width: 760px) {
+      .step {
+        padding: 16px;
+      }
+
+      @media (max-width: 780px) {
         .topbar,
         .hero {
           grid-template-columns: 1fr;
@@ -190,8 +208,16 @@
           align-items: flex-start;
         }
 
+        .benefits,
         .steps {
           grid-template-columns: 1fr;
+        }
+
+        .auth-panel,
+        .actions,
+        .ghost-button,
+        .primary-button {
+          width: 100%;
         }
       }
     </style>
@@ -219,54 +245,83 @@
 
       <section class="hero">
         <div>
-          <p style="color: var(--teal); font-weight: 900; margin: 0 0 12px">MEMBER ACCESS</p>
-          <h1>รายละเอียดการสมัครใช้งาน</h1>
-          <p class="lead">
-            เครื่องมือสมาชิกจะเปิดให้ใช้งานหลังเข้าสู่ระบบด้วย Gmail และได้รับการอนุมัติจาก Admin
-            ระบบนี้ยังไม่มีการชำระเงินอัตโนมัติในเวอร์ชันแรก
+          <p class="eyebrow">MEMBER ACCESS</p>
+          <h1 id="pricingHeadline">ปลดล็อก GPT สมาชิก ในราคา 390 บาท</h1>
+          <p class="lead" id="pricingDescription">
+            จ่ายครั้งเดียว/แพ็กสมาชิกตามที่ Admin อนุมัติ ได้เข้าถึง GPT สมาชิกสำหรับงานโฆษณา ภาพโปรโมท วิเคราะห์ครีเอทีฟ และงาน BOQ พร้อมอัปเดตเครื่องมือและคำแนะนำใหม่ต่อเนื่อง คุ้มกว่าการเสียเวลาคิดงานเองหลายชั่วโมง
           </p>
           <div class="actions">
-            <button class="primary-button" id="pricingLoginButton" type="button">เข้าสู่ระบบด้วย Google</button>
-            <a class="ghost-button" href="index.html#links">กลับไปหน้า GPT Hub</a>
+            <a class="primary-button" id="facebookCta" href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">สมัครผ่าน Inbox Fanpage</a>
+            <button class="ghost-button" id="pricingLoginButton" type="button">Login Gmail เพื่อรออนุมัติ</button>
+            <a class="ghost-button" href="index.html#links">กลับหน้า GPT Hub</a>
           </div>
-          <p class="fineprint">Admin ผู้อนุมัติ: Givemeai.edit@gmail.com</p>
-          <div class="contact-panel">
-            <h2>สมัครใช้งาน GPT สมาชิก</h2>
-            <p>
-              หลังเข้าสู่ระบบด้วย Google บัญชีจะขึ้นสถานะ pending กรุณาส่งอีเมลถึง Admin
-              เพื่อแจ้ง Gmail ที่ใช้สมัคร แล้วรอการอนุมัติจากหลังบ้าน
-            </p>
-            <div class="contact-actions">
-              <a class="primary-button" id="emailAdminButton" href="mailto:Givemeai.edit@gmail.com?subject=สมัครใช้งาน%20GivemeAI%20GPT%20Hub&body=สวัสดีครับ/ค่ะ%20ต้องการสมัครใช้งาน%20GivemeAI%20GPT%20Hub%0A%0AGmail%20ที่ใช้เข้าสู่ระบบ:%20">ส่ง Email ถึง Admin</a>
-              <button class="ghost-button" id="copyAdminEmailButton" type="button">คัดลอก Email Admin</button>
-            </div>
+          <p class="fineprint">สมัครผ่าน Inbox Fanpage “Ai ภาพนี้ให้หน่อย” แล้วแจ้ง Gmail ที่ใช้ login เพื่อให้ Admin อนุมัติสิทธิ์</p>
+        </div>
+
+        <aside class="price-card">
+          <div>
+            <div class="price-label">ราคาเริ่มต้น</div>
+            <div class="price"><span id="pricingPrice">390</span><small> บาท</small></div>
+            <p class="fineprint">เหมาะสำหรับคนที่ต้องใช้ GPT ช่วยทำงานจริง ลดเวลาคิดงานซ้ำ และได้ใช้เครื่องมือที่มีอัปเดตต่อเนื่อง</p>
           </div>
+          <img src="assets/hero-gpt-hub.jpg" alt="GivemeAI GPT Hub" style="width: 100%; border-radius: 8px; margin-top: 18px" />
+        </aside>
+      </section>
+
+      <section class="benefits">
+        <div class="panel">
+          <h2>ได้อะไรบ้าง</h2>
+          <ul id="pricingBenefits"></ul>
         </div>
         <div class="panel">
-          <img src="assets/hero-gpt-hub.jpg" alt="GivemeAI GPT Hub" />
+          <h2>เหมาะกับใคร</h2>
+          <ul>
+            <li>เจ้าของธุรกิจที่ต้องทำภาพขายและคอนเทนต์เอง</li>
+            <li>คนยิงแอดที่ต้องการไอเดียและ creative signal เร็วขึ้น</li>
+            <li>ครีเอเตอร์หรือทีมงานที่ต้องผลิตภาพโปรโมทบ่อย</li>
+            <li>คนทำงาน BOQ ที่อยากให้ AI ช่วยจัดข้อมูลเบื้องต้น</li>
+          </ul>
         </div>
       </section>
 
       <section class="steps" aria-label="ขั้นตอนสมัคร">
         <div class="step">
-          <b>1. Login Gmail</b>
-          <p>เข้าสู่ระบบด้วยบัญชี Google/Gmail ที่ต้องการใช้เข้าเครื่องมือสมาชิก</p>
+          <b>1. Inbox Fanpage</b>
+          <p>กดปุ่มสมัครผ่าน Inbox Fanpage “Ai ภาพนี้ให้หน่อย” แล้วแจ้งว่าต้องการสมัคร GivemeAI GPT Hub</p>
         </div>
         <div class="step">
-          <b>2. รออนุมัติ</b>
-          <p>บัญชีใหม่จะเป็นสถานะ pending จนกว่า Admin จะอนุมัติในหลังบ้าน</p>
+          <b>2. Login Gmail</b>
+          <p>เข้าสู่ระบบด้วย Gmail ที่ต้องการใช้ ระบบจะขึ้นสถานะ pending เพื่อรอ Admin อนุมัติ</p>
         </div>
         <div class="step">
           <b>3. ปลดล็อก GPT</b>
-          <p>หลังอนุมัติแล้ว การ์ดสมาชิกจะปลดล็อกและเปิดลิงก์ GPT ได้ทันที</p>
+          <p>หลัง Admin อนุมัติ การ์ด GPT สมาชิกจะปลดล็อก และใช้งานลิงก์ GPT ได้ทันที</p>
         </div>
       </section>
     </main>
-    <div class="toast" id="toast" role="status" aria-live="polite">คัดลอกลิงก์แล้ว</div>
+    <div class="toast" id="toast" role="status" aria-live="polite">บันทึกแล้ว</div>
     <script type="module" src="app.js"></script>
     <script type="module">
       import { signInWithGoogle } from "./auth-shared.js";
       import { trackEvent } from "./analytics.js";
+      import { watchPricingPage } from "./hub-state.js";
+
+      const headline = document.querySelector("#pricingHeadline");
+      const description = document.querySelector("#pricingDescription");
+      const price = document.querySelector("#pricingPrice");
+      const benefits = document.querySelector("#pricingBenefits");
+      const facebookCta = document.querySelector("#facebookCta");
+
+      function renderPricing(page) {
+        headline.textContent = page.headline;
+        description.textContent = page.description;
+        price.textContent = page.price;
+        facebookCta.href = page.facebookUrl;
+        facebookCta.textContent = page.ctaText;
+        benefits.innerHTML = page.benefits.map((item) => `<li>${item}</li>`).join("");
+      }
+
+      watchPricingPage(renderPricing);
 
       document.querySelector("#pricingLoginButton")?.addEventListener("click", async () => {
         trackEvent("signup_cta", "");
@@ -277,25 +332,8 @@
         }
       });
 
-      document.querySelector("#emailAdminButton")?.addEventListener("click", () => {
+      facebookCta?.addEventListener("click", () => {
         trackEvent("signup_cta", "");
-      });
-
-      document.querySelector("#copyAdminEmailButton")?.addEventListener("click", async () => {
-        trackEvent("signup_cta", "");
-        try {
-          await navigator.clipboard.writeText("Givemeai.edit@gmail.com");
-        } catch {
-          const temp = document.createElement("textarea");
-          temp.value = "Givemeai.edit@gmail.com";
-          document.body.appendChild(temp);
-          temp.select();
-          document.execCommand("copy");
-          temp.remove();
-        }
-        document.querySelector("#toast").textContent = "คัดลอก Email Admin แล้ว";
-        document.querySelector("#toast").classList.add("show");
-        window.setTimeout(() => document.querySelector("#toast").classList.remove("show"), 1600);
       });
     </script>
   </body>

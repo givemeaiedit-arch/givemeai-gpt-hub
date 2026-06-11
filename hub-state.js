@@ -56,6 +56,45 @@ export function watchFavorites(uid, callback) {
   );
 }
 
+export const DEFAULT_PRICING_PAGE = {
+  price: "390",
+  headline: "ปลดล็อก GPT สมาชิก ในราคา 390 บาท",
+  description:
+    "จ่ายครั้งเดียว/แพ็กสมาชิกตามที่ Admin อนุมัติ ได้เข้าถึง GPT สมาชิกสำหรับงานโฆษณา ภาพโปรโมท วิเคราะห์ครีเอทีฟ และงาน BOQ พร้อมอัปเดตเครื่องมือและคำแนะนำใหม่ต่อเนื่อง คุ้มกว่าการเสียเวลาคิดงานเองหลายชั่วโมง",
+  benefits: [
+    "ใช้ GPT สมาชิกหลายตัวในหน้าเดียว ทั้งงาน Ads, Image และ BOQ",
+    "ช่วยคิดงานเร็วขึ้น ลดเวลาลองผิดลองถูก และต่อยอดงานขายได้ทันที",
+    "มีการอัปเดต GPT และคำแนะนำการใช้งานต่อเนื่อง",
+    "เหมาะกับเจ้าของธุรกิจ คนยิงแอด ครีเอเตอร์ และทีมที่ต้องทำภาพขายบ่อย",
+  ],
+  ctaText: "สมัครผ่าน Inbox Fanpage",
+  facebookUrl: "https://www.facebook.com/AiCreativesN/",
+};
+
+export function normalizePricingPage(data = {}) {
+  return {
+    ...DEFAULT_PRICING_PAGE,
+    ...data,
+    benefits: Array.isArray(data.benefits) && data.benefits.length
+      ? data.benefits
+      : DEFAULT_PRICING_PAGE.benefits,
+  };
+}
+
+export function watchPricingPage(callback) {
+  const svc = getFirebaseServices();
+  if (!svc) {
+    callback(DEFAULT_PRICING_PAGE);
+    return () => {};
+  }
+
+  return onSnapshot(
+    doc(svc.db, "sitePages", "pricing"),
+    (snapshot) => callback(normalizePricingPage(snapshot.exists() ? snapshot.data() : {})),
+    () => callback(DEFAULT_PRICING_PAGE),
+  );
+}
+
 export async function saveAnnouncement({ enabled, message, adminEmail }) {
   const svc = getFirebaseServices();
   if (!svc) throw new Error("Firebase is not configured.");
@@ -84,6 +123,29 @@ export async function saveGptSetting(gptId, { order, visible, adminEmail }) {
   );
 }
 
+export async function savePricingPage({ price, headline, description, benefits, ctaText, facebookUrl, adminEmail }) {
+  const svc = getFirebaseServices();
+  if (!svc) throw new Error("Firebase is not configured.");
+
+  const benefitList = Array.isArray(benefits)
+    ? benefits
+    : String(benefits || "")
+        .split("\n")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+  await setDoc(doc(svc.db, "sitePages", "pricing"), {
+    price: String(price || DEFAULT_PRICING_PAGE.price).trim(),
+    headline: String(headline || DEFAULT_PRICING_PAGE.headline).trim(),
+    description: String(description || DEFAULT_PRICING_PAGE.description).trim(),
+    benefits: benefitList.length ? benefitList : DEFAULT_PRICING_PAGE.benefits,
+    ctaText: String(ctaText || DEFAULT_PRICING_PAGE.ctaText).trim(),
+    facebookUrl: String(facebookUrl || DEFAULT_PRICING_PAGE.facebookUrl).trim(),
+    updatedAt: serverTimestamp(),
+    updatedBy: adminEmail || "",
+  });
+}
+
 export async function setFavorite(uid, gptId, enabled) {
   const svc = getFirebaseServices();
   if (!svc || !uid || !gptId) return;
@@ -99,4 +161,3 @@ export async function setFavorite(uid, gptId, enabled) {
 
   await deleteDoc(ref);
 }
-
