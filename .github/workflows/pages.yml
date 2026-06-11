@@ -28,8 +28,8 @@ jobs:
         run: |
           mkdir -p dist
           cp -r assets dist/assets
-          cp index.html pricing.html admin.html dist/
-          cp app.js admin.js auth-shared.js firebase-config.js styles-auth.css dist/
+          cp index.html pricing.html admin.html detail.html dist/
+          cp app.js admin.js auth-shared.js firebase-config.js styles-auth.css analytics.js gpt-data.js dist/
           touch dist/.nojekyll
 
       - name: Setup Pages
