@@ -44,5 +44,26 @@ service cloud.firestore {
       allow update: if isAdmin() || (isOwner(uid) && validOwnUpdate());
       allow delete: if false;
     }
+
+    match /analyticsEvents/{eventId} {
+      allow get, list: if isAdmin();
+      allow create: if request.resource.data.keys().hasOnly([
+          "type",
+          "gptId",
+          "path",
+          "createdAt"
+        ])
+        && request.resource.data.type in [
+          "gpt_open",
+          "copy_link",
+          "locked_click",
+          "detail_view",
+          "signup_cta"
+        ]
+        && request.resource.data.gptId is string
+        && request.resource.data.path is string
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
   }
 }

@@ -6,6 +6,7 @@ import {
   signOutUser,
   watchAuth,
 } from "./auth-shared.js";
+import { trackEvent } from "./analytics.js";
 
 const loginButton = document.querySelector("#loginButton");
 const logoutButton = document.querySelector("#logoutButton");
@@ -53,6 +54,51 @@ function setSystemNote(message) {
   if (!note) return;
   note.textContent = message || "";
   note.classList.toggle("show", Boolean(message));
+}
+
+function ensureMemberStatus() {
+  let status = document.querySelector("#memberStatus");
+  if (status) return status;
+
+  status = document.createElement("div");
+  status.id = "memberStatus";
+  status.className = "member-status";
+  const toolbar = document.querySelector(".toolbar");
+  toolbar?.insertAdjacentElement("afterend", status);
+  return status;
+}
+
+function setMemberStatus(user, profile, approved) {
+  const status = ensureMemberStatus();
+  if (!status) return;
+
+  status.hidden = !user;
+  if (!user) {
+    status.textContent = "";
+    status.className = "member-status";
+    return;
+  }
+
+  if (isAdminEmail(user.email)) {
+    status.className = "member-status approved";
+    status.textContent = "Admin - ปลดล็อกทุก GPT แล้ว";
+    return;
+  }
+
+  if (approved) {
+    status.className = "member-status approved";
+    status.textContent = "อนุมัติแล้ว - ใช้งาน GPT สมาชิกได้";
+    return;
+  }
+
+  if (profile?.status === "revoked") {
+    status.className = "member-status revoked";
+    status.innerHTML = `ถูกปิดสิทธิ์ - ติดต่อ Admin <a href="mailto:${ADMIN_EMAIL}">${ADMIN_EMAIL}</a>`;
+    return;
+  }
+
+  status.className = "member-status pending";
+  status.innerHTML = `รออนุมัติจาก Admin - ติดต่อ Email เพื่อสมัคร <a href="mailto:${ADMIN_EMAIL}">${ADMIN_EMAIL}</a>`;
 }
 
 function ensureLockOverlay(card) {
@@ -129,6 +175,7 @@ function updateAuthUi(user, profile) {
   }
 
   setProtectedAccess(approved);
+  setMemberStatus(user, profile, approved);
 }
 
 prepareProtectedCards();
@@ -139,7 +186,24 @@ protectedCards.forEach((card) => {
   link?.addEventListener("click", (event) => {
     if (!card.classList.contains("is-locked")) return;
     event.preventDefault();
+    trackEvent("locked_click", card.dataset.gptId || "");
     window.location.href = "pricing.html";
+  });
+});
+
+document.querySelectorAll(".card .primary-button").forEach((link) => {
+  link.addEventListener("click", () => {
+    const card = link.closest(".card");
+    if (!card || card.classList.contains("is-locked")) return;
+    trackEvent("gpt_open", card.dataset.gptId || "");
+  });
+});
+
+document.querySelectorAll(".card .copy-button").forEach((button) => {
+  button.addEventListener("click", () => {
+    if (!button.dataset.copy) return;
+    const card = button.closest(".card");
+    trackEvent("copy_link", card?.dataset.gptId || "");
   });
 });
 

@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>รายละเอียด GPT | GivemeAI GPT Hub</title>
+    <link rel="icon" href="assets/favicon.png" />
+    <link rel="stylesheet" href="styles-auth.css" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #090d12;
+        --panel: rgba(18, 23, 31, 0.86);
+        --text: #f7fafc;
+        --muted: #a8b3c2;
+        --line: rgba(255, 255, 255, 0.12);
+        --orange: #ff8a00;
+        --gold: #ffd166;
+        --teal: #38d6c7;
+        --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 18% 16%, rgba(255, 138, 0, 0.2), transparent 28rem),
+          radial-gradient(circle at 82% 18%, rgba(56, 214, 199, 0.12), transparent 22rem),
+          linear-gradient(135deg, #090d12 0%, #101822 48%, #090d12 100%);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "Noto Sans Thai", Arial, sans-serif;
+        letter-spacing: 0;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .shell {
+        width: min(1080px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .topbar,
+      .top-actions,
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .topbar {
+        justify-content: space-between;
+        margin-bottom: 34px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand img {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+      }
+
+      .ghost-button,
+      .primary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 14px;
+        font-weight: 800;
+      }
+
+      .ghost-button {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .primary-button {
+        border-color: transparent;
+        background: linear-gradient(135deg, var(--orange), #ffb020);
+        color: #160c00;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 24px;
+        align-items: start;
+      }
+
+      .hero-image,
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .hero-image {
+        overflow: hidden;
+      }
+
+      .hero-image img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+      }
+
+      .panel {
+        padding: 22px;
+      }
+
+      .tag {
+        display: inline-flex;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 999px;
+        color: var(--gold);
+        font-weight: 850;
+        font-size: 0.78rem;
+        padding: 6px 10px;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.2rem, 6vw, 4.8rem);
+        line-height: 1;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 1.05rem;
+      }
+
+      .lead,
+      li {
+        color: #d5dde7;
+        line-height: 1.65;
+      }
+
+      .lead {
+        margin: 18px 0 0;
+        font-size: 1.04rem;
+      }
+
+      .sections {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 22px;
+      }
+
+      .sections .panel:last-child {
+        grid-column: 1 / -1;
+      }
+
+      ul,
+      ol {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .actions {
+        flex-wrap: wrap;
+        margin-top: 24px;
+      }
+
+      .locked-note {
+        margin-top: 14px;
+        color: #ffe5ba;
+        line-height: 1.55;
+      }
+
+      .not-found {
+        text-align: center;
+        padding: 80px 0;
+      }
+
+      @media (max-width: 780px) {
+        .topbar,
+        .layout {
+          grid-template-columns: 1fr;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .top-actions,
+        .actions {
+          width: 100%;
+        }
+
+        .ghost-button,
+        .primary-button {
+          width: 100%;
+        }
+
+        .sections {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="index.html">
+          <img src="assets/favicon.png" alt="GivemeAI" />
+          <strong>GivemeAI GPT Hub</strong>
+        </a>
+        <div class="top-actions">
+          <a class="ghost-button" href="index.html#links">กลับหน้า GPT Hub</a>
+          <a class="ghost-button" href="pricing.html">รายละเอียดการสมัคร</a>
+        </div>
+      </header>
+
+      <section id="notFound" class="not-found" hidden>
+        <p class="tag">NOT FOUND</p>
+        <h1>ไม่พบ GPT นี้</h1>
+        <p class="lead">ลิงก์รายละเอียดนี้อาจพิมพ์ผิด หรือ GPT ถูกย้ายออกจากระบบ</p>
+        <div class="actions" style="justify-content: center">
+          <a class="primary-button" href="index.html#links">กลับไปหน้าแรก</a>
+        </div>
+      </section>
+
+      <section id="detailView" class="layout" hidden>
+        <article>
+          <span class="tag" id="gptTag"></span>
+          <h1 id="gptTitle"></h1>
+          <p class="lead" id="gptDescription"></p>
+          <div class="actions">
+            <a class="primary-button" id="openGptButton" href="#" target="_blank" rel="noopener">เปิด GPT</a>
+            <a class="ghost-button" href="index.html#links">ดู GPT ทั้งหมด</a>
+          </div>
+          <p class="locked-note" id="lockedNote" hidden>
+            GPT นี้สำหรับสมาชิกที่ได้รับอนุมัติแล้ว กรุณาเข้าสู่ระบบและติดต่อ Admin เพื่อสมัครใช้งาน
+          </p>
+
+          <div class="sections">
+            <section class="panel">
+              <h2>ประโยชน์หลัก</h2>
+              <ul id="benefitsList"></ul>
+            </section>
+            <section class="panel">
+              <h2>เหมาะกับใคร</h2>
+              <ul id="audienceList"></ul>
+            </section>
+            <section class="panel">
+              <h2>วิธีใช้ 3 ขั้น</h2>
+              <ol id="stepsList"></ol>
+            </section>
+            <section class="panel">
+              <h2>ตัวอย่างข้อมูลที่ควรใส่</h2>
+              <ul id="examplesList"></ul>
+            </section>
+          </div>
+        </article>
+        <aside class="hero-image">
+          <img id="gptImage" alt="" />
+        </aside>
+      </section>
+    </main>
+
+    <script type="module">
+      import { getGptById } from "./gpt-data.js";
+      import { trackEvent } from "./analytics.js";
+      import { isAdminEmail, watchAuth } from "./auth-shared.js";
+
+      const params = new URLSearchParams(window.location.search);
+      const gpt = getGptById(params.get("id"));
+      const notFound = document.querySelector("#notFound");
+      const detailView = document.querySelector("#detailView");
+      const openButton = document.querySelector("#openGptButton");
+      const lockedNote = document.querySelector("#lockedNote");
+
+      function fillList(selector, items) {
+        document.querySelector(selector).innerHTML = items.map((item) => `<li>${item}</li>`).join("");
+      }
+
+      function setAccess(user, profile) {
+        const approved = Boolean(user && (isAdminEmail(user.email) || profile?.status === "approved"));
+        const locked = Boolean(gpt?.protected && !approved);
+        lockedNote.hidden = !locked;
+        openButton.href = locked ? "pricing.html" : gpt.url;
+        openButton.target = locked ? "_self" : "_blank";
+        openButton.rel = locked ? "" : "noopener";
+        openButton.textContent = locked ? "ดูรายละเอียดการสมัคร" : "เปิด GPT";
+      }
+
+      if (!gpt) {
+        notFound.hidden = false;
+      } else {
+        document.title = `${gpt.title} | GivemeAI GPT Hub`;
+        document.querySelector("#gptTag").textContent = gpt.tag;
+        document.querySelector("#gptTitle").textContent = gpt.title;
+        document.querySelector("#gptDescription").textContent = gpt.description;
+        document.querySelector("#gptImage").src = gpt.image;
+        document.querySelector("#gptImage").alt = gpt.title;
+        fillList("#benefitsList", gpt.details.benefits);
+        fillList("#audienceList", gpt.details.audience);
+        fillList("#stepsList", gpt.details.steps);
+        fillList("#examplesList", gpt.details.examples);
+        detailView.hidden = false;
+        setAccess(null, null);
+        trackEvent("detail_view", gpt.id);
+
+        openButton.addEventListener("click", (event) => {
+          if (openButton.href.endsWith("pricing.html")) {
+            trackEvent("locked_click", gpt.id);
+            return;
+          }
+          trackEvent("gpt_open", gpt.id);
+        });
+
+        watchAuth(({ user, profile }) => setAccess(user, profile));
+      }
+    </script>
+  </body>
+</html>

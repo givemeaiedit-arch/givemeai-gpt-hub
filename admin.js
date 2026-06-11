@@ -12,6 +12,7 @@ import {
   signOutUser,
   watchAuth,
 } from "./auth-shared.js";
+import { GPTS, GPTS_BY_ID } from "./gpt-data.js";
 
 const loginButton = document.querySelector("#loginButton");
 const logoutButton = document.querySelector("#logoutButton");
@@ -25,10 +26,16 @@ const usersBody = document.querySelector("#usersBody");
 const emptyState = document.querySelector("#emptyState");
 const userSearch = document.querySelector("#userSearch");
 const toast = document.querySelector("#toast");
+const totalOpenCount = document.querySelector("#totalOpenCount");
+const signupCtaCount = document.querySelector("#signupCtaCount");
+const lockedClickCount = document.querySelector("#lockedClickCount");
+const analyticsBody = document.querySelector("#analyticsBody");
 
 let currentUser = null;
 let users = [];
+let analyticsEvents = [];
 let unsubscribeUsers = null;
+let unsubscribeAnalytics = null;
 
 function showToast(message) {
   if (!toast) return;
@@ -102,6 +109,55 @@ function renderUsers() {
   }
 }
 
+function renderAnalytics() {
+  if (!analyticsBody) return;
+
+  const counts = Object.fromEntries(
+    GPTS.map((gpt) => [
+      gpt.id,
+      {
+        gpt_open: 0,
+        copy_link: 0,
+        detail_view: 0,
+        locked_click: 0,
+      },
+    ]),
+  );
+  const totals = {
+    gpt_open: 0,
+    signup_cta: 0,
+    locked_click: 0,
+  };
+
+  for (const event of analyticsEvents) {
+    if (event.type in totals) totals[event.type] += 1;
+    if (event.gptId && counts[event.gptId] && event.type in counts[event.gptId]) {
+      counts[event.gptId][event.type] += 1;
+    }
+  }
+
+  totalOpenCount.textContent = totals.gpt_open;
+  signupCtaCount.textContent = totals.signup_cta;
+  lockedClickCount.textContent = totals.locked_click;
+  analyticsBody.innerHTML = "";
+
+  for (const gpt of GPTS) {
+    const row = counts[gpt.id];
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <strong>${GPTS_BY_ID[gpt.id]?.title || gpt.id}</strong>
+        <small>${gpt.id}</small>
+      </td>
+      <td>${row.gpt_open}</td>
+      <td>${row.copy_link}</td>
+      <td>${row.detail_view}</td>
+      <td>${row.locked_click}</td>
+    `;
+    analyticsBody.appendChild(tr);
+  }
+}
+
 function startUsersListener() {
   if (unsubscribeUsers) return;
   const svc = getFirebaseServices();
@@ -119,10 +175,33 @@ function startUsersListener() {
   );
 }
 
+function startAnalyticsListener() {
+  if (unsubscribeAnalytics) return;
+  const svc = getFirebaseServices();
+  if (!svc) return;
+
+  unsubscribeAnalytics = onSnapshot(
+    collection(svc.db, "analyticsEvents"),
+    (snapshot) => {
+      analyticsEvents = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+      renderAnalytics();
+    },
+    (error) => {
+      setMessage(`อ่านสถิติไม่สำเร็จ: ${error.message}`, true);
+    },
+  );
+}
+
 function stopUsersListener() {
   if (!unsubscribeUsers) return;
   unsubscribeUsers();
   unsubscribeUsers = null;
+}
+
+function stopAnalyticsListener() {
+  if (!unsubscribeAnalytics) return;
+  unsubscribeAnalytics();
+  unsubscribeAnalytics = null;
 }
 
 loginButton?.addEventListener("click", async () => {
@@ -167,6 +246,7 @@ if (!isFirebaseConfigured()) {
       adminPanel.hidden = true;
       setMessage(`ตรวจสอบสิทธิ์ไม่สำเร็จ: ${error.message}`, true);
       stopUsersListener();
+      stopAnalyticsListener();
       return;
     }
 
@@ -174,6 +254,7 @@ if (!isFirebaseConfigured()) {
       adminPanel.hidden = true;
       setMessage(`กรุณาเข้าสู่ระบบด้วย Gmail admin: ${ADMIN_EMAIL}`);
       stopUsersListener();
+      stopAnalyticsListener();
       return;
     }
 
@@ -181,11 +262,13 @@ if (!isFirebaseConfigured()) {
       adminPanel.hidden = true;
       setMessage("บัญชีนี้ไม่ใช่ Admin จึงไม่มีสิทธิ์ดูหรืออนุมัติผู้ใช้", true);
       stopUsersListener();
+      stopAnalyticsListener();
       return;
     }
 
     adminMessage.classList.remove("show");
     adminPanel.hidden = false;
     startUsersListener();
+    startAnalyticsListener();
   });
 }

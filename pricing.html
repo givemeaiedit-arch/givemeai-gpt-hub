@@ -156,6 +156,32 @@
         flex-wrap: wrap;
       }
 
+      .contact-panel {
+        margin-top: 26px;
+        border: 1px solid rgba(255, 138, 0, 0.34);
+        border-radius: 8px;
+        background: rgba(255, 138, 0, 0.1);
+        padding: 18px;
+      }
+
+      .contact-panel h2 {
+        margin: 0 0 8px;
+        font-size: 1.1rem;
+      }
+
+      .contact-panel p {
+        margin: 0;
+        color: #ffe5ba;
+        line-height: 1.65;
+      }
+
+      .contact-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
       @media (max-width: 760px) {
         .topbar,
         .hero {
@@ -204,6 +230,17 @@
             <a class="ghost-button" href="index.html#links">กลับไปหน้า GPT Hub</a>
           </div>
           <p class="fineprint">Admin ผู้อนุมัติ: Givemeai.edit@gmail.com</p>
+          <div class="contact-panel">
+            <h2>สมัครใช้งาน GPT สมาชิก</h2>
+            <p>
+              หลังเข้าสู่ระบบด้วย Google บัญชีจะขึ้นสถานะ pending กรุณาส่งอีเมลถึง Admin
+              เพื่อแจ้ง Gmail ที่ใช้สมัคร แล้วรอการอนุมัติจากหลังบ้าน
+            </p>
+            <div class="contact-actions">
+              <a class="primary-button" id="emailAdminButton" href="mailto:Givemeai.edit@gmail.com?subject=สมัครใช้งาน%20GivemeAI%20GPT%20Hub&body=สวัสดีครับ/ค่ะ%20ต้องการสมัครใช้งาน%20GivemeAI%20GPT%20Hub%0A%0AGmail%20ที่ใช้เข้าสู่ระบบ:%20">ส่ง Email ถึง Admin</a>
+              <button class="ghost-button" id="copyAdminEmailButton" type="button">คัดลอก Email Admin</button>
+            </div>
+          </div>
         </div>
         <div class="panel">
           <img src="assets/hero-gpt-hub.jpg" alt="GivemeAI GPT Hub" />
@@ -229,13 +266,36 @@
     <script type="module" src="app.js"></script>
     <script type="module">
       import { signInWithGoogle } from "./auth-shared.js";
+      import { trackEvent } from "./analytics.js";
 
       document.querySelector("#pricingLoginButton")?.addEventListener("click", async () => {
+        trackEvent("signup_cta", "");
         try {
           await signInWithGoogle();
         } catch {
           document.querySelector("#loginButton")?.click();
         }
+      });
+
+      document.querySelector("#emailAdminButton")?.addEventListener("click", () => {
+        trackEvent("signup_cta", "");
+      });
+
+      document.querySelector("#copyAdminEmailButton")?.addEventListener("click", async () => {
+        trackEvent("signup_cta", "");
+        try {
+          await navigator.clipboard.writeText("Givemeai.edit@gmail.com");
+        } catch {
+          const temp = document.createElement("textarea");
+          temp.value = "Givemeai.edit@gmail.com";
+          document.body.appendChild(temp);
+          temp.select();
+          document.execCommand("copy");
+          temp.remove();
+        }
+        document.querySelector("#toast").textContent = "คัดลอก Email Admin แล้ว";
+        document.querySelector("#toast").classList.add("show");
+        window.setTimeout(() => document.querySelector("#toast").classList.remove("show"), 1600);
       });
     </script>
   </body>

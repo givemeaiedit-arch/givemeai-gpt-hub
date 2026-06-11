@@ -117,6 +117,43 @@
         overflow: hidden;
       }
 
+      .analytics-section {
+        padding: 14px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .stat-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 14px;
+      }
+
+      .stat-card b {
+        display: block;
+        font-size: 1.55rem;
+      }
+
+      .stat-card span {
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      .section-title {
+        margin: 0 0 12px;
+        color: var(--gold);
+        font-size: 0.9rem;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
       .toolbar {
         display: flex;
         align-items: center;
@@ -217,6 +254,10 @@
           align-items: flex-start;
           flex-direction: column;
         }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -249,6 +290,37 @@
       <div id="adminMessage" class="system-note show">กำลังตรวจสอบสิทธิ์ Admin...</div>
 
       <section class="panel" id="adminPanel" hidden>
+        <div class="analytics-section">
+          <p class="section-title">Analytics</p>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <b id="totalOpenCount">0</b>
+              <span>ยอดเปิด GPT รวม</span>
+            </div>
+            <div class="stat-card">
+              <b id="signupCtaCount">0</b>
+              <span>ยอดคลิกลิงก์สมัคร</span>
+            </div>
+            <div class="stat-card">
+              <b id="lockedClickCount">0</b>
+              <span>ยอดคลิกการ์ดล็อก</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>GPT</th>
+                  <th>เปิด GPT</th>
+                  <th>คัดลอกลิงก์</th>
+                  <th>ดูรายละเอียด</th>
+                  <th>คลิกตอนล็อก</th>
+                </tr>
+              </thead>
+              <tbody id="analyticsBody"></tbody>
+            </table>
+          </div>
+        </div>
         <div class="toolbar">
           <input id="userSearch" type="search" placeholder="ค้นหา Gmail หรือชื่อผู้ใช้" />
           <a class="ghost-button" href="index.html#links">กลับไปหน้า GPT Hub</a>
