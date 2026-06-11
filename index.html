@@ -131,15 +131,14 @@
         display: grid;
         grid-template-columns: minmax(0, 0.82fr) minmax(420px, 1.18fr);
         gap: 28px;
-        align-items: stretch;
-        min-height: 480px;
+        align-items: center;
       }
 
       .hero-copy {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        padding: 28px 0;
+        padding: 12px 0;
       }
 
       .eyebrow {
@@ -168,7 +167,8 @@
       .hero-panel {
         position: relative;
         overflow: hidden;
-        min-height: 420px;
+        aspect-ratio: 2.5 / 1;
+        min-height: 0;
         border-radius: 8px;
         border: 1px solid var(--line);
         background: #111922;
@@ -380,7 +380,7 @@
         }
 
         .hero-panel {
-          min-height: 360px;
+          aspect-ratio: 2.5 / 1;
         }
       }
 
@@ -409,7 +409,7 @@
         }
 
         .hero-panel {
-          min-height: 280px;
+          aspect-ratio: 2.5 / 1;
         }
 
         .stats {
