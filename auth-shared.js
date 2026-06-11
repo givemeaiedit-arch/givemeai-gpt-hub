@@ -69,10 +69,27 @@ export function watchAuth(callback) {
       return;
     }
 
+    const admin = isAdminEmail(user.email);
+    if (admin) {
+      callback({
+        user,
+        profile: {
+          uid: user.uid,
+          email: user.email || ADMIN_EMAIL,
+          displayName: user.displayName || "",
+          photoURL: user.photoURL || "",
+          status: "approved",
+          approvedBy: ADMIN_EMAIL,
+        },
+        configured: true,
+      });
+    }
+
     try {
       const profile = await ensureUserRecord(user);
       callback({ user, profile, configured: true });
     } catch (error) {
+      if (admin) return;
       callback({ user, profile: null, configured: true, error });
     }
   });
