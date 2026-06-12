@@ -21,20 +21,20 @@ body::after {
 }
 
 body::before {
-  opacity: 0.5;
+  opacity: 0.82;
   background:
-    radial-gradient(circle at 76% 22%, rgba(34, 211, 238, 0.28), transparent 18rem),
-    radial-gradient(circle at 18% 22%, rgba(16, 185, 129, 0.22), transparent 24rem),
-    radial-gradient(circle at 54% 72%, rgba(59, 130, 246, 0.16), transparent 22rem),
-    radial-gradient(circle at 88% 78%, rgba(72, 255, 196, 0.14), transparent 18rem),
-    linear-gradient(115deg, transparent 0 30%, rgba(45, 212, 191, 0.08) 42%, transparent 56% 100%);
+    radial-gradient(circle at 78% 20%, rgba(34, 211, 238, 0.48) 0 4rem, rgba(34, 211, 238, 0.2) 12rem, transparent 25rem),
+    radial-gradient(circle at 18% 24%, rgba(16, 185, 129, 0.42) 0 5rem, rgba(16, 185, 129, 0.18) 14rem, transparent 28rem),
+    radial-gradient(circle at 54% 72%, rgba(59, 130, 246, 0.34) 0 5rem, rgba(59, 130, 246, 0.14) 15rem, transparent 27rem),
+    radial-gradient(circle at 88% 78%, rgba(72, 255, 196, 0.28) 0 4rem, rgba(72, 255, 196, 0.12) 12rem, transparent 22rem),
+    linear-gradient(115deg, transparent 0 28%, rgba(45, 212, 191, 0.14) 42%, transparent 58% 100%);
   background-size: 120% 120%, 115% 115%, 125% 125%, 110% 110%, 180% 180%;
   mix-blend-mode: screen;
   animation: backgroundSweep 16s ease-in-out infinite alternate, ambientPulse 5.8s ease-in-out infinite alternate;
 }
 
 body::after {
-  opacity: 0.26;
+  opacity: 0.34;
   background-image:
     linear-gradient(rgba(94, 234, 212, 0.055) 1px, transparent 1px),
     linear-gradient(90deg, rgba(94, 234, 212, 0.055) 1px, transparent 1px),
@@ -88,11 +88,11 @@ body::after {
 
 @keyframes ambientPulse {
   from {
-    filter: saturate(1) brightness(0.96);
+    filter: saturate(1.08) brightness(1);
   }
 
   to {
-    filter: saturate(1.45) brightness(1.22);
+    filter: saturate(1.8) brightness(1.42);
   }
 }
 
