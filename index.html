@@ -283,6 +283,64 @@
         display: block;
       }
 
+      .coming-card {
+        border-style: dashed;
+        background:
+          linear-gradient(135deg, rgba(255, 138, 0, 0.11), rgba(56, 214, 199, 0.08)),
+          var(--panel);
+      }
+
+      .coming-card .card-media {
+        position: relative;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
+
+      .coming-card .card-media::before {
+        position: absolute;
+        inset: 18%;
+        border: 1px solid rgba(255, 209, 102, 0.26);
+        border-radius: 50%;
+        background:
+          radial-gradient(circle, rgba(255, 138, 0, 0.22), transparent 58%),
+          conic-gradient(from 0deg, transparent, rgba(56, 214, 199, 0.28), transparent, rgba(255, 138, 0, 0.24), transparent);
+        content: "";
+        animation: comingPulse 9s linear infinite;
+      }
+
+      .coming-card .card-media::after {
+        position: relative;
+        z-index: 1;
+        color: var(--gold);
+        content: "+";
+        font-size: clamp(3rem, 8vw, 5.5rem);
+        font-weight: 950;
+        line-height: 1;
+        text-shadow: 0 0 24px rgba(255, 138, 0, 0.4);
+      }
+
+      .coming-date {
+        color: var(--teal);
+        font-size: 0.82rem;
+        font-weight: 900;
+        line-height: 1.45;
+      }
+
+      @keyframes comingPulse {
+        from {
+          transform: rotate(0deg) scale(1);
+        }
+
+        50% {
+          transform: rotate(180deg) scale(1.06);
+        }
+
+        to {
+          transform: rotate(360deg) scale(1);
+        }
+      }
+
       .card-body {
         display: flex;
         flex: 1;
@@ -524,7 +582,7 @@
             </svg>
             <input id="search" type="search" placeholder="ค้นหา เช่น Andromeda, BOQ, รูปโปรโมท" autocomplete="off" />
           </label>
-          <div class="count"><span id="visibleCount">5</span> / 5 เครื่องมือ</div>
+          <div class="count"><span id="visibleCount">10</span> / 10 เครื่องมือ</div>
         </div>
 
         <div class="grid" id="cards">
@@ -601,6 +659,52 @@
                 <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a250d11a4548191bbbd4b05882273a7-ai-image-pro-by-ai-phaaphniiaihhn-y" aria-label="คัดลอกลิงก์ AI Image Pro"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></button>
               </div>
               <a class="detail-link" href="detail.html?id=ai-image-pro">รายละเอียด</a>
+            </div>
+          </article>
+
+          <article class="card coming-card" data-upcoming="true" data-order="1" data-search="coming soon gpt ใหม่ ทุกอาทิตย์ 20/6/69">
+            <div class="card-media" aria-hidden="true"></div>
+            <div class="card-body">
+              <span class="tag">Coming Soon</span>
+              <h2>GPT ใหม่เร็ว ๆ นี้</h2>
+              <p class="description">ช่องโปรโมทสำหรับ GPT ใหม่ที่กำลังเตรียมเพิ่มเข้าระบบ</p>
+              <p class="coming-date">เริ่มเพิ่ม GPT ใหม่ทุกอาทิตย์ ตั้งแต่ 20/6/69</p>
+            </div>
+          </article>
+          <article class="card coming-card" data-upcoming="true" data-order="2" data-search="coming soon gpt ใหม่ ทุกอาทิตย์ 20/6/69">
+            <div class="card-media" aria-hidden="true"></div>
+            <div class="card-body">
+              <span class="tag">Coming Soon</span>
+              <h2>พื้นที่ GPT ใหม่</h2>
+              <p class="description">เตรียมพบเครื่องมือใหม่สำหรับช่วยทำงาน AI และคอนเทนต์</p>
+              <p class="coming-date">เริ่มเพิ่ม GPT ใหม่ทุกอาทิตย์ ตั้งแต่ 20/6/69</p>
+            </div>
+          </article>
+          <article class="card coming-card" data-upcoming="true" data-order="3" data-search="coming soon gpt ใหม่ ทุกอาทิตย์ 20/6/69">
+            <div class="card-media" aria-hidden="true"></div>
+            <div class="card-body">
+              <span class="tag">Coming Soon</span>
+              <h2>เตรียมอัปเดต</h2>
+              <p class="description">กำลังคัดเครื่องมือที่ใช้ได้จริงมาเพิ่มให้สมาชิกใช้งานต่อเนื่อง</p>
+              <p class="coming-date">เริ่มเพิ่ม GPT ใหม่ทุกอาทิตย์ ตั้งแต่ 20/6/69</p>
+            </div>
+          </article>
+          <article class="card coming-card" data-upcoming="true" data-order="4" data-search="coming soon gpt ใหม่ ทุกอาทิตย์ 20/6/69">
+            <div class="card-media" aria-hidden="true"></div>
+            <div class="card-body">
+              <span class="tag">Coming Soon</span>
+              <h2>GPT โปรโมทใหม่</h2>
+              <p class="description">ช่องว่างสำหรับเครื่องมือโปรโมทและการขายที่จะเพิ่มในรอบถัดไป</p>
+              <p class="coming-date">เริ่มเพิ่ม GPT ใหม่ทุกอาทิตย์ ตั้งแต่ 20/6/69</p>
+            </div>
+          </article>
+          <article class="card coming-card" data-upcoming="true" data-order="5" data-search="coming soon gpt ใหม่ ทุกอาทิตย์ 20/6/69">
+            <div class="card-media" aria-hidden="true"></div>
+            <div class="card-body">
+              <span class="tag">Coming Soon</span>
+              <h2>กำลังจะมา</h2>
+              <p class="description">เตรียมเพิ่ม GPT ใหม่เพื่อให้เว็บมีเครื่องมือใช้งานครบขึ้นทุกสัปดาห์</p>
+              <p class="coming-date">เริ่มเพิ่ม GPT ใหม่ทุกอาทิตย์ ตั้งแต่ 20/6/69</p>
             </div>
           </article>
 

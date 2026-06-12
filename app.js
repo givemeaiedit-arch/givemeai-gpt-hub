@@ -138,6 +138,7 @@ function setAnnouncement(announcement) {
 
 function ensureFavoriteButtons() {
   allCards.forEach((card) => {
+    if (card.dataset.upcoming === "true") return;
     if (card.querySelector(".favorite-button")) return;
     const button = document.createElement("button");
     button.className = "favorite-button";
@@ -150,6 +151,7 @@ function ensureFavoriteButtons() {
 
 function setFavoriteUi() {
   allCards.forEach((card) => {
+    if (card.dataset.upcoming === "true") return;
     const button = card.querySelector(".favorite-button");
     if (!button) return;
     const active = favoriteIds.has(card.dataset.gptId);
@@ -161,6 +163,10 @@ function setFavoriteUi() {
 }
 
 function getCardOrder(card) {
+  if (card.dataset.upcoming === "true") {
+    const upcomingOrder = Number(card.dataset.order);
+    return Number.isFinite(upcomingOrder) ? 900 + upcomingOrder : 999;
+  }
   const settingOrder = Number(gptSettings[card.dataset.gptId]?.order);
   if (Number.isFinite(settingOrder)) return settingOrder;
   return defaultOrder.get(card.dataset.gptId) || 999;
@@ -176,7 +182,7 @@ function renderCardSettings() {
   });
 
   sortedCards.forEach((card) => {
-    const hiddenForUsers = gptSettings[card.dataset.gptId]?.visible === false;
+    const hiddenForUsers = card.dataset.upcoming !== "true" && gptSettings[card.dataset.gptId]?.visible === false;
     card.classList.toggle("is-admin-hidden", hiddenForUsers && currentIsAdmin);
     card.dataset.hiddenByAdmin = hiddenForUsers && !currentIsAdmin ? "true" : "false";
     cardsGrid.appendChild(card);
