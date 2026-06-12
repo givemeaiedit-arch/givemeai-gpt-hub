@@ -21,28 +21,29 @@ body::after {
 }
 
 body::before {
-  opacity: 0.28;
+  opacity: 0.32;
   background:
     radial-gradient(circle at 76% 22%, rgba(72, 255, 196, 0.16), transparent 18rem),
     radial-gradient(circle at 18% 22%, rgba(21, 128, 122, 0.12), transparent 24rem),
-    linear-gradient(115deg, transparent 0 30%, rgba(45, 212, 191, 0.045) 42%, transparent 56% 100%);
+    linear-gradient(115deg, transparent 0 30%, rgba(45, 212, 191, 0.055) 42%, transparent 56% 100%);
   background-size: 120% 120%, 115% 115%, 180% 180%;
-  animation: backgroundSweep 30s ease-in-out infinite alternate;
+  animation: backgroundSweep 18s ease-in-out infinite alternate, ambientPulse 7s ease-in-out infinite alternate;
 }
 
 body::after {
-  opacity: 0.2;
+  opacity: 0.26;
   background-image:
     linear-gradient(rgba(94, 234, 212, 0.055) 1px, transparent 1px),
     linear-gradient(90deg, rgba(94, 234, 212, 0.055) 1px, transparent 1px),
-    radial-gradient(circle at 18px 18px, rgba(110, 231, 183, 0.22) 0 1px, transparent 2px),
-    radial-gradient(circle at 76px 42px, rgba(34, 211, 238, 0.18) 0 1px, transparent 2px),
-    linear-gradient(33deg, transparent 0 45%, rgba(94, 234, 212, 0.08) 45.4%, transparent 46.2% 100%),
-    linear-gradient(146deg, transparent 0 52%, rgba(16, 185, 129, 0.075) 52.4%, transparent 53.2% 100%);
+    radial-gradient(circle at 18px 18px, rgba(110, 231, 183, 0.32) 0 1px, transparent 2px),
+    radial-gradient(circle at 76px 42px, rgba(34, 211, 238, 0.26) 0 1px, transparent 2px),
+    radial-gradient(circle at 124px 88px, rgba(255, 209, 102, 0.16) 0 1px, transparent 2px),
+    linear-gradient(33deg, transparent 0 45%, rgba(94, 234, 212, 0.1) 45.4%, transparent 46.2% 100%),
+    linear-gradient(146deg, transparent 0 52%, rgba(16, 185, 129, 0.09) 52.4%, transparent 53.2% 100%);
   background-position: 0 0;
-  background-size: 92px 92px, 92px 92px, 180px 180px, 240px 220px, 360px 240px, 420px 280px;
+  background-size: 92px 92px, 92px 92px, 180px 180px, 240px 220px, 300px 260px, 360px 240px, 420px 280px;
   mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 78%, transparent);
-  animation: circuitFlow 72s linear infinite;
+  animation: circuitFlow 34s linear infinite, networkPulse 8s ease-in-out infinite alternate;
 }
 
 .shell {
@@ -64,21 +65,43 @@ body::after {
 
 @keyframes backgroundSweep {
   from {
-    background-position: 0% 22%, 100% 28%;
+    background-position: 0% 22%, 100% 28%, 0% 40%;
   }
 
   to {
-    background-position: 100% 74%, 0% 66%;
+    background-position: 100% 74%, 0% 66%, 100% 60%;
   }
 }
 
 @keyframes circuitFlow {
   from {
-    background-position: 0 0, 0 0, 0 0, 80px 30px, 0 0, 140px 80px;
+    background-position: 0 0, 0 0, 0 0, 80px 30px, 160px 90px, 0 0, 140px 80px;
   }
 
   to {
-    background-position: 92px 0, 0 92px, 180px 180px, -40px 160px, 180px 40px, -80px 180px;
+    background-position: 184px 0, 0 184px, 360px 360px, -120px 210px, -40px 260px, 260px 70px, -160px 240px;
+  }
+}
+
+@keyframes ambientPulse {
+  from {
+    filter: saturate(0.9) brightness(0.92);
+  }
+
+  to {
+    filter: saturate(1.14) brightness(1.08);
+  }
+}
+
+@keyframes networkPulse {
+  from {
+    filter: brightness(0.86);
+    opacity: 0.18;
+  }
+
+  to {
+    filter: brightness(1.22);
+    opacity: 0.3;
   }
 }
 
