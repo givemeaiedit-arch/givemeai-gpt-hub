@@ -30,17 +30,17 @@ body::before {
 }
 
 body::after {
-  opacity: 0.22;
+  opacity: 0.16;
   background-image:
-    linear-gradient(90deg, transparent 0 9%, rgba(56, 214, 199, 0.22) 10%, transparent 18% 100%),
-    linear-gradient(90deg, transparent 0 58%, rgba(255, 138, 0, 0.16) 60%, transparent 70% 100%),
-    linear-gradient(115deg, transparent 0 47%, rgba(56, 214, 199, 0.12) 48%, transparent 52% 100%),
-    linear-gradient(rgba(255, 255, 255, 0.11) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.11) 1px, transparent 1px);
+    linear-gradient(90deg, transparent 0 8%, rgba(56, 214, 199, 0.36) 8.5%, rgba(56, 214, 199, 0.36) 10.5%, transparent 12% 100%),
+    linear-gradient(90deg, transparent 0 64%, rgba(255, 138, 0, 0.26) 65%, rgba(255, 138, 0, 0.26) 67%, transparent 69% 100%),
+    linear-gradient(rgba(56, 214, 199, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 214, 199, 0.16) 1px, transparent 1px),
+    radial-gradient(circle at 18px 18px, rgba(255, 209, 102, 0.36) 0 2px, transparent 3px);
   background-position: 0 0;
-  background-size: 420px 100%, 520px 100%, 320px 320px, 64px 64px, 64px 64px;
-  mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 72%, transparent);
-  animation: gridDrift 34s linear infinite;
+  background-size: 520px 100%, 620px 100%, 96px 96px, 96px 96px, 96px 96px;
+  mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 66%, transparent);
+  animation: circuitFlow 42s linear infinite;
 }
 
 .shell {
@@ -70,13 +70,13 @@ body::after {
   }
 }
 
-@keyframes gridDrift {
+@keyframes circuitFlow {
   from {
-    background-position: -420px 18%, 520px 58%, 0 0, 0 0, 0 0;
+    background-position: -520px 22%, 620px 58%, 0 0, 0 0, 0 0;
   }
 
   to {
-    background-position: 100vw 18%, -520px 58%, 320px 320px, 64px 64px, 64px 64px;
+    background-position: 100vw 22%, -620px 58%, 96px 0, 0 96px, 96px 96px;
   }
 }
 
