@@ -149,4 +149,65 @@ export async function setUserStatus(uid, status, adminEmail) {
   await updateDoc(ref, payload);
 }
 
+export function generateVipCode() {
+  const part = () => Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `VIP-${part()}-${part()}`;
+}
+
+export async function createVipCode({ code, email, adminEmail }) {
+  const svc = getFirebaseServices();
+  if (!svc) throw new Error("Firebase is not configured.");
+
+  const normalizedCode = String(code || generateVipCode()).trim().toUpperCase();
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  if (!normalizedEmail || !normalizedEmail.includes("@")) {
+    throw new Error("Please enter a valid email.");
+  }
+
+  await setDoc(doc(svc.db, "vipCodes", normalizedCode), {
+    code: normalizedCode,
+    email: normalizedEmail,
+    status: "active",
+    createdAt: serverTimestamp(),
+    createdBy: adminEmail || ADMIN_EMAIL,
+  });
+
+  return normalizedCode;
+}
+
+export async function redeemVipCode(user, code) {
+  const svc = getFirebaseServices();
+  if (!svc) throw new Error("Firebase is not configured.");
+  if (!user?.uid || !user?.email) throw new Error("Please sign in first.");
+
+  const normalizedCode = String(code || "").trim().toUpperCase();
+  if (!normalizedCode) throw new Error("Please enter a VIP code.");
+
+  const codeRef = doc(svc.db, "vipCodes", normalizedCode);
+  const codeSnap = await getDoc(codeRef);
+  if (!codeSnap.exists()) throw new Error("VIP code not found.");
+
+  const codeData = codeSnap.data();
+  if (String(codeData.email || "").toLowerCase() !== String(user.email || "").toLowerCase()) {
+    throw new Error("This VIP code is for another email.");
+  }
+  if (codeData.status !== "active") {
+    throw new Error("This VIP code has already been used.");
+  }
+
+  await updateDoc(doc(svc.db, "users", user.uid), {
+    status: "approved",
+    vipCode: normalizedCode,
+    approvedAt: serverTimestamp(),
+    approvedBy: "VIP_CODE",
+  });
+
+  await updateDoc(codeRef, {
+    status: "used",
+    usedAt: serverTimestamp(),
+    usedBy: user.email,
+    usedByUid: user.uid,
+  });
+}
+
 export { ADMIN_EMAIL, isFirebaseConfigured };

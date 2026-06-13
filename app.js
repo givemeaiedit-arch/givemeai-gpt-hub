@@ -2,6 +2,7 @@ import {
   ADMIN_EMAIL,
   isAdminEmail,
   isFirebaseConfigured,
+  redeemVipCode,
   signInWithGoogle,
   signOutUser,
   watchAuth,
@@ -48,7 +49,7 @@ function getStatusLabel(profile) {
   if (!profile) return "กำลังตรวจสอบสิทธิ์";
   if (profile.status === "approved") return "อนุมัติแล้ว";
   if (profile.status === "revoked") return "ถูกปิดสิทธิ์";
-  return "รอ Admin อนุมัติ";
+  return "รอใส่ VIP Code";
 }
 
 function ensureSystemNote() {
@@ -112,7 +113,15 @@ function setMemberStatus(user, profile, approved) {
   }
 
   status.className = "member-status pending";
-  status.innerHTML = `รออนุมัติจาก Admin - ติดต่อ Email เพื่อสมัคร <a href="mailto:${ADMIN_EMAIL}">${ADMIN_EMAIL}</a>`;
+  status.innerHTML = `
+    <strong>ยังไม่เป็น VIP</strong>
+    <span>กรอก VIP Code ที่ได้รับจาก Admin เพื่อปลดล็อก GPT สมาชิก</span>
+    <div class="vip-redeem">
+      <input id="vipCodeInput" type="text" inputmode="text" autocomplete="one-time-code" placeholder="เช่น VIP-ABCD-1234" />
+      <button class="primary-button" id="redeemCodeButton" type="button">ปลดล็อก VIP</button>
+    </div>
+    <small>1 Code ใช้ได้กับ 1 Gmail เท่านั้น</small>
+  `;
 }
 
 function ensureAnnouncementBanner() {
@@ -200,7 +209,7 @@ function ensureLockOverlay(card) {
   overlay.className = "member-lock";
   overlay.innerHTML = `
     <strong>สำหรับผู้ที่สมัครแล้ว</strong>
-    <span>เข้าสู่ระบบด้วย Gmail และรออนุมัติจาก Admin ก่อนเปิดใช้เครื่องมือนี้</span>
+    <span>เข้าสู่ระบบด้วย Gmail และกรอก VIP Code เพื่อเปิดใช้เครื่องมือนี้</span>
     <a href="pricing.html">ดูรายละเอียดการสมัคร</a>
   `;
   card.appendChild(overlay);
@@ -239,7 +248,7 @@ function setProtectedAccess(approved) {
 
     if (copy) {
       copy.disabled = !approved;
-      copy.title = approved ? "คัดลอกลิงก์" : "ปลดล็อกหลังสมัครและได้รับอนุมัติ";
+      copy.title = approved ? "คัดลอกลิงก์" : "ปลดล็อกด้วย VIP Code หลังสมัคร";
       copy.dataset.copy = approved ? copy.dataset.copyOriginal : "";
     }
   });
@@ -342,6 +351,30 @@ loginButton?.addEventListener("click", async () => {
 logoutButton?.addEventListener("click", async () => {
   await signOutUser();
   showToast("ออกจากระบบแล้ว");
+});
+
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("#redeemCodeButton");
+  if (!button || !currentUser) return;
+
+  const input = document.querySelector("#vipCodeInput");
+  const code = input?.value || "";
+  button.disabled = true;
+  try {
+    await redeemVipCode(currentUser, code);
+    currentProfile = {
+      ...(currentProfile || {}),
+      status: "approved",
+      vipCode: code.trim().toUpperCase(),
+      approvedBy: "VIP_CODE",
+    };
+    updateAuthUi(currentUser, currentProfile);
+    showToast("ปลดล็อก VIP สำเร็จแล้ว");
+  } catch (error) {
+    showToast(`ปลดล็อกไม่สำเร็จ: ${error.message}`);
+  } finally {
+    button.disabled = false;
+  }
 });
 
 if (!isFirebaseConfigured()) {

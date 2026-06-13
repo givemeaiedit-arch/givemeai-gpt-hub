@@ -4,6 +4,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import {
   ADMIN_EMAIL,
+  createVipCode,
+  generateVipCode,
   getFirebaseServices,
   isAdminEmail,
   isFirebaseConfigured,
@@ -49,15 +51,23 @@ const pricingBenefitsInput = document.querySelector("#pricingBenefitsInput");
 const pricingCtaInput = document.querySelector("#pricingCtaInput");
 const pricingFacebookInput = document.querySelector("#pricingFacebookInput");
 const savePricingButton = document.querySelector("#savePricingButton");
+const vipEmailInput = document.querySelector("#vipEmailInput");
+const vipCodeInput = document.querySelector("#vipCodeInput");
+const generateCodeButton = document.querySelector("#generateCodeButton");
+const saveCodeButton = document.querySelector("#saveCodeButton");
+const vipCodesBody = document.querySelector("#vipCodesBody");
+const vipCodesEmpty = document.querySelector("#vipCodesEmpty");
 
 let currentUser = null;
 let users = [];
 let analyticsEvents = [];
+let vipCodes = [];
 let announcement = null;
 let gptSettings = {};
 let pricingPage = null;
 let unsubscribeUsers = null;
 let unsubscribeAnalytics = null;
+let unsubscribeVipCodes = null;
 let unsubscribeAnnouncement = null;
 let unsubscribeGptSettings = null;
 let unsubscribePricingPage = null;
@@ -122,15 +132,42 @@ function renderUsers() {
       </td>
       <td><span class="status ${user.status || "pending"}">${user.status || "pending"}</span></td>
       <td>${formatDate(user.createdAt)}</td>
-      <td>${user.approvedBy || "-"}</td>
+      <td>${user.vipCode || user.approvedBy || "-"}</td>
       <td>
         <div class="row-actions">
-          <button class="primary-button" type="button" data-action="approved" data-uid="${user.uid}">อนุมัติ</button>
           <button class="danger-button" type="button" data-action="revoked" data-uid="${user.uid}">ปิดสิทธิ์</button>
         </div>
       </td>
     `;
     usersBody.appendChild(tr);
+  }
+}
+
+function renderVipCodes() {
+  if (!vipCodesBody) return;
+  const sorted = [...vipCodes].sort((a, b) => {
+    const statusScore = { active: 0, used: 1 };
+    const byStatus = (statusScore[a.status] ?? 9) - (statusScore[b.status] ?? 9);
+    if (byStatus !== 0) return byStatus;
+    return String(a.email || "").localeCompare(String(b.email || ""));
+  });
+
+  vipCodesBody.innerHTML = "";
+  if (vipCodesEmpty) vipCodesEmpty.hidden = sorted.length > 0;
+
+  for (const code of sorted) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <strong>${code.code || code.id}</strong>
+        <small>${code.id}</small>
+      </td>
+      <td>${code.email || "-"}</td>
+      <td><span class="status ${code.status || "active"}">${code.status || "active"}</span></td>
+      <td>${formatDate(code.usedAt || code.createdAt)}</td>
+      <td>${code.usedBy || "-"}</td>
+    `;
+    vipCodesBody.appendChild(tr);
   }
 }
 
@@ -255,6 +292,23 @@ function startAnalyticsListener() {
   );
 }
 
+function startVipCodesListener() {
+  if (unsubscribeVipCodes) return;
+  const svc = getFirebaseServices();
+  if (!svc) return;
+
+  unsubscribeVipCodes = onSnapshot(
+    collection(svc.db, "vipCodes"),
+    (snapshot) => {
+      vipCodes = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+      renderVipCodes();
+    },
+    (error) => {
+      setMessage(`อ่าน VIP Code ไม่สำเร็จ: ${error.message}`, true);
+    },
+  );
+}
+
 function startAdminConfigListeners() {
   const svc = getFirebaseServices();
   if (!svc) return;
@@ -293,6 +347,12 @@ function stopAnalyticsListener() {
   unsubscribeAnalytics = null;
 }
 
+function stopVipCodesListener() {
+  if (!unsubscribeVipCodes) return;
+  unsubscribeVipCodes();
+  unsubscribeVipCodes = null;
+}
+
 function stopAdminConfigListeners() {
   if (unsubscribePricingPage) {
     unsubscribePricingPage();
@@ -329,11 +389,33 @@ usersBody?.addEventListener("click", async (event) => {
   button.disabled = true;
   try {
     await setUserStatus(button.dataset.uid, button.dataset.action, currentUser.email);
-    showToast(button.dataset.action === "approved" ? "อนุมัติแล้ว" : "ปิดสิทธิ์แล้ว");
+    showToast("ปิดสิทธิ์แล้ว");
   } catch (error) {
     showToast(`บันทึกไม่สำเร็จ: ${error.message}`);
   } finally {
     button.disabled = false;
+  }
+});
+
+generateCodeButton?.addEventListener("click", () => {
+  if (vipCodeInput) vipCodeInput.value = generateVipCode();
+});
+
+saveCodeButton?.addEventListener("click", async () => {
+  if (!currentUser) return;
+  saveCodeButton.disabled = true;
+  try {
+    const code = await createVipCode({
+      code: vipCodeInput?.value || generateVipCode(),
+      email: vipEmailInput?.value,
+      adminEmail: currentUser.email,
+    });
+    if (vipCodeInput) vipCodeInput.value = code;
+    showToast(`สร้าง VIP Code แล้ว: ${code}`);
+  } catch (error) {
+    showToast(`สร้าง VIP Code ไม่สำเร็จ: ${error.message}`);
+  } finally {
+    saveCodeButton.disabled = false;
   }
 });
 
@@ -413,6 +495,7 @@ if (!isFirebaseConfigured()) {
       setMessage(`ตรวจสอบสิทธิ์ไม่สำเร็จ: ${error.message}`, true);
       stopUsersListener();
       stopAnalyticsListener();
+      stopVipCodesListener();
       stopAdminConfigListeners();
       return;
     }
@@ -422,6 +505,7 @@ if (!isFirebaseConfigured()) {
       setMessage(`กรุณาเข้าสู่ระบบด้วย Gmail admin: ${ADMIN_EMAIL}`);
       stopUsersListener();
       stopAnalyticsListener();
+      stopVipCodesListener();
       stopAdminConfigListeners();
       return;
     }
@@ -431,6 +515,7 @@ if (!isFirebaseConfigured()) {
       setMessage("บัญชีนี้ไม่ใช่ Admin จึงไม่มีสิทธิ์ดูหรืออนุมัติผู้ใช้", true);
       stopUsersListener();
       stopAnalyticsListener();
+      stopVipCodesListener();
       stopAdminConfigListeners();
       return;
     }
@@ -439,6 +524,7 @@ if (!isFirebaseConfigured()) {
     adminPanel.hidden = false;
     startUsersListener();
     startAnalyticsListener();
+    startVipCodesListener();
     startAdminConfigListeners();
   });
 }

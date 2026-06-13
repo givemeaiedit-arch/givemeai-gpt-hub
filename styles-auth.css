@@ -409,6 +409,35 @@ body::after {
   text-underline-offset: 3px;
 }
 
+.vip-redeem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.vip-redeem input {
+  flex: 1 1 220px;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0 12px;
+  font: inherit;
+  text-transform: uppercase;
+}
+
+.vip-redeem .primary-button {
+  flex: 0 0 auto;
+}
+
+.member-status small {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+}
+
 .member-status.approved {
   border-color: rgba(73, 222, 128, 0.38);
   background: rgba(73, 222, 128, 0.1);
