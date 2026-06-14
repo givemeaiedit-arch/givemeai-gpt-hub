@@ -417,7 +417,7 @@ body::after {
 }
 
 .vip-redeem input {
-  flex: 1 1 220px;
+  flex: 0 1 220px;
   min-height: 40px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -425,6 +425,7 @@ body::after {
   background: rgba(255, 255, 255, 0.08);
   padding: 0 12px;
   font: inherit;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 

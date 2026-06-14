@@ -10,6 +10,7 @@ import {
   doc,
   getDoc,
   getFirestore,
+  runTransaction,
   serverTimestamp,
   setDoc,
   updateDoc,
@@ -150,23 +151,26 @@ export async function setUserStatus(uid, status, adminEmail) {
 }
 
 export function generateVipCode() {
-  const part = () => Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `VIP-${part()}-${part()}`;
+  return String(Math.floor(10000 + Math.random() * 90000));
 }
 
-export async function createVipCode({ code, email, adminEmail }) {
+export async function createVipCode({ code, adminEmail }) {
   const svc = getFirebaseServices();
   if (!svc) throw new Error("Firebase is not configured.");
 
-  const normalizedCode = String(code || generateVipCode()).trim().toUpperCase();
-  const normalizedEmail = String(email || "").trim().toLowerCase();
-  if (!normalizedEmail || !normalizedEmail.includes("@")) {
-    throw new Error("Please enter a valid email.");
+  const normalizedCode = String(code || generateVipCode()).trim();
+  if (!/^\d{5}$/.test(normalizedCode)) {
+    throw new Error("VIP code must be 5 digits.");
   }
 
-  await setDoc(doc(svc.db, "vipCodes", normalizedCode), {
+  const ref = doc(svc.db, "vipCodes", normalizedCode);
+  const existing = await getDoc(ref);
+  if (existing.exists()) {
+    throw new Error("This VIP code already exists. Please generate a new code.");
+  }
+
+  await setDoc(ref, {
     code: normalizedCode,
-    email: normalizedEmail,
     status: "active",
     createdAt: serverTimestamp(),
     createdBy: adminEmail || ADMIN_EMAIL,
@@ -180,33 +184,35 @@ export async function redeemVipCode(user, code) {
   if (!svc) throw new Error("Firebase is not configured.");
   if (!user?.uid || !user?.email) throw new Error("Please sign in first.");
 
-  const normalizedCode = String(code || "").trim().toUpperCase();
-  if (!normalizedCode) throw new Error("Please enter a VIP code.");
+  const normalizedCode = String(code || "").trim();
+  if (!/^\d{5}$/.test(normalizedCode)) throw new Error("Please enter a 5 digit VIP code.");
 
   const codeRef = doc(svc.db, "vipCodes", normalizedCode);
-  const codeSnap = await getDoc(codeRef);
-  if (!codeSnap.exists()) throw new Error("VIP code not found.");
+  const userRef = doc(svc.db, "users", user.uid);
 
-  const codeData = codeSnap.data();
-  if (String(codeData.email || "").toLowerCase() !== String(user.email || "").toLowerCase()) {
-    throw new Error("This VIP code is for another email.");
-  }
-  if (codeData.status !== "active") {
-    throw new Error("This VIP code has already been used.");
-  }
+  await runTransaction(svc.db, async (transaction) => {
+    const codeSnap = await transaction.get(codeRef);
+    if (!codeSnap.exists()) throw new Error("VIP code not found.");
 
-  await updateDoc(doc(svc.db, "users", user.uid), {
-    status: "approved",
-    vipCode: normalizedCode,
-    approvedAt: serverTimestamp(),
-    approvedBy: "VIP_CODE",
-  });
+    const codeData = codeSnap.data();
+    if (codeData.status !== "active") {
+      throw new Error("This VIP code has already been used.");
+    }
 
-  await updateDoc(codeRef, {
-    status: "used",
-    usedAt: serverTimestamp(),
-    usedBy: user.email,
-    usedByUid: user.uid,
+    transaction.update(userRef, {
+      status: "approved",
+      vipCode: normalizedCode,
+      approvedAt: serverTimestamp(),
+      approvedBy: "VIP_CODE",
+    });
+
+    transaction.update(codeRef, {
+      status: "used",
+      email: user.email,
+      usedAt: serverTimestamp(),
+      usedBy: user.email,
+      usedByUid: user.uid,
+    });
   });
 }
 

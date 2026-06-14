@@ -201,7 +201,7 @@
 
       .vip-code-grid {
         display: grid;
-        grid-template-columns: minmax(220px, 1fr) minmax(180px, 240px) auto auto;
+        grid-template-columns: minmax(160px, 240px) auto auto;
         gap: 10px;
         align-items: center;
       }
@@ -397,7 +397,7 @@
       <section>
         <p style="color: var(--teal); font-weight: 900; margin: 0 0 12px">ADMIN PANEL</p>
         <h1>VIP Code สมาชิก</h1>
-        <p class="lead">Admin สร้าง VIP Code ให้ Gmail ที่สมัครแล้ว ผู้ใช้กรอกโค้ดเพื่อปลดล็อก GPT สมาชิกได้เอง โดย 1 Code ใช้ได้กับ 1 Email เท่านั้น</p>
+        <p class="lead">Admin สร้าง VIP Code แบบตัวเลข 5 หลัก ผู้ใช้กรอกโค้ดเพื่อปลดล็อก GPT สมาชิกได้เอง และระบบจะผูก Code กับ Gmail ของผู้ใช้คนนั้นอัตโนมัติ</p>
       </section>
 
       <div id="adminMessage" class="system-note show">กำลังตรวจสอบสิทธิ์ Admin...</div>
@@ -415,18 +415,17 @@
           <section class="config-card" id="vipCodeSection">
             <p class="section-title">VIP Code</p>
             <div class="vip-code-grid">
-              <input id="vipEmailInput" type="email" placeholder="gmail ลูกค้า เช่น customer@gmail.com" />
-              <input id="vipCodeInput" type="text" placeholder="VIP-XXXX-XXXX" />
+              <input id="vipCodeInput" type="text" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" placeholder="12345" />
               <button class="ghost-button" id="generateCodeButton" type="button">Generate</button>
               <button class="primary-button" id="saveCodeButton" type="button">บันทึก Code</button>
             </div>
-            <p class="lead" style="font-size: 0.9rem; margin: 10px 0 14px">โค้ดจะผูกกับ Gmail ที่กรอกไว้ และปลดล็อกได้เฉพาะบัญชีนั้นเท่านั้น</p>
+            <p class="lead" style="font-size: 0.9rem; margin: 10px 0 14px">Code ต้องเป็นตัวเลข 5 หลัก และจะผูกกับ Gmail อัตโนมัติเมื่อผู้ใช้กรอกสำเร็จ 1 Code ใช้ได้ครั้งเดียว</p>
             <div class="table-wrap">
               <table>
                 <thead>
                   <tr>
                     <th>Code</th>
-                    <th>Email</th>
+                    <th>Email ที่ใช้ Code</th>
                     <th>Status</th>
                     <th>วันที่</th>
                     <th>ใช้โดย</th>

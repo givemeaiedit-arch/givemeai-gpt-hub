@@ -115,12 +115,12 @@ function setMemberStatus(user, profile, approved) {
   status.className = "member-status pending";
   status.innerHTML = `
     <strong>ยังไม่เป็น VIP</strong>
-    <span>กรอก VIP Code ที่ได้รับจาก Admin เพื่อปลดล็อก GPT สมาชิก</span>
+    <span>กรอกรหัส VIP 5 หลักที่ได้รับจาก Admin เพื่อปลดล็อก GPT สมาชิก</span>
     <div class="vip-redeem">
-      <input id="vipCodeInput" type="text" inputmode="text" autocomplete="one-time-code" placeholder="เช่น VIP-ABCD-1234" />
+      <input id="vipCodeInput" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="5" pattern="[0-9]{5}" placeholder="เช่น 12345" />
       <button class="primary-button" id="redeemCodeButton" type="button">ปลดล็อก VIP</button>
     </div>
-    <small>1 Code ใช้ได้กับ 1 Gmail เท่านั้น</small>
+    <small>หลังกรอกสำเร็จ Code จะผูกกับ Gmail นี้อัตโนมัติ และใช้ซ้ำไม่ได้</small>
   `;
 }
 
@@ -365,7 +365,7 @@ document.addEventListener("click", async (event) => {
     currentProfile = {
       ...(currentProfile || {}),
       status: "approved",
-      vipCode: code.trim().toUpperCase(),
+      vipCode: code.trim(),
       approvedBy: "VIP_CODE",
     };
     updateAuthUi(currentUser, currentProfile);

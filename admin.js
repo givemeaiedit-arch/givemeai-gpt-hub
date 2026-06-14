@@ -51,7 +51,6 @@ const pricingBenefitsInput = document.querySelector("#pricingBenefitsInput");
 const pricingCtaInput = document.querySelector("#pricingCtaInput");
 const pricingFacebookInput = document.querySelector("#pricingFacebookInput");
 const savePricingButton = document.querySelector("#savePricingButton");
-const vipEmailInput = document.querySelector("#vipEmailInput");
 const vipCodeInput = document.querySelector("#vipCodeInput");
 const generateCodeButton = document.querySelector("#generateCodeButton");
 const saveCodeButton = document.querySelector("#saveCodeButton");
@@ -149,7 +148,7 @@ function renderVipCodes() {
     const statusScore = { active: 0, used: 1 };
     const byStatus = (statusScore[a.status] ?? 9) - (statusScore[b.status] ?? 9);
     if (byStatus !== 0) return byStatus;
-    return String(a.email || "").localeCompare(String(b.email || ""));
+    return String(a.code || a.id || "").localeCompare(String(b.code || b.id || ""));
   });
 
   vipCodesBody.innerHTML = "";
@@ -162,7 +161,7 @@ function renderVipCodes() {
         <strong>${code.code || code.id}</strong>
         <small>${code.id}</small>
       </td>
-      <td>${code.email || "-"}</td>
+      <td>${code.email || code.usedBy || "-"}</td>
       <td><span class="status ${code.status || "active"}">${code.status || "active"}</span></td>
       <td>${formatDate(code.usedAt || code.createdAt)}</td>
       <td>${code.usedBy || "-"}</td>
@@ -407,7 +406,6 @@ saveCodeButton?.addEventListener("click", async () => {
   try {
     const code = await createVipCode({
       code: vipCodeInput?.value || generateVipCode(),
-      email: vipEmailInput?.value,
       adminEmail: currentUser.email,
     });
     if (vipCodeInput) vipCodeInput.value = code;
