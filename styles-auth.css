@@ -703,6 +703,7 @@ body::after {
   justify-content: center;
   gap: clamp(16px, 3vw, 40px);
   min-width: 0;
+  max-width: 100%;
 }
 
 .main-nav a {
@@ -732,9 +733,13 @@ body::after {
 @media (max-width: 920px) {
   .main-nav {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
     justify-content: flex-start;
     overflow-x: auto;
+    overflow-y: hidden;
     padding-bottom: 5px;
+    overscroll-behavior-inline: contain;
   }
 
   .main-nav a.is-active::after {
@@ -751,6 +756,7 @@ body::after {
 .topbar:has(.main-nav) .auth-panel,
 .topbar:has(.main-nav) .top-actions {
   justify-content: flex-end;
+  min-width: 0;
 }
 
 @media (max-width: 1180px) {
