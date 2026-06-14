@@ -1500,6 +1500,8 @@
       const viewButtons = [...document.querySelectorAll("[data-view]")];
       const visibleCount = document.querySelector("#visibleCount");
       const toast = document.querySelector("#toast");
+      const copyResetTimers = new WeakMap();
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       let activeFilter = "all";
 
       window.applyCardSearch = () => {
@@ -1540,9 +1542,27 @@
         });
       });
 
+      if (!reducedMotion) {
+        cards.forEach((card) => {
+          card.addEventListener("pointermove", (event) => {
+            const rect = card.getBoundingClientRect();
+            const x = ((event.clientX - rect.left) / rect.width) * 100;
+            const y = ((event.clientY - rect.top) / rect.height) * 100;
+            card.style.setProperty("--card-glow-x", `${x.toFixed(1)}%`);
+            card.style.setProperty("--card-glow-y", `${y.toFixed(1)}%`);
+            card.classList.add("is-card-active");
+          });
+
+          card.addEventListener("pointerleave", () => {
+            card.classList.remove("is-card-active");
+          });
+        });
+      }
+
       document.querySelectorAll("[data-copy]").forEach((button) => {
         button.addEventListener("click", async () => {
           const link = button.dataset.copy;
+          const originalLabel = button.getAttribute("aria-label");
           try {
             await navigator.clipboard.writeText(link);
           } catch {
@@ -1553,8 +1573,18 @@
             document.execCommand("copy");
             temp.remove();
           }
+          window.clearTimeout(copyResetTimers.get(button));
+          button.classList.add("is-copied");
+          button.setAttribute("aria-label", "คัดลอกแล้ว");
           toast.classList.add("show");
-          window.setTimeout(() => toast.classList.remove("show"), 1600);
+          copyResetTimers.set(
+            button,
+            window.setTimeout(() => {
+              button.classList.remove("is-copied");
+              if (originalLabel) button.setAttribute("aria-label", originalLabel);
+              toast.classList.remove("show");
+            }, 1600),
+          );
         });
       });
     </script>
