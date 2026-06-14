@@ -216,6 +216,36 @@ body::after {
   box-shadow: 0 22px 48px rgba(0, 0, 0, 0.34);
 }
 
+.member-ribbon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 0 10px;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.member-ribbon.free {
+  color: #d8fffb;
+  border-color: rgba(56, 214, 199, 0.4);
+  background: rgba(18, 115, 106, 0.72);
+}
+
+.member-ribbon.vip {
+  color: #160c00;
+  border-color: rgba(255, 209, 102, 0.6);
+  background: linear-gradient(135deg, #ffd166, #ff8a00);
+}
+
 .hero-panel,
 .panel,
 .price-card,
@@ -431,6 +461,11 @@ body::after {
 
 .vip-redeem .primary-button {
   flex: 0 0 auto;
+}
+
+.vip-signup-button {
+  flex: 0 0 auto;
+  min-height: 40px;
 }
 
 .member-status small {

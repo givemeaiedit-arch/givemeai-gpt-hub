@@ -119,6 +119,7 @@ function setMemberStatus(user, profile, approved) {
     <div class="vip-redeem">
       <input id="vipCodeInput" type="text" inputmode="text" autocomplete="one-time-code" maxlength="5" pattern="[A-Za-z0-9]{5}" placeholder="เช่น A7K2Q" />
       <button class="primary-button" id="redeemCodeButton" type="button">ปลดล็อก VIP</button>
+      <a class="ghost-button vip-signup-button" href="pricing.html">สมัคร VIP</a>
     </div>
     <small>หลังกรอกสำเร็จ Code จะผูกกับ Gmail นี้อัตโนมัติ และใช้ซ้ำไม่ได้</small>
   `;
@@ -155,6 +156,19 @@ function ensureFavoriteButtons() {
     button.setAttribute("aria-label", "ปักหมุด GPT");
     button.textContent = "☆";
     card.appendChild(button);
+  });
+}
+
+function ensureMembershipRibbons() {
+  allCards.forEach((card) => {
+    if (card.dataset.upcoming === "true") return;
+    if (card.querySelector(".member-ribbon")) return;
+
+    const ribbon = document.createElement("div");
+    const vip = card.dataset.protected === "true";
+    ribbon.className = `member-ribbon ${vip ? "vip" : "free"}`;
+    ribbon.textContent = vip ? "VIP Member" : "Free Member";
+    card.appendChild(ribbon);
   });
 }
 
@@ -282,6 +296,7 @@ function updateAuthUi(user, profile) {
 }
 
 ensureFavoriteButtons();
+ensureMembershipRibbons();
 prepareProtectedCards();
 setProtectedAccess(false);
 renderCardSettings();
