@@ -751,6 +751,435 @@
           grid-template-columns: 1fr;
         }
       }
+
+      /* Mockup matched dashboard layout */
+      .topbar {
+        display: grid;
+        grid-template-columns: minmax(250px, 1fr) auto minmax(260px, 1fr);
+        min-height: 64px;
+      }
+
+      .main-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(18px, 3vw, 42px);
+      }
+
+      .main-nav a {
+        position: relative;
+        color: #cfc7ba;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .main-nav a.is-active,
+      .main-nav a:hover {
+        color: #e7c27e;
+      }
+
+      .main-nav a.is-active::after {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -18px;
+        height: 2px;
+        border-radius: 999px;
+        background: #e7c27e;
+        content: "";
+      }
+
+      .top-actions {
+        justify-content: flex-end;
+      }
+
+      .hero {
+        grid-template-columns: minmax(0, 0.92fr) minmax(520px, 1.08fr);
+        gap: 28px;
+        margin-bottom: 18px;
+      }
+
+      .hero-copy {
+        min-height: 300px;
+        border: 0;
+        background:
+          radial-gradient(circle at 78% 52%, rgba(217, 180, 111, 0.08), transparent 17rem),
+          transparent;
+        box-shadow: none;
+        padding: 34px 22px 22px;
+      }
+
+      .hero-copy h1 {
+        font-size: clamp(3rem, 5vw, 4.95rem);
+        letter-spacing: 0;
+      }
+
+      .hero-copy .lead {
+        max-width: 560px;
+        font-size: 1.08rem;
+      }
+
+      .benefit-row {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        max-width: 640px;
+        margin-top: 28px;
+      }
+
+      .benefit-row div {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #d2c8ba;
+      }
+
+      .benefit-row b {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: 1px solid rgba(217, 180, 111, 0.25);
+        border-radius: 50%;
+        color: #e7c27e;
+        background: rgba(217, 180, 111, 0.07);
+      }
+
+      .stats {
+        display: none;
+      }
+
+      .hero-side {
+        align-self: center;
+      }
+
+      .hero-panel {
+        display: none;
+      }
+
+      .business-dashboard {
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 22px;
+        min-height: 250px;
+        padding: 28px 30px;
+        border-color: rgba(217, 180, 111, 0.32);
+        background:
+          linear-gradient(135deg, rgba(244, 232, 211, 0.09), transparent 52%),
+          rgba(25, 24, 21, 0.88);
+      }
+
+      .vip-title {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .vip-crown {
+        color: #e7c27e !important;
+        font-size: 3.1rem !important;
+        line-height: 1;
+      }
+
+      .vip-title strong {
+        color: #e7c27e;
+        font-size: 2.2rem;
+      }
+
+      .vip-title em {
+        color: #fff8ee;
+        font-size: 1.6rem;
+        font-style: normal;
+        margin-left: 8px;
+      }
+
+      .vip-benefits {
+        grid-column: 1;
+        margin: 8px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .vip-benefits li {
+        position: relative;
+        margin-top: 14px;
+        padding-left: 28px;
+        color: #d8d0c4;
+      }
+
+      .vip-benefits li::before {
+        position: absolute;
+        left: 0;
+        top: 1px;
+        color: #d9b46f;
+        content: "◎";
+      }
+
+      .vip-actions-card {
+        grid-column: 2;
+        grid-row: 1 / span 3;
+        display: grid;
+        align-content: center;
+        gap: 12px;
+        border-left: 1px solid rgba(244, 232, 211, 0.12);
+        padding-left: 24px;
+      }
+
+      .vip-actions-card > span,
+      .vip-actions-card small {
+        color: #d8d0c4;
+      }
+
+      .vip-dot::before {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        margin-right: 8px;
+        border-radius: 50%;
+        background: #79db83;
+        content: "";
+      }
+
+      .vip-actions-card small a {
+        color: #e7c27e;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .dashboard-metrics {
+        display: none;
+      }
+
+      #links {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 20px;
+        align-items: start;
+      }
+
+      .toolbar {
+        grid-column: 1;
+        grid-template-columns: minmax(320px, 1fr) auto auto auto;
+        gap: 10px;
+        margin: 0 0 14px;
+      }
+
+      .filter-pills,
+      .view-toggle {
+        display: flex;
+        gap: 8px;
+      }
+
+      .filter-pills .ghost-button,
+      .view-toggle .ghost-button {
+        min-height: 46px;
+        color: #cfc7ba;
+      }
+
+      .filter-pills .is-active,
+      .view-toggle .is-active {
+        border-color: rgba(217, 180, 111, 0.44);
+        color: #fff8ee;
+        background: rgba(217, 180, 111, 0.12);
+      }
+
+      .count {
+        display: none;
+      }
+
+      .grid {
+        grid-column: 1;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        counter-reset: tool-card;
+      }
+
+      .card:not(.coming-card) {
+        counter-increment: tool-card;
+      }
+
+      .card:not(.coming-card)::after {
+        position: absolute;
+        top: 13px;
+        right: 12px;
+        z-index: 4;
+        color: #fff8ee;
+        content: counter(tool-card, decimal-leading-zero);
+        font-size: 1.02rem;
+        font-weight: 950;
+        text-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+      }
+
+      .card-media {
+        aspect-ratio: 1.6 / 0.92;
+      }
+
+      .card-body {
+        padding: 13px;
+      }
+
+      .card h2 {
+        font-size: 1.05rem;
+      }
+
+      .description {
+        min-height: 66px;
+        font-size: 0.84rem;
+      }
+
+      .card-actions {
+        grid-template-columns: minmax(0, 1fr) 40px;
+      }
+
+      .card-actions .primary-button,
+      .card-actions .copy-button {
+        min-height: 38px;
+      }
+
+      .detail-link {
+        display: none;
+      }
+
+      .coming-card {
+        min-height: 150px;
+        border-style: dashed;
+        border-color: rgba(217, 180, 111, 0.35);
+        background: rgba(12, 12, 10, 0.64);
+      }
+
+      .coming-card .card-media {
+        aspect-ratio: 1.8 / 0.62;
+      }
+
+      .coming-card .card-body {
+        text-align: center;
+      }
+
+      .usage-sidebar {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        display: grid;
+        gap: 14px;
+        position: sticky;
+        top: 96px;
+      }
+
+      .usage-sidebar section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+        background:
+          linear-gradient(145deg, rgba(244, 232, 211, 0.055), transparent),
+          rgba(18, 18, 16, 0.82);
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      }
+
+      .sidebar-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .usage-sidebar h2 {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .sidebar-head span,
+      .usage-sidebar li {
+        color: var(--muted);
+      }
+
+      .usage-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .usage-list div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: #d8d0c4;
+      }
+
+      .usage-list b {
+        color: #fff8ee;
+      }
+
+      .usage-sidebar ul {
+        display: grid;
+        gap: 12px;
+        margin: 0 0 16px;
+        padding-left: 16px;
+      }
+
+      @media (max-width: 1180px) {
+        .topbar {
+          grid-template-columns: 1fr;
+        }
+
+        .main-nav,
+        .top-actions {
+          justify-content: flex-start;
+        }
+
+        .hero,
+        #links {
+          grid-template-columns: 1fr;
+        }
+
+        .usage-sidebar {
+          grid-column: 1;
+          grid-row: auto;
+          position: static;
+        }
+
+        .grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .main-nav {
+          width: 100%;
+          justify-content: flex-start;
+          overflow-x: auto;
+          padding-bottom: 4px;
+        }
+
+        .main-nav a.is-active::after {
+          bottom: -6px;
+        }
+
+        .hero-copy {
+          padding: 12px 0;
+        }
+
+        .benefit-row,
+        .business-dashboard,
+        .toolbar {
+          grid-template-columns: 1fr;
+        }
+
+        .vip-actions-card {
+          grid-column: 1;
+          grid-row: auto;
+          border-left: 0;
+          border-top: 1px solid rgba(244, 232, 211, 0.12);
+          padding: 14px 0 0;
+        }
+
+        .filter-pills,
+        .view-toggle {
+          overflow-x: auto;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
   <body>
@@ -763,6 +1192,12 @@
             <span>รวมเครื่องมือ AI พร้อมใช้</span>
           </span>
         </a>
+        <nav class="main-nav" aria-label="เมนูหลัก">
+          <a class="is-active" href="index.html">หน้าแรก</a>
+          <a href="#links">เครื่องมือ GPT</a>
+          <a href="pricing.html">รายละเอียดการสมัคร</a>
+          <a href="#upcomingTools">อัปเดตข่าวสาร</a>
+        </nav>
         <div class="top-actions">
           <div class="auth-panel" aria-label="สถานะสมาชิก">
             <button class="ghost-button auth-button" id="loginButton" type="button">เข้าสู่ระบบด้วย Google</button>
@@ -776,12 +1211,6 @@
             <a class="ghost-button admin-link" id="adminLink" href="admin.html" hidden>Admin</a>
             <button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
           </div>
-          <a class="ghost-button" href="#links">
-            ดูลิงก์ทั้งหมด
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
         </div>
       </header>
 
@@ -793,6 +1222,11 @@
             รวมลิงก์ Custom GPT สำหรับงานโฆษณา วิเคราะห์ Andromeda สร้างภาพโปรโมท
             ปรับภาพสินค้า และคำนวณ BOQ ไว้ในหน้าเดียว เปิดใช้งานได้เร็วบนมือถือและเดสก์ท็อป
           </p>
+          <div class="benefit-row" aria-label="จุดเด่น">
+            <div><b>↯</b><span>ใช้งานง่าย<br />ได้ผลลัพธ์จริง</span></div>
+            <div><b>◈</b><span>ปลอดภัย<br />ข้อมูลไม่รั่วไหล</span></div>
+            <div><b>↻</b><span>อัปเดตเครื่องมือ<br />ใหม่ทุกสัปดาห์</span></div>
+          </div>
           <div class="stats" aria-label="สรุปจำนวนเครื่องมือ">
             <div class="stat">
               <b>5</b>
@@ -813,11 +1247,22 @@
             <img src="assets/hero-gpt-hub.jpg" alt="ภาพรวมโลโก้ GPT ของ GivemeAI" />
           </div>
           <div class="business-dashboard" aria-label="สรุปสถานะระบบสำหรับเจ้าของธุรกิจ">
-            <div>
-              <span>VIP Access</span>
-              <strong>ปลดล็อกเครื่องมือสมาชิก</strong>
+            <div class="vip-title">
+              <span class="vip-crown">♛</span>
+              <strong>VIP <em>390 บาท</em></strong>
             </div>
-            <a class="primary-button" href="pricing.html">สมัคร VIP</a>
+            <ul class="vip-benefits">
+              <li>เข้าถึงเครื่องมือ GPT สมาชิกทั้งหมด</li>
+              <li>อัปเดตเครื่องมือใหม่ทุกสัปดาห์</li>
+              <li>ใช้งานได้ไม่จำกัด</li>
+              <li>สำหรับ 1 บัญชี Gmail</li>
+            </ul>
+            <div class="vip-actions-card">
+              <span class="vip-dot">สถานะ: VIP Member</span>
+              <a class="primary-button" href="pricing.html">สร้าง Order VIP</a>
+              <a class="ghost-button" href="pricing.html">จำลองชำระเงินแล้ว</a>
+              <small>ต้องการความช่วยเหลือ? <a href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">ติดต่อแอดมิน</a></small>
+            </div>
             <div class="dashboard-metrics">
               <span>Free 2 GPT</span>
               <span>VIP 3 GPT</span>
@@ -835,6 +1280,16 @@
             </svg>
             <input id="search" type="search" placeholder="ค้นหา เช่น Andromeda, BOQ, รูปโปรโมท" autocomplete="off" />
           </label>
+          <div class="filter-pills" aria-label="ตัวกรอง">
+            <button class="ghost-button is-active" type="button">ทั้งหมด</button>
+            <button class="ghost-button" type="button">Free Member</button>
+            <button class="ghost-button" type="button">VIP Member</button>
+            <button class="ghost-button" type="button">ล่าสุด</button>
+          </div>
+          <div class="view-toggle" aria-label="มุมมอง">
+            <button class="ghost-button is-active" type="button">▦</button>
+            <button class="ghost-button" type="button">☷</button>
+          </div>
           <div class="count"><span id="visibleCount">10</span> / 10 เครื่องมือ</div>
         </div>
 
@@ -915,7 +1370,7 @@
             </div>
           </article>
 
-          <article class="card coming-card is-locked" data-upcoming="true" data-order="1" data-search="coming soon gpt ใหม่ ทุกอาทิตย์ 20/6/68">
+          <article id="upcomingTools" class="card coming-card is-locked" data-upcoming="true" data-order="1" data-search="coming soon gpt ใหม่ ทุกอาทิตย์ 20/6/68">
             <div class="card-media" aria-hidden="true"></div>
             <div class="card-body">
               <span class="tag">Coming Soon</span>
@@ -962,6 +1417,29 @@
           </article>
 
         </div>
+        <aside class="usage-sidebar" aria-label="ภาพรวมการใช้งาน">
+          <section>
+            <div class="sidebar-head">
+              <h2>ภาพรวมการใช้งาน</h2>
+              <span>7 วันล่าสุด</span>
+            </div>
+            <div class="usage-list">
+              <div><span>▣ เปิดใช้งาน GPT</span><b>162 ครั้ง</b></div>
+              <div><span>🔗 คัดลอกลิงก์</span><b>48 ครั้ง</b></div>
+              <div><span>⌕ เข้าดูรายละเอียด</span><b>73 ครั้ง</b></div>
+              <div><span>▣ คลิกการ์ดล็อก</span><b>25 ครั้ง</b></div>
+            </div>
+          </section>
+          <section>
+            <h2>คำแนะนำสำหรับคุณ</h2>
+            <ul>
+              <li>ลองใช้ Andromeda Score เพื่อวิเคราะห์โฆษณาของคุณ</li>
+              <li>สร้างภาพโฆษณาด้วย Ads Andromeda Image</li>
+              <li>คำนวณ BOQ เพื่อลดเวลาทำงานเอกสาร</li>
+            </ul>
+            <a class="ghost-button" href="admin.html">ดูสถิติทั้งหมด</a>
+          </section>
+        </aside>
       </section>
 
       <footer class="footer">

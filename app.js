@@ -78,6 +78,11 @@ function ensureMemberStatus() {
   status = document.createElement("div");
   status.id = "memberStatus";
   status.className = "member-status";
+  const vipPanel = document.querySelector(".vip-actions-card");
+  if (vipPanel) {
+    vipPanel.insertAdjacentElement("afterbegin", status);
+    return status;
+  }
   const topbar = document.querySelector(".topbar");
   topbar?.insertAdjacentElement("afterend", status);
   return status;
