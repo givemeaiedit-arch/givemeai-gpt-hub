@@ -62,17 +62,21 @@ const latestCodeBox = document.querySelector("#latestCodeBox");
 const latestCodeText = document.querySelector("#latestCodeText");
 const vipCodesBody = document.querySelector("#vipCodesBody");
 const vipCodesEmpty = document.querySelector("#vipCodesEmpty");
+const ordersBody = document.querySelector("#ordersBody");
+const ordersEmpty = document.querySelector("#ordersEmpty");
 
 let currentUser = null;
 let users = [];
 let analyticsEvents = [];
 let vipCodes = [];
+let orders = [];
 let announcement = null;
 let gptSettings = {};
 let pricingPage = null;
 let unsubscribeUsers = null;
 let unsubscribeAnalytics = null;
 let unsubscribeVipCodes = null;
+let unsubscribeOrders = null;
 let unsubscribeAnnouncement = null;
 let unsubscribeGptSettings = null;
 let unsubscribePricingPage = null;
@@ -190,6 +194,37 @@ function renderVipCodes() {
       <td><button class="ghost-button" type="button" data-copy-code="${code.code || code.id}">Copy</button></td>
     `;
     vipCodesBody.appendChild(tr);
+  }
+}
+
+function renderOrders() {
+  if (!ordersBody) return;
+  const sorted = [...orders].sort((a, b) => {
+    const aTime = typeof a.createdAt?.toMillis === "function" ? a.createdAt.toMillis() : 0;
+    const bTime = typeof b.createdAt?.toMillis === "function" ? b.createdAt.toMillis() : 0;
+    return bTime - aTime;
+  });
+
+  ordersBody.innerHTML = "";
+  if (ordersEmpty) ordersEmpty.hidden = sorted.length > 0;
+
+  for (const order of sorted) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <strong>${order.id}</strong>
+        <small>${order.provider || "mock"}</small>
+      </td>
+      <td>
+        <strong>${order.email || "-"}</strong>
+        <small>${order.displayName || order.uid || "-"}</small>
+      </td>
+      <td>${order.amount || 0} ${order.currency || "THB"}</td>
+      <td><span class="status ${order.status || "pending"}">${order.status || "pending"}</span></td>
+      <td>${formatDate(order.createdAt)}</td>
+      <td>${formatDate(order.paidAt)}</td>
+    `;
+    ordersBody.appendChild(tr);
   }
 }
 
@@ -331,6 +366,23 @@ function startVipCodesListener() {
   );
 }
 
+function startOrdersListener() {
+  if (unsubscribeOrders) return;
+  const svc = getFirebaseServices();
+  if (!svc) return;
+
+  unsubscribeOrders = onSnapshot(
+    collection(svc.db, "orders"),
+    (snapshot) => {
+      orders = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+      renderOrders();
+    },
+    (error) => {
+      setMessage(`อ่าน Orders ไม่สำเร็จ: ${error.message}`, true);
+    },
+  );
+}
+
 function startAdminConfigListeners() {
   const svc = getFirebaseServices();
   if (!svc) return;
@@ -373,6 +425,12 @@ function stopVipCodesListener() {
   if (!unsubscribeVipCodes) return;
   unsubscribeVipCodes();
   unsubscribeVipCodes = null;
+}
+
+function stopOrdersListener() {
+  if (!unsubscribeOrders) return;
+  unsubscribeOrders();
+  unsubscribeOrders = null;
 }
 
 function stopAdminConfigListeners() {
@@ -543,6 +601,7 @@ if (!isFirebaseConfigured()) {
       stopUsersListener();
       stopAnalyticsListener();
       stopVipCodesListener();
+      stopOrdersListener();
       stopAdminConfigListeners();
       return;
     }
@@ -553,6 +612,7 @@ if (!isFirebaseConfigured()) {
       stopUsersListener();
       stopAnalyticsListener();
       stopVipCodesListener();
+      stopOrdersListener();
       stopAdminConfigListeners();
       return;
     }
@@ -563,6 +623,7 @@ if (!isFirebaseConfigured()) {
       stopUsersListener();
       stopAnalyticsListener();
       stopVipCodesListener();
+      stopOrdersListener();
       stopAdminConfigListeners();
       return;
     }
@@ -572,6 +633,7 @@ if (!isFirebaseConfigured()) {
     startUsersListener();
     startAnalyticsListener();
     startVipCodesListener();
+    startOrdersListener();
     startAdminConfigListeners();
   });
 }

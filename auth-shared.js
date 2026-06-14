@@ -15,6 +15,10 @@ import {
   setDoc,
   updateDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import {
+  getFunctions,
+  httpsCallable,
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 import { ADMIN_EMAIL, firebaseConfig, isFirebaseConfigured } from "./firebase-config.js";
 
 const ADMIN_EMAILS = new Set([ADMIN_EMAIL.toLowerCase(), "givemeai.edit@gmail.com"]);
@@ -35,6 +39,7 @@ export function getFirebaseServices() {
       app,
       auth: getAuth(app),
       db: getFirestore(app),
+      functions: getFunctions(app, "asia-southeast1"),
       provider: new GoogleAuthProvider(),
     };
     services.provider.setCustomParameters({ prompt: "select_account" });
@@ -220,6 +225,24 @@ export async function redeemVipCode(user, code) {
       usedByUid: user.uid,
     });
   });
+}
+
+export async function createVipOrder() {
+  const svc = getFirebaseServices();
+  if (!svc) throw new Error("Firebase is not configured.");
+
+  const createOrder = httpsCallable(svc.functions, "createVipOrder");
+  const result = await createOrder({});
+  return result.data;
+}
+
+export async function mockConfirmPayment(orderId) {
+  const svc = getFirebaseServices();
+  if (!svc) throw new Error("Firebase is not configured.");
+
+  const confirmPayment = httpsCallable(svc.functions, "mockConfirmPayment");
+  const result = await confirmPayment({ orderId });
+  return result.data;
 }
 
 export { ADMIN_EMAIL, isFirebaseConfigured };

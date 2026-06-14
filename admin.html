@@ -346,6 +346,12 @@
         background: rgba(255, 255, 255, 0.08);
       }
 
+      .status.paid {
+        color: #c7ffdf;
+        border-color: rgba(73, 222, 128, 0.4);
+        background: rgba(73, 222, 128, 0.1);
+      }
+
       .status.pending {
         color: #ffe5ba;
         border-color: rgba(255, 138, 0, 0.4);
@@ -433,6 +439,7 @@
         <nav class="admin-head-menu" aria-label="Admin menu">
           <a class="is-active" href="#membersSection" data-admin-tab="membersPage">สมาชิก</a>
           <a href="#vipCodeSection" data-admin-tab="vipPage">VIP Code</a>
+          <a href="#ordersSection" data-admin-tab="ordersPage">Orders</a>
           <a href="#pricingSection" data-admin-tab="pricingPage">Pricing</a>
           <a href="#announcementSection" data-admin-tab="announcementPage">ประกาศ</a>
           <a href="#gptDisplaySection" data-admin-tab="gptDisplayPage">GPT Display</a>
@@ -468,6 +475,26 @@
               </table>
             </div>
             <div class="empty" id="vipCodesEmpty" hidden>ยังไม่มี VIP Code</div>
+          </section>
+
+          <section class="config-card admin-page" id="ordersPage">
+            <p class="section-title">Orders</p>
+            <div class="table-wrap" id="ordersSection">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Email</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Paid</th>
+                  </tr>
+                </thead>
+                <tbody id="ordersBody"></tbody>
+              </table>
+            </div>
+            <div class="empty" id="ordersEmpty" hidden>ยังไม่มี Order</div>
           </section>
 
           <section class="config-card admin-page" id="pricingPage">

@@ -200,6 +200,37 @@
         padding: 16px;
       }
 
+      .checkout-card {
+        margin-top: 18px;
+        padding: 16px;
+        border: 1px solid rgba(255, 138, 0, 0.28);
+        border-radius: 8px;
+        background: rgba(255, 138, 0, 0.08);
+      }
+
+      .checkout-card h2 {
+        margin: 0 0 8px;
+        color: var(--gold);
+        font-size: 1.05rem;
+      }
+
+      .checkout-card p {
+        margin: 0 0 12px;
+      }
+
+      .checkout-status {
+        display: block;
+        min-height: 20px;
+        color: #d5dde7;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .checkout-actions {
+        display: grid;
+        gap: 10px;
+      }
+
       @media (max-width: 780px) {
         .topbar,
         .hero {
@@ -265,6 +296,15 @@
             <p class="fineprint">เหมาะสำหรับคนที่ต้องใช้ GPT ช่วยทำงานจริง ลดเวลาคิดงานซ้ำ และได้ใช้เครื่องมือที่มีอัปเดตต่อเนื่อง</p>
           </div>
           <img src="assets/hero-gpt-hub.jpg" alt="GivemeAI GPT Hub" style="width: 100%; border-radius: 8px; margin-top: 18px" />
+          <div class="checkout-card" id="vipCheckoutCard">
+            <h2>ซื้อ VIP อัตโนมัติ 390 บาท</h2>
+            <p class="fineprint">เวอร์ชันทดสอบ: กดสร้าง order แล้วกดจำลองชำระเงิน ระบบจะปลดล็อก VIP ให้อัตโนมัติทันที</p>
+            <div class="checkout-actions">
+              <button class="primary-button" id="createOrderButton" type="button">สร้าง Order VIP</button>
+              <button class="ghost-button" id="mockPayButton" type="button" disabled>จำลองว่าชำระเงินแล้ว</button>
+              <small class="checkout-status" id="checkoutStatus">Login Gmail ก่อนซื้อ VIP</small>
+            </div>
+          </div>
         </aside>
       </section>
 
@@ -302,7 +342,14 @@
     <div class="toast" id="toast" role="status" aria-live="polite">บันทึกแล้ว</div>
     <script type="module" src="app.js"></script>
     <script type="module">
-      import { signInWithGoogle } from "./auth-shared.js";
+      import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+      import {
+        createVipOrder,
+        getFirebaseServices,
+        mockConfirmPayment,
+        signInWithGoogle,
+        watchAuth,
+      } from "./auth-shared.js";
       import { trackEvent } from "./analytics.js";
       import { watchPricingPage } from "./hub-state.js";
 
@@ -311,6 +358,14 @@
       const price = document.querySelector("#pricingPrice");
       const benefits = document.querySelector("#pricingBenefits");
       const facebookCta = document.querySelector("#facebookCta");
+      const createOrderButton = document.querySelector("#createOrderButton");
+      const mockPayButton = document.querySelector("#mockPayButton");
+      const checkoutStatus = document.querySelector("#checkoutStatus");
+      const orderStorageKey = "givemeaiVipOrderId";
+      let currentUser = null;
+      let currentProfile = null;
+      let currentOrderId = window.localStorage.getItem(orderStorageKey) || "";
+      let unsubscribeOrder = null;
 
       function renderPricing(page) {
         headline.textContent = page.headline;
@@ -323,6 +378,81 @@
 
       watchPricingPage(renderPricing);
 
+      function setCheckoutStatus(message) {
+        if (checkoutStatus) checkoutStatus.textContent = message;
+      }
+
+      function formatCheckoutError(error) {
+        if (error?.code === "functions/not-found" || error?.code === "functions/internal") {
+          return "ยังไม่ได้ Deploy Firebase Functions หรือยังไม่ได้อัปเกรด Firebase เป็น Blaze plan";
+        }
+        return error?.message || "เกิดข้อผิดพลาด";
+      }
+
+      function setCheckoutUi() {
+        const approved = currentProfile?.status === "approved";
+        if (!currentUser) {
+          if (createOrderButton) {
+            createOrderButton.disabled = false;
+            createOrderButton.textContent = "Login Gmail เพื่อซื้อ VIP";
+          }
+          if (mockPayButton) mockPayButton.disabled = true;
+          setCheckoutStatus("Login Gmail ก่อนซื้อ VIP");
+          return;
+        }
+
+        if (approved) {
+          if (createOrderButton) {
+            createOrderButton.disabled = true;
+            createOrderButton.textContent = "คุณเป็น VIP แล้ว";
+          }
+          if (mockPayButton) mockPayButton.disabled = true;
+          setCheckoutStatus("ปลดล็อก VIP แล้ว ใช้งาน GPT สมาชิกได้ทันที");
+          return;
+        }
+
+        if (createOrderButton) {
+          createOrderButton.disabled = false;
+          createOrderButton.textContent = currentOrderId ? "สร้าง Order ใหม่" : "สร้าง Order VIP";
+        }
+        if (mockPayButton) mockPayButton.disabled = !currentOrderId;
+        setCheckoutStatus(currentOrderId ? `Order: ${currentOrderId} รอจำลองชำระเงิน` : "พร้อมสร้าง Order VIP ราคา 390 บาท");
+      }
+
+      function watchOrder(orderId) {
+        if (unsubscribeOrder) {
+          unsubscribeOrder();
+          unsubscribeOrder = null;
+        }
+        if (!orderId) return;
+
+        const svc = getFirebaseServices();
+        if (!svc) return;
+
+        unsubscribeOrder = onSnapshot(
+          doc(svc.db, "orders", orderId),
+          (snapshot) => {
+            if (!snapshot.exists()) return;
+            const order = snapshot.data();
+            if (order.status === "paid") {
+              setCheckoutStatus("ชำระเงินสำเร็จแล้ว ระบบปลดล็อก VIP ให้แล้ว");
+              if (mockPayButton) mockPayButton.disabled = true;
+              window.localStorage.removeItem(orderStorageKey);
+              return;
+            }
+            setCheckoutStatus(`Order: ${orderId} สถานะ ${order.status || "pending"} ราคา ${order.amount || 390} บาท`);
+          },
+          () => setCheckoutStatus("ยังอ่านสถานะ Order ไม่ได้"),
+        );
+      }
+
+      watchAuth(({ user, profile }) => {
+        currentUser = user;
+        currentProfile = profile;
+        setCheckoutUi();
+        if (currentOrderId && user) watchOrder(currentOrderId);
+      });
+
       document.querySelector("#pricingLoginButton")?.addEventListener("click", async () => {
         trackEvent("signup_cta", "");
         try {
@@ -334,6 +464,42 @@
 
       facebookCta?.addEventListener("click", () => {
         trackEvent("signup_cta", "");
+      });
+
+      createOrderButton?.addEventListener("click", async () => {
+        if (!currentUser) {
+          await signInWithGoogle();
+          return;
+        }
+
+        createOrderButton.disabled = true;
+        setCheckoutStatus("กำลังสร้าง Order VIP...");
+        try {
+          const order = await createVipOrder();
+          currentOrderId = order.orderId;
+          window.localStorage.setItem(orderStorageKey, currentOrderId);
+          watchOrder(currentOrderId);
+          setCheckoutUi();
+        } catch (error) {
+          setCheckoutStatus(`สร้าง Order ไม่สำเร็จ: ${formatCheckoutError(error)}`);
+        } finally {
+          createOrderButton.disabled = false;
+        }
+      });
+
+      mockPayButton?.addEventListener("click", async () => {
+        if (!currentOrderId) return;
+        mockPayButton.disabled = true;
+        setCheckoutStatus("กำลังจำลองการชำระเงินและปลดล็อก VIP...");
+        try {
+          await mockConfirmPayment(currentOrderId);
+          window.localStorage.removeItem(orderStorageKey);
+          setCheckoutStatus("ชำระเงินสำเร็จแล้ว ระบบปลดล็อก VIP ให้แล้ว");
+          window.setTimeout(() => window.location.reload(), 900);
+        } catch (error) {
+          setCheckoutStatus(`ยืนยันชำระเงินไม่สำเร็จ: ${formatCheckoutError(error)}`);
+          mockPayButton.disabled = false;
+        }
       });
     </script>
   </body>
