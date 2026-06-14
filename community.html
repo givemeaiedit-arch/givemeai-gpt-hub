@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>กลุ่มเรียนรู้ | GivemeAI GPT Hub</title>
+    <link rel="icon" href="assets/favicon.png" />
+    <link rel="stylesheet" href="styles-auth.css" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --panel: rgba(18, 18, 16, 0.84);
+        --text: #f7f1e7;
+        --muted: #a9a095;
+        --line: rgba(244, 232, 211, 0.13);
+        --gold: #d9b46f;
+        --teal: #77d6c8;
+        --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "Noto Sans Thai", Arial, sans-serif;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .shell {
+        width: min(1080px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) auto;
+        align-items: center;
+        gap: 18px;
+        min-height: 64px;
+        margin-bottom: 42px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand img {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+      }
+
+      .brand strong,
+      .brand span {
+        display: block;
+      }
+
+      .brand span {
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      .main-nav {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: clamp(16px, 3vw, 34px);
+      }
+
+      .main-nav a {
+        position: relative;
+        color: #cfc7ba;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .main-nav a.is-active,
+      .main-nav a:hover {
+        color: var(--gold);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 22px;
+        align-items: stretch;
+      }
+
+      .hero-card,
+      .community-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background:
+          linear-gradient(145deg, rgba(217, 180, 111, 0.08), transparent 52%),
+          var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .hero-card {
+        padding: clamp(24px, 4vw, 42px);
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--teal);
+        font-size: 0.86rem;
+        font-weight: 900;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.25rem, 6vw, 4.7rem);
+        line-height: 1;
+      }
+
+      .lead {
+        max-width: 660px;
+        margin: 18px 0 0;
+        color: #d8d0c4;
+        font-size: 1.04rem;
+        line-height: 1.7;
+      }
+
+      .side-panel {
+        padding: 22px;
+      }
+
+      .side-panel b {
+        color: var(--gold);
+      }
+
+      .community-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .community-card {
+        padding: 18px;
+      }
+
+      .community-card h2 {
+        margin: 0 0 8px;
+        font-size: 1.05rem;
+      }
+
+      .community-card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .ghost-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        margin-top: 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 14px;
+        background: rgba(244, 232, 211, 0.055);
+        color: var(--text);
+        font-weight: 850;
+      }
+
+      @media (max-width: 900px) {
+        .topbar,
+        .hero {
+          grid-template-columns: 1fr;
+        }
+
+        .main-nav {
+          justify-content: flex-start;
+          overflow-x: auto;
+          padding-bottom: 4px;
+        }
+
+        .community-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar" aria-label="หัวเว็บ">
+        <a class="brand" href="index.html">
+          <img src="assets/favicon.png" alt="GivemeAI" />
+          <span>
+            <strong>GivemeAI GPT Hub</strong>
+            <span>Business AI Toolkit</span>
+          </span>
+        </a>
+        <nav class="main-nav" aria-label="เมนูหลัก">
+          <a href="index.html">หน้าแรก</a>
+          <a href="index.html#links">เครื่องมือ GPT</a>
+          <a href="pricing.html">รายละเอียดการสมัคร</a>
+          <a href="lessons.html">บทเรียน</a>
+          <a class="is-active" href="community.html">กลุ่มเรียนรู้</a>
+          <a href="index.html#upcomingTools">อัปเดตข่าวสาร</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <article class="hero-card">
+          <p class="eyebrow">COMMUNITY</p>
+          <h1>กลุ่มเรียนรู้ GivemeAI</h1>
+          <p class="lead">พื้นที่สำหรับติดตามอัปเดต เทคนิค ตัวอย่างใช้งานจริง และแนวทางใช้ GPT ให้เหมาะกับธุรกิจในแต่ละช่วง</p>
+          <a class="ghost-button" href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">ไปที่ Fanpage</a>
+        </article>
+        <aside class="hero-card side-panel">
+          <p><b>สถานะ:</b> กำลังเตรียมช่องทางกลุ่มเรียนรู้</p>
+          <p class="lead">ช่วงแรกสามารถติดตามข่าวสารและติดต่อแอดมินผ่าน Fanpage ได้ก่อน</p>
+        </aside>
+      </section>
+
+      <section class="community-grid" aria-label="สิ่งที่จะมีในกลุ่มเรียนรู้">
+        <article class="community-card">
+          <h2>อัปเดต GPT ใหม่</h2>
+          <p>แจ้งเครื่องมือใหม่ วิธีใช้งาน และตัวอย่าง prompt ที่ใช้ได้จริง</p>
+        </article>
+        <article class="community-card">
+          <h2>ตัวอย่างงานจริง</h2>
+          <p>รวม case การใช้ AI กับงานโปรโมท โฆษณา และงานเอกสารธุรกิจ</p>
+        </article>
+        <article class="community-card">
+          <h2>ถามตอบการใช้งาน</h2>
+          <p>พื้นที่สำหรับรวมคำถามที่พบบ่อยและแนวทางแก้ปัญหาจากผู้ใช้</p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
