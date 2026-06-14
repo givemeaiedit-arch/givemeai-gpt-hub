@@ -78,8 +78,8 @@ function ensureMemberStatus() {
   status = document.createElement("div");
   status.id = "memberStatus";
   status.className = "member-status";
-  const toolbar = document.querySelector(".toolbar");
-  toolbar?.insertAdjacentElement("afterend", status);
+  const topbar = document.querySelector(".topbar");
+  topbar?.insertAdjacentElement("afterend", status);
   return status;
 }
 
