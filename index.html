@@ -998,6 +998,21 @@
         counter-reset: tool-card;
       }
 
+      .grid.is-list-view {
+        grid-template-columns: 1fr;
+      }
+
+      .grid.is-list-view .card:not(.coming-card) {
+        display: grid;
+        grid-template-columns: 190px minmax(0, 1fr);
+      }
+
+      .grid.is-list-view .card-media {
+        height: 100%;
+        min-height: 150px;
+        aspect-ratio: auto;
+      }
+
       .card:not(.coming-card) {
         counter-increment: tool-card;
       }
@@ -1190,6 +1205,15 @@
         .grid {
           grid-template-columns: 1fr;
         }
+
+        .grid.is-list-view .card:not(.coming-card) {
+          grid-template-columns: 1fr;
+        }
+
+        .grid.is-list-view .card-media {
+          min-height: 0;
+          aspect-ratio: 1.6 / 0.92;
+        }
       }
     </style>
   </head>
@@ -1292,14 +1316,14 @@
             <input id="search" type="search" placeholder="ค้นหา เช่น Andromeda, BOQ, รูปโปรโมท" autocomplete="off" />
           </label>
           <div class="filter-pills" aria-label="ตัวกรอง">
-            <button class="ghost-button is-active" type="button">ทั้งหมด</button>
-            <button class="ghost-button" type="button">Free Member</button>
-            <button class="ghost-button" type="button">VIP Member</button>
-            <button class="ghost-button" type="button">ล่าสุด</button>
+            <button class="ghost-button is-active" type="button" data-filter="all">ทั้งหมด</button>
+            <button class="ghost-button" type="button" data-filter="free">Free Member</button>
+            <button class="ghost-button" type="button" data-filter="vip">VIP Member</button>
+            <button class="ghost-button" type="button" data-filter="latest">ล่าสุด</button>
           </div>
           <div class="view-toggle" aria-label="มุมมอง">
-            <button class="ghost-button is-active" type="button">▦</button>
-            <button class="ghost-button" type="button">☷</button>
+            <button class="ghost-button is-active" type="button" data-view="grid">▦</button>
+            <button class="ghost-button" type="button" data-view="list">☷</button>
           </div>
           <div class="count"><span id="visibleCount">10</span> / 10 เครื่องมือ</div>
         </div>
@@ -1462,9 +1486,13 @@
 
     <script>
       const search = document.querySelector("#search");
+      const cardsGrid = document.querySelector("#cards");
       const cards = [...document.querySelectorAll(".card")];
+      const filterButtons = [...document.querySelectorAll("[data-filter]")];
+      const viewButtons = [...document.querySelectorAll("[data-view]")];
       const visibleCount = document.querySelector("#visibleCount");
       const toast = document.querySelector("#toast");
+      let activeFilter = "all";
 
       window.applyCardSearch = () => {
         const value = search.value.trim().toLowerCase();
@@ -1472,7 +1500,14 @@
         cards.forEach((card) => {
           const text = card.textContent.toLowerCase() + " " + card.dataset.search.toLowerCase();
           const hiddenByAdmin = card.dataset.hiddenByAdmin === "true";
-          const show = !hiddenByAdmin && (!value || text.includes(value));
+          const isVip = card.dataset.protected === "true";
+          const isUpcoming = card.dataset.upcoming === "true";
+          const matchesFilter =
+            activeFilter === "all" ||
+            (activeFilter === "free" && !isVip && !isUpcoming) ||
+            (activeFilter === "vip" && isVip && !isUpcoming) ||
+            (activeFilter === "latest" && isUpcoming);
+          const show = !hiddenByAdmin && matchesFilter && (!value || text.includes(value));
           card.hidden = !show;
           if (show) total += 1;
         });
@@ -1480,6 +1515,21 @@
       };
 
       search.addEventListener("input", window.applyCardSearch);
+
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          activeFilter = button.dataset.filter;
+          filterButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+          window.applyCardSearch();
+        });
+      });
+
+      viewButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          viewButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+          cardsGrid.classList.toggle("is-list-view", button.dataset.view === "list");
+        });
+      });
 
       document.querySelectorAll("[data-copy]").forEach((button) => {
         button.addEventListener("click", async () => {
