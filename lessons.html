@@ -149,12 +149,32 @@
         margin-top: 18px;
       }
 
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-top: 28px;
+      }
+
+      .section-head h2 {
+        margin: 0;
+        font-size: clamp(1.35rem, 3vw, 2rem);
+      }
+
+      .section-head p {
+        margin: 6px 0 0;
+        color: var(--muted);
+      }
+
       .lesson-card {
+        display: grid;
+        gap: 12px;
         padding: 18px;
       }
 
       .lesson-card h2 {
-        margin: 0 0 8px;
+        margin: 0;
         font-size: 1.05rem;
       }
 
@@ -162,6 +182,63 @@
         margin: 0;
         color: var(--muted);
         line-height: 1.55;
+      }
+
+      .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        border: 1px solid rgba(217, 180, 111, 0.22);
+        border-radius: 999px;
+        padding: 0 10px;
+        color: #e7c27e;
+        background: rgba(217, 180, 111, 0.08);
+        font-size: 0.78rem;
+        font-weight: 850;
+      }
+
+      .status-ready {
+        color: #dffff9;
+        border-color: rgba(119, 214, 200, 0.3);
+        background: rgba(19, 91, 83, 0.34);
+      }
+
+      .lesson-plan {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .plan-row {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: rgba(18, 18, 16, 0.64);
+      }
+
+      .plan-row time {
+        color: var(--gold);
+        font-weight: 900;
+      }
+
+      .plan-row strong,
+      .plan-row span {
+        display: block;
+      }
+
+      .plan-row span {
+        color: var(--muted);
+        margin-top: 3px;
       }
 
       .ghost-button {
@@ -191,6 +268,11 @@
         }
 
         .lesson-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .section-head,
+        .plan-row {
           grid-template-columns: 1fr;
         }
       }
@@ -224,24 +306,96 @@
           <a class="ghost-button" href="pricing.html">ดูรายละเอียด VIP</a>
         </article>
         <aside class="hero-card side-panel">
-          <p><b>สถานะ:</b> กำลังเตรียมบทเรียนชุดแรก</p>
-          <p class="lead">เร็ว ๆ นี้จะเพิ่มคอร์สสั้นและตัวอย่างใช้งานจริงสำหรับสมาชิก</p>
+          <p><b>ภาพรวมบทเรียนจำลอง</b></p>
+          <p class="lead">6 บทเรียน • 2 ชั่วโมง 25 นาที • เหมาะสำหรับเจ้าของธุรกิจและทีมขาย/การตลาด</p>
+          <div class="meta-row">
+            <span class="pill status-ready">พร้อมเรียน 3 บท</span>
+            <span class="pill">VIP 3 บท</span>
+          </div>
         </aside>
       </section>
 
+      <div class="section-head">
+        <div>
+          <h2>หลักสูตรแนะนำ</h2>
+          <p>ข้อมูลจำลองสำหรับโชว์โครงหน้าบทเรียน ก่อนใส่คอร์สจริง</p>
+        </div>
+        <span class="pill">อัปเดตทุกสัปดาห์</span>
+      </div>
+
       <section class="lesson-grid" aria-label="รายการบทเรียน">
         <article class="lesson-card">
+          <div class="meta-row">
+            <span class="pill status-ready">Free</span>
+            <span class="pill">18 นาที</span>
+          </div>
           <h2>เริ่มต้นใช้ GPT ให้คุ้ม</h2>
           <p>แนวทางเลือกเครื่องมือให้ตรงกับงาน และเตรียมข้อมูลก่อนใช้งาน</p>
         </article>
         <article class="lesson-card">
+          <div class="meta-row">
+            <span class="pill status-ready">Free</span>
+            <span class="pill">22 นาที</span>
+          </div>
           <h2>สร้างภาพโปรโมทสินค้า</h2>
           <p>ตัวอย่าง workflow สำหรับทำภาพโฆษณาและโพสต์ขาย</p>
         </article>
         <article class="lesson-card">
+          <div class="meta-row">
+            <span class="pill status-ready">Free</span>
+            <span class="pill">25 นาที</span>
+          </div>
           <h2>วิเคราะห์โฆษณา Meta Ads</h2>
           <p>อ่านคะแนน จุดแข็ง จุดอ่อน และปรับ creative ให้เหมาะกับธุรกิจ</p>
         </article>
+        <article class="lesson-card">
+          <div class="meta-row">
+            <span class="pill">VIP</span>
+            <span class="pill">31 นาที</span>
+          </div>
+          <h2>ทำ Ads Creative Brief</h2>
+          <p>จัดข้อมูลสินค้า กลุ่มเป้าหมาย offer และ proof ให้ GPT สร้างภาพ/ข้อความได้แม่นขึ้น</p>
+        </article>
+        <article class="lesson-card">
+          <div class="meta-row">
+            <span class="pill">VIP</span>
+            <span class="pill">28 นาที</span>
+          </div>
+          <h2>ใช้ AI ทำงานเอกสารธุรกิจ</h2>
+          <p>แนวทางใช้ GPT กับ checklist, BOQ, สรุปงาน และเอกสารที่ใช้ซ้ำบ่อย</p>
+        </article>
+        <article class="lesson-card">
+          <div class="meta-row">
+            <span class="pill">VIP</span>
+            <span class="pill">21 นาที</span>
+          </div>
+          <h2>วางแผนคอนเทนต์ 7 วัน</h2>
+          <p>สร้างตารางโพสต์และไอเดียโปรโมทแบบใช้ซ้ำได้สำหรับธุรกิจขนาดเล็ก</p>
+        </article>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>ตารางปล่อยบทเรียน</h2>
+          <p>ตัวอย่าง roadmap เนื้อหาที่จะเพิ่มในหน้าเรียน</p>
+        </div>
+      </div>
+      <section class="lesson-plan" aria-label="ตารางปล่อยบทเรียน">
+        <div class="plan-row">
+          <time>20/6/68</time>
+          <div><strong>Prompt พื้นฐานสำหรับเจ้าของธุรกิจ</strong><span>เริ่มจากการเขียนคำสั่งให้ GPT เข้าใจสินค้าและลูกค้า</span></div>
+          <span class="pill status-ready">พร้อม</span>
+        </div>
+        <div class="plan-row">
+          <time>27/6/68</time>
+          <div><strong>สร้างภาพโปรโมท 3 สไตล์</strong><span>ทดลอง brief เดียวแล้วแตกเป็นภาพขาย ภาพแนะนำ และภาพรีวิว</span></div>
+          <span class="pill">กำลังเตรียม</span>
+        </div>
+        <div class="plan-row">
+          <time>4/7/68</time>
+          <div><strong>เช็กโฆษณาก่อนลงเงิน</strong><span>ใช้ Andromeda Score ตรวจ hook, offer, proof และ CTA</span></div>
+          <span class="pill">กำลังเตรียม</span>
+        </div>
       </section>
     </main>
   </body>
