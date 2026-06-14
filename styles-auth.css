@@ -352,7 +352,8 @@ body::after {
 
 .announcement-banner {
   display: none;
-  margin: 0 0 18px;
+  grid-column: 1;
+  margin: 0;
   border: 1px solid rgba(255, 209, 102, 0.34);
   border-radius: 8px;
   padding: 12px 14px;
@@ -510,7 +511,8 @@ body::after {
 
 .system-note {
   display: none;
-  margin: 12px 0 0;
+  grid-column: 1;
+  margin: 0;
   padding: 10px 12px;
   border: 1px solid rgba(255, 138, 0, 0.35);
   border-radius: 8px;

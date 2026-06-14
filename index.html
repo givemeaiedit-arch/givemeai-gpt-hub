@@ -951,17 +951,20 @@
       }
 
       #links {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 300px;
-        gap: 20px;
-        align-items: start;
+        position: relative;
+        display: block;
+      }
+
+      #links .announcement-banner,
+      #links .system-note {
+        width: calc(100% - 320px);
       }
 
       .toolbar {
-        grid-column: 1;
+        width: calc(100% - 320px);
         grid-template-columns: minmax(320px, 1fr) auto auto auto;
         gap: 10px;
-        margin: 0 0 14px;
+        margin: 0;
       }
 
       .filter-pills,
@@ -988,7 +991,8 @@
       }
 
       .grid {
-        grid-column: 1;
+        width: calc(100% - 320px);
+        margin-top: 10px;
         grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 12px;
         counter-reset: tool-card;
@@ -1056,12 +1060,12 @@
       }
 
       .usage-sidebar {
-        grid-column: 2;
-        grid-row: 1 / span 2;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
         display: grid;
         gap: 14px;
-        position: sticky;
-        top: 96px;
       }
 
       .usage-sidebar section {
@@ -1130,10 +1134,17 @@
           grid-template-columns: 1fr;
         }
 
+        .toolbar,
+        .grid,
+        #links .announcement-banner,
+        #links .system-note {
+          width: 100%;
+        }
+
         .usage-sidebar {
-          grid-column: 1;
-          grid-row: auto;
           position: static;
+          width: auto;
+          margin-top: 14px;
         }
 
         .grid {

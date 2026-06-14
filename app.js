@@ -60,7 +60,7 @@ function ensureSystemNote() {
   note.id = "systemNote";
   note.className = "system-note";
   const toolbar = document.querySelector(".toolbar");
-  toolbar?.insertAdjacentElement("afterend", note);
+  toolbar?.insertAdjacentElement("beforebegin", note);
   return note;
 }
 
