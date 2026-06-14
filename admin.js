@@ -32,6 +32,8 @@ const userName = document.querySelector("#userName");
 const userStatus = document.querySelector("#userStatus");
 const adminMessage = document.querySelector("#adminMessage");
 const adminPanel = document.querySelector("#adminPanel");
+const adminTabs = [...document.querySelectorAll("[data-admin-tab]")];
+const adminPages = [...document.querySelectorAll(".admin-page")];
 const usersBody = document.querySelector("#usersBody");
 const emptyState = document.querySelector("#emptyState");
 const userSearch = document.querySelector("#userSearch");
@@ -54,6 +56,10 @@ const savePricingButton = document.querySelector("#savePricingButton");
 const vipCodeInput = document.querySelector("#vipCodeInput");
 const generateCodeButton = document.querySelector("#generateCodeButton");
 const saveCodeButton = document.querySelector("#saveCodeButton");
+const copyLatestCodeButton = document.querySelector("#copyLatestCodeButton");
+const copyLatestCodeInlineButton = document.querySelector("#copyLatestCodeInlineButton");
+const latestCodeBox = document.querySelector("#latestCodeBox");
+const latestCodeText = document.querySelector("#latestCodeText");
 const vipCodesBody = document.querySelector("#vipCodesBody");
 const vipCodesEmpty = document.querySelector("#vipCodesEmpty");
 
@@ -83,6 +89,22 @@ function setMessage(message, error = false) {
   adminMessage.classList.add("show");
   adminMessage.style.borderColor = error ? "rgba(255, 107, 107, 0.45)" : "";
   adminMessage.style.background = error ? "rgba(255, 107, 107, 0.12)" : "";
+}
+
+async function copyText(text) {
+  const value = String(text || "").trim();
+  if (!value) return;
+  await navigator.clipboard.writeText(value);
+  showToast(`Copy Code แล้ว: ${value}`);
+}
+
+function setActiveAdminPage(pageId) {
+  adminTabs.forEach((tab) => {
+    tab.classList.toggle("is-active", tab.dataset.adminTab === pageId);
+  });
+  adminPages.forEach((page) => {
+    page.classList.toggle("is-active", page.id === pageId);
+  });
 }
 
 function formatDate(value) {
@@ -165,6 +187,7 @@ function renderVipCodes() {
       <td><span class="status ${code.status || "active"}">${code.status || "active"}</span></td>
       <td>${formatDate(code.usedAt || code.createdAt)}</td>
       <td>${code.usedBy || "-"}</td>
+      <td><button class="ghost-button" type="button" data-copy-code="${code.code || code.id}">Copy</button></td>
     `;
     vipCodesBody.appendChild(tr);
   }
@@ -375,12 +398,23 @@ loginButton?.addEventListener("click", async () => {
   }
 });
 
+adminTabs.forEach((tab) => {
+  tab.addEventListener("click", (event) => {
+    event.preventDefault();
+    setActiveAdminPage(tab.dataset.adminTab);
+  });
+});
+
 logoutButton?.addEventListener("click", async () => {
   await signOutUser();
   showToast("ออกจากระบบแล้ว");
 });
 
 userSearch?.addEventListener("input", renderUsers);
+
+vipCodeInput?.addEventListener("input", () => {
+  vipCodeInput.value = vipCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5);
+});
 
 usersBody?.addEventListener("click", async (event) => {
   const button = event.target.closest("button[data-action]");
@@ -400,6 +434,9 @@ generateCodeButton?.addEventListener("click", () => {
   if (vipCodeInput) vipCodeInput.value = generateVipCode();
 });
 
+copyLatestCodeButton?.addEventListener("click", () => copyText(vipCodeInput?.value));
+copyLatestCodeInlineButton?.addEventListener("click", () => copyText(latestCodeText?.textContent));
+
 saveCodeButton?.addEventListener("click", async () => {
   if (!currentUser) return;
   saveCodeButton.disabled = true;
@@ -409,12 +446,24 @@ saveCodeButton?.addEventListener("click", async () => {
       adminEmail: currentUser.email,
     });
     if (vipCodeInput) vipCodeInput.value = code;
+    if (copyLatestCodeButton) copyLatestCodeButton.disabled = false;
+    if (latestCodeText) latestCodeText.textContent = code;
+    latestCodeBox?.classList.add("show");
     showToast(`สร้าง VIP Code แล้ว: ${code}`);
   } catch (error) {
-    showToast(`สร้าง VIP Code ไม่สำเร็จ: ${error.message}`);
+    const message = error.code === "permission-denied"
+      ? "สร้าง VIP Code ไม่สำเร็จ: ต้อง Publish Firestore Rules เวอร์ชันใหม่ก่อน"
+      : `สร้าง VIP Code ไม่สำเร็จ: ${error.message}`;
+    showToast(message);
   } finally {
     saveCodeButton.disabled = false;
   }
+});
+
+vipCodesBody?.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-copy-code]");
+  if (!button) return;
+  await copyText(button.dataset.copyCode);
 });
 
 savePricingButton?.addEventListener("click", async () => {

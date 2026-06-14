@@ -115,9 +115,9 @@ function setMemberStatus(user, profile, approved) {
   status.className = "member-status pending";
   status.innerHTML = `
     <strong>ยังไม่เป็น VIP</strong>
-    <span>กรอกรหัส VIP 5 หลักที่ได้รับจาก Admin เพื่อปลดล็อก GPT สมาชิก</span>
+    <span>กรอกรหัส VIP 5 ตัวที่ได้รับจาก Admin เพื่อปลดล็อก GPT สมาชิก</span>
     <div class="vip-redeem">
-      <input id="vipCodeInput" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="5" pattern="[0-9]{5}" placeholder="เช่น 12345" />
+      <input id="vipCodeInput" type="text" inputmode="text" autocomplete="one-time-code" maxlength="5" pattern="[A-Za-z0-9]{5}" placeholder="เช่น A7K2Q" />
       <button class="primary-button" id="redeemCodeButton" type="button">ปลดล็อก VIP</button>
     </div>
     <small>หลังกรอกสำเร็จ Code จะผูกกับ Gmail นี้อัตโนมัติ และใช้ซ้ำไม่ได้</small>
@@ -375,6 +375,11 @@ document.addEventListener("click", async (event) => {
   } finally {
     button.disabled = false;
   }
+});
+
+document.addEventListener("input", (event) => {
+  if (event.target?.id !== "vipCodeInput") return;
+  event.target.value = event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5);
 });
 
 if (!isFirebaseConfigured()) {

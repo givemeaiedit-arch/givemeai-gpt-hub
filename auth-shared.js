@@ -151,16 +151,20 @@ export async function setUserStatus(uid, status, adminEmail) {
 }
 
 export function generateVipCode() {
-  return String(Math.floor(10000 + Math.random() * 90000));
+  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const values = Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]);
+  values[Math.floor(Math.random() * values.length)] = letters[Math.floor(Math.random() * letters.length)];
+  return values.join("");
 }
 
 export async function createVipCode({ code, adminEmail }) {
   const svc = getFirebaseServices();
   if (!svc) throw new Error("Firebase is not configured.");
 
-  const normalizedCode = String(code || generateVipCode()).trim();
-  if (!/^\d{5}$/.test(normalizedCode)) {
-    throw new Error("VIP code must be 5 digits.");
+  const normalizedCode = String(code || generateVipCode()).trim().toUpperCase();
+  if (!/^(?=.*[A-Z])[A-Z0-9]{5}$/.test(normalizedCode)) {
+    throw new Error("VIP code must be 5 characters and include English letters.");
   }
 
   const ref = doc(svc.db, "vipCodes", normalizedCode);
@@ -184,8 +188,10 @@ export async function redeemVipCode(user, code) {
   if (!svc) throw new Error("Firebase is not configured.");
   if (!user?.uid || !user?.email) throw new Error("Please sign in first.");
 
-  const normalizedCode = String(code || "").trim();
-  if (!/^\d{5}$/.test(normalizedCode)) throw new Error("Please enter a 5 digit VIP code.");
+  const normalizedCode = String(code || "").trim().toUpperCase();
+  if (!/^(?=.*[A-Z])[A-Z0-9]{5}$/.test(normalizedCode)) {
+    throw new Error("Please enter a 5 character VIP code with English letters.");
+  }
 
   const codeRef = doc(svc.db, "vipCodes", normalizedCode);
   const userRef = doc(svc.db, "users", user.uid);

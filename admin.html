@@ -158,6 +158,20 @@
         white-space: nowrap;
       }
 
+      .admin-head-menu a.is-active {
+        border-color: rgba(56, 214, 199, 0.5);
+        color: #d8fffb;
+        background: rgba(56, 214, 199, 0.14);
+      }
+
+      .admin-page {
+        display: none;
+      }
+
+      .admin-page.is-active {
+        display: block;
+      }
+
       .config-card {
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -201,9 +215,22 @@
 
       .vip-code-grid {
         display: grid;
-        grid-template-columns: minmax(160px, 240px) auto auto;
+        grid-template-columns: minmax(160px, 240px) auto auto auto;
         gap: 10px;
         align-items: center;
+      }
+
+      .last-code {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        margin: 12px 0 4px;
+        color: #d8fffb;
+        font-weight: 850;
+      }
+
+      .last-code.show {
+        display: flex;
       }
 
       .order-input {
@@ -397,29 +424,34 @@
       <section>
         <p style="color: var(--teal); font-weight: 900; margin: 0 0 12px">ADMIN PANEL</p>
         <h1>VIP Code สมาชิก</h1>
-        <p class="lead">Admin สร้าง VIP Code แบบตัวเลข 5 หลัก ผู้ใช้กรอกโค้ดเพื่อปลดล็อก GPT สมาชิกได้เอง และระบบจะผูก Code กับ Gmail ของผู้ใช้คนนั้นอัตโนมัติ</p>
+        <p class="lead">Admin สร้าง VIP Code 5 หลักแบบตัวอักษรอังกฤษผสมตัวเลข ผู้ใช้กรอกโค้ดเพื่อปลดล็อก GPT สมาชิกได้เอง และระบบจะผูก Code กับ Gmail ของผู้ใช้คนนั้นอัตโนมัติ</p>
       </section>
 
       <div id="adminMessage" class="system-note show">กำลังตรวจสอบสิทธิ์ Admin...</div>
 
       <section class="panel" id="adminPanel" hidden>
         <nav class="admin-head-menu" aria-label="Admin menu">
-          <a href="#membersSection">สมาชิก</a>
-          <a href="#vipCodeSection">VIP Code</a>
-          <a href="#pricingSection">Pricing</a>
-          <a href="#announcementSection">ประกาศ</a>
-          <a href="#gptDisplaySection">GPT Display</a>
-          <a href="#analyticsSection">Analytics</a>
+          <a class="is-active" href="#membersSection" data-admin-tab="membersPage">สมาชิก</a>
+          <a href="#vipCodeSection" data-admin-tab="vipPage">VIP Code</a>
+          <a href="#pricingSection" data-admin-tab="pricingPage">Pricing</a>
+          <a href="#announcementSection" data-admin-tab="announcementPage">ประกาศ</a>
+          <a href="#gptDisplaySection" data-admin-tab="gptDisplayPage">GPT Display</a>
+          <a href="#analyticsSection" data-admin-tab="analyticsPage">Analytics</a>
         </nav>
         <div class="admin-config">
-          <section class="config-card" id="vipCodeSection">
+          <section class="config-card admin-page" id="vipPage">
             <p class="section-title">VIP Code</p>
             <div class="vip-code-grid">
-              <input id="vipCodeInput" type="text" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" placeholder="12345" />
+              <input id="vipCodeInput" type="text" inputmode="text" maxlength="5" pattern="[A-Za-z0-9]{5}" placeholder="A7K2Q" />
               <button class="ghost-button" id="generateCodeButton" type="button">Generate</button>
               <button class="primary-button" id="saveCodeButton" type="button">บันทึก Code</button>
+              <button class="ghost-button" id="copyLatestCodeButton" type="button" disabled>Copy</button>
             </div>
-            <p class="lead" style="font-size: 0.9rem; margin: 10px 0 14px">Code ต้องเป็นตัวเลข 5 หลัก และจะผูกกับ Gmail อัตโนมัติเมื่อผู้ใช้กรอกสำเร็จ 1 Code ใช้ได้ครั้งเดียว</p>
+            <p class="lead" style="font-size: 0.9rem; margin: 10px 0 14px">Code ต้องมี 5 ตัว เป็นตัวอักษรอังกฤษ/ตัวเลข และจะผูกกับ Gmail อัตโนมัติเมื่อผู้ใช้กรอกสำเร็จ 1 Code ใช้ได้ครั้งเดียว</p>
+            <div class="last-code" id="latestCodeBox">
+              <span>Code ล่าสุด: <strong id="latestCodeText"></strong></span>
+              <button class="ghost-button" id="copyLatestCodeInlineButton" type="button">Copy Code</button>
+            </div>
             <div class="table-wrap">
               <table>
                 <thead>
@@ -429,6 +461,7 @@
                     <th>Status</th>
                     <th>วันที่</th>
                     <th>ใช้โดย</th>
+                    <th>Copy</th>
                   </tr>
                 </thead>
                 <tbody id="vipCodesBody"></tbody>
@@ -437,7 +470,7 @@
             <div class="empty" id="vipCodesEmpty" hidden>ยังไม่มี VIP Code</div>
           </section>
 
-          <section class="config-card" id="pricingSection">
+          <section class="config-card admin-page" id="pricingPage">
             <p class="section-title">Pricing Page</p>
             <div class="pricing-grid">
               <input id="pricingPriceInput" type="text" placeholder="390" />
@@ -452,7 +485,7 @@
             <button class="primary-button" id="savePricingButton" type="button">บันทึกหน้า Pricing</button>
           </section>
 
-          <section class="config-card" id="announcementSection">
+          <section class="config-card admin-page" id="announcementPage">
             <p class="section-title">Announcement</p>
             <label class="config-row">
               <input id="announcementEnabled" type="checkbox" />
@@ -462,7 +495,7 @@
             <button class="primary-button" id="saveAnnouncementButton" type="button">บันทึกประกาศ</button>
           </section>
 
-          <section class="config-card" id="gptDisplaySection">
+          <section class="config-card admin-page" id="gptDisplayPage">
             <p class="section-title">GPT Display</p>
             <div class="table-wrap">
               <table>
@@ -479,7 +512,7 @@
             </div>
           </section>
         </div>
-        <div class="analytics-section" id="analyticsSection">
+        <div class="analytics-section admin-page" id="analyticsPage">
           <p class="section-title">Analytics</p>
           <div class="stats-grid">
             <div class="stat-card">
@@ -510,6 +543,7 @@
             </table>
           </div>
         </div>
+        <section class="admin-page is-active" id="membersPage">
         <div class="toolbar" id="membersSection">
           <input id="userSearch" type="search" placeholder="ค้นหา Gmail หรือชื่อผู้ใช้" />
           <a class="ghost-button" href="index.html#links">กลับไปหน้า GPT Hub</a>
@@ -529,6 +563,7 @@
           </table>
         </div>
         <div class="empty" id="emptyState" hidden>ยังไม่มีผู้ใช้ในระบบ</div>
+        </section>
       </section>
     </main>
     <div class="toast" id="toast" role="status" aria-live="polite">บันทึกแล้ว</div>

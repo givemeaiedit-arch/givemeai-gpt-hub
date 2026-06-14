@@ -84,7 +84,7 @@ service cloud.firestore {
           "createdBy"
         ])
         && request.resource.data.code == code
-        && code.matches("^[0-9]{5}$")
+        && code.matches("^[A-Z0-9]{5}$")
         && request.resource.data.status == "active"
         && request.resource.data.createdAt == request.time
         && request.resource.data.createdBy == request.auth.token.email;
