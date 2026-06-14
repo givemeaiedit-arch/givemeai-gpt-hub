@@ -270,6 +270,7 @@
           radial-gradient(circle at 84% 18%, rgba(217, 180, 111, 0.13), transparent 26rem),
           radial-gradient(circle at 14% 28%, rgba(119, 214, 200, 0.08), transparent 26rem),
           linear-gradient(135deg, #030303 0%, #0d0d0b 48%, #050505 100%);
+        overflow-x: hidden;
       }
 
       .shell {
@@ -374,6 +375,13 @@
 
         .topbar {
           position: static;
+        }
+
+        .brand,
+        .auth-panel,
+        .actions,
+        .checkout-actions {
+          min-width: 0;
         }
       }
     </style>
