@@ -4,11 +4,15 @@
 
 html {
   scroll-behavior: smooth;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
   position: relative;
   animation: pageIn 0.42s ease both;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body::before,
