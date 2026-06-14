@@ -405,6 +405,151 @@
           grid-template-columns: 1fr;
         }
       }
+
+      /* Luxury Minimal admin dashboard refresh */
+      :root {
+        --bg: #050505;
+        --panel: rgba(18, 18, 16, 0.84);
+        --panel-strong: rgba(28, 27, 23, 0.96);
+        --text: #f7f1e7;
+        --muted: #b7afa2;
+        --line: rgba(244, 232, 211, 0.13);
+        --orange: #c8893d;
+        --gold: #d9b46f;
+        --teal: #77d6c8;
+        --shadow: 0 28px 70px rgba(0, 0, 0, 0.5);
+      }
+
+      body {
+        background:
+          radial-gradient(circle at 84% 18%, rgba(217, 180, 111, 0.12), transparent 26rem),
+          radial-gradient(circle at 12% 30%, rgba(119, 214, 200, 0.08), transparent 26rem),
+          linear-gradient(135deg, #030303 0%, #0d0d0b 48%, #050505 100%);
+      }
+
+      .shell {
+        width: min(1220px, calc(100% - 40px));
+      }
+
+      .topbar {
+        position: sticky;
+        top: 14px;
+        z-index: 20;
+        margin-bottom: 28px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: rgba(8, 8, 7, 0.74);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 18px 54px rgba(0, 0, 0, 0.34);
+      }
+
+      h1 {
+        color: #fff8ee;
+      }
+
+      .lead {
+        color: #d8d0c4;
+      }
+
+      .panel {
+        border-color: var(--line);
+        background: rgba(18, 18, 16, 0.78);
+        backdrop-filter: blur(16px);
+      }
+
+      .admin-head-menu {
+        top: 84px;
+        padding: 12px;
+        background: rgba(8, 8, 7, 0.82);
+      }
+
+      .admin-head-menu a {
+        border-color: rgba(244, 232, 211, 0.13);
+        background: rgba(244, 232, 211, 0.055);
+      }
+
+      .admin-head-menu a.is-active {
+        border-color: rgba(217, 180, 111, 0.45);
+        color: #fff8ee;
+        background: rgba(217, 180, 111, 0.14);
+      }
+
+      .admin-config,
+      .analytics-section,
+      .toolbar {
+        padding: 18px;
+      }
+
+      .config-card,
+      .stat-card {
+        border-color: rgba(244, 232, 211, 0.13);
+        background:
+          linear-gradient(145deg, rgba(244, 232, 211, 0.045), transparent 54%),
+          rgba(10, 10, 9, 0.55);
+      }
+
+      .section-title {
+        color: #e7c27e;
+      }
+
+      .primary-button {
+        background: linear-gradient(135deg, #e7c27e, #b97831);
+        color: #15100a;
+      }
+
+      .ghost-button,
+      .danger-button,
+      .config-card textarea,
+      .config-card input[type="text"],
+      .config-card input[type="email"],
+      .config-card input[type="url"],
+      .toolbar input,
+      .order-input {
+        border-color: rgba(244, 232, 211, 0.13);
+        background: rgba(244, 232, 211, 0.055);
+      }
+
+      table {
+        font-size: 0.92rem;
+      }
+
+      th {
+        color: #c8bda9;
+      }
+
+      td {
+        color: #eee5d7;
+      }
+
+      tr:hover td {
+        background: rgba(244, 232, 211, 0.035);
+      }
+
+      .status.paid,
+      .status.approved {
+        color: #d9fff6;
+        border-color: rgba(119, 214, 200, 0.34);
+        background: rgba(119, 214, 200, 0.1);
+      }
+
+      .status.pending,
+      .status.active {
+        color: #f0d49a;
+        border-color: rgba(217, 180, 111, 0.34);
+        background: rgba(217, 180, 111, 0.1);
+      }
+
+      @media (max-width: 780px) {
+        .shell {
+          width: min(100% - 24px, 1220px);
+        }
+
+        .topbar,
+        .admin-head-menu {
+          position: static;
+        }
+      }
     </style>
   </head>
   <body>

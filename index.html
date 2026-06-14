@@ -517,6 +517,240 @@
           min-width: 0;
         }
       }
+
+      /* Luxury Minimal dashboard refresh */
+      :root {
+        --bg: #050505;
+        --panel: rgba(18, 18, 16, 0.82);
+        --panel-strong: rgba(28, 27, 23, 0.96);
+        --text: #f7f1e7;
+        --muted: #b7afa2;
+        --line: rgba(244, 232, 211, 0.13);
+        --orange: #c8893d;
+        --gold: #d9b46f;
+        --teal: #77d6c8;
+        --shadow: 0 28px 70px rgba(0, 0, 0, 0.5);
+      }
+
+      body {
+        background:
+          radial-gradient(circle at 82% 16%, rgba(217, 180, 111, 0.13), transparent 25rem),
+          radial-gradient(circle at 12% 30%, rgba(119, 214, 200, 0.08), transparent 25rem),
+          linear-gradient(135deg, #030303 0%, #0d0d0b 48%, #050505 100%);
+      }
+
+      .shell {
+        width: min(1220px, calc(100% - 40px));
+        padding-top: 24px;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 14px;
+        z-index: 20;
+        margin-bottom: 42px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: rgba(8, 8, 7, 0.74);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 18px 54px rgba(0, 0, 0, 0.34);
+      }
+
+      .brand img {
+        box-shadow: 0 0 0 1px rgba(217, 180, 111, 0.34), 0 12px 34px rgba(200, 137, 61, 0.18);
+      }
+
+      .ghost-button,
+      .copy-button {
+        background: rgba(244, 232, 211, 0.055);
+      }
+
+      .primary-button {
+        background: linear-gradient(135deg, #d9b46f, #b97831);
+        color: #15100a;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+      }
+
+      .hero {
+        grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+        align-items: stretch;
+        gap: 24px;
+      }
+
+      .hero-copy {
+        min-height: 520px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: clamp(24px, 4vw, 44px);
+        background:
+          linear-gradient(145deg, rgba(244, 232, 211, 0.065), transparent 48%),
+          rgba(18, 18, 16, 0.58);
+        box-shadow: var(--shadow);
+      }
+
+      h1 {
+        max-width: 620px;
+        color: #fff8ee;
+        font-size: clamp(2.6rem, 5.4vw, 5.15rem);
+      }
+
+      .lead {
+        max-width: 600px;
+        color: #d8d0c4;
+      }
+
+      .eyebrow {
+        color: var(--gold);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .hero-side {
+        display: grid;
+        grid-template-rows: 1fr auto;
+        gap: 14px;
+      }
+
+      .hero-panel {
+        aspect-ratio: auto;
+        min-height: 390px;
+        background: #080807;
+      }
+
+      .hero-panel::after {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        content: "";
+        background: linear-gradient(180deg, transparent 62%, rgba(0, 0, 0, 0.42));
+      }
+
+      .business-dashboard {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        border: 1px solid rgba(217, 180, 111, 0.28);
+        border-radius: 8px;
+        padding: 16px;
+        background:
+          linear-gradient(135deg, rgba(217, 180, 111, 0.13), transparent 52%),
+          rgba(18, 18, 16, 0.9);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.32);
+      }
+
+      .business-dashboard span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 800;
+      }
+
+      .business-dashboard strong {
+        display: block;
+        margin-top: 3px;
+        color: #fff8ee;
+        font-size: 1.05rem;
+      }
+
+      .dashboard-metrics {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .dashboard-metrics span {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 9px 10px;
+        color: #e7ded0;
+        background: rgba(244, 232, 211, 0.055);
+      }
+
+      .stats .stat,
+      .search,
+      .card {
+        background: rgba(18, 18, 16, 0.78);
+        backdrop-filter: blur(14px);
+      }
+
+      .grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .card {
+        border-color: rgba(244, 232, 211, 0.12);
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3);
+      }
+
+      .card-media {
+        background:
+          radial-gradient(circle at 50% 34%, rgba(217, 180, 111, 0.16), transparent 54%),
+          #0b0b0a;
+      }
+
+      .tag {
+        color: #e7c27e;
+        background: rgba(217, 180, 111, 0.08);
+      }
+
+      .description {
+        color: #bdb4a7;
+      }
+
+      .coming-card {
+        background:
+          linear-gradient(135deg, rgba(217, 180, 111, 0.08), rgba(119, 214, 200, 0.04)),
+          rgba(18, 18, 16, 0.76);
+      }
+
+      .footer {
+        border-top-color: var(--line);
+      }
+
+      @media (max-width: 1050px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-copy {
+          min-height: auto;
+        }
+
+        .hero-panel {
+          min-height: 320px;
+          aspect-ratio: 2.2 / 1;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .shell {
+          width: min(100% - 24px, 1220px);
+        }
+
+        .topbar {
+          position: static;
+        }
+
+        .hero-copy {
+          padding: 22px;
+        }
+
+        .hero-panel {
+          min-height: 0;
+          aspect-ratio: 2.2 / 1;
+        }
+
+        .business-dashboard {
+          grid-template-columns: 1fr;
+        }
+
+        .dashboard-metrics {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
   <body>
@@ -574,8 +808,22 @@
             </div>
           </div>
         </div>
-        <div class="hero-panel">
-          <img src="assets/hero-gpt-hub.jpg" alt="ภาพรวมโลโก้ GPT ของ GivemeAI" />
+        <div class="hero-side">
+          <div class="hero-panel">
+            <img src="assets/hero-gpt-hub.jpg" alt="ภาพรวมโลโก้ GPT ของ GivemeAI" />
+          </div>
+          <div class="business-dashboard" aria-label="สรุปสถานะระบบสำหรับเจ้าของธุรกิจ">
+            <div>
+              <span>VIP Access</span>
+              <strong>ปลดล็อกเครื่องมือสมาชิก</strong>
+            </div>
+            <a class="primary-button" href="pricing.html">สมัคร VIP</a>
+            <div class="dashboard-metrics">
+              <span>Free 2 GPT</span>
+              <span>VIP 3 GPT</span>
+              <span>New weekly</span>
+            </div>
+          </div>
         </div>
       </section>
 
