@@ -18,12 +18,16 @@
   }
 
   function isGoogleChrome() {
+    const ua = navigator.userAgent || "";
+    const isInAppBrowser =
+      /FBAN|FBAV|FB_IAB|Instagram|Line\/|LINE\/|MicroMessenger|Twitter|TikTok|wv\)/i.test(ua);
+    if (isInAppBrowser) return false;
+
     const brands = navigator.userAgentData?.brands || [];
     if (brands.length > 0) {
       return brands.some((brand) => brand.brand === "Google Chrome");
     }
 
-    const ua = navigator.userAgent || "";
     const isChromeLike = /Chrome\/|CriOS\//.test(ua);
     const isOtherChromium =
       /Edg\/|EdgiOS|OPR\/|Opera|SamsungBrowser|DuckDuckGo|HeadlessChrome|FBAN|FBAV|Instagram|Line\/|Twitter|FxiOS/.test(
@@ -78,7 +82,10 @@
     overlay.innerHTML = `
       <div class="chrome-notice__card">
         <button class="chrome-notice__close" type="button" aria-label="ปิด">x</button>
-        <p class="chrome-notice__eyebrow">แนะนำให้เปิดด้วย Google Chrome</p>
+        <div class="chrome-notice__header">
+          <span class="chrome-logo" aria-hidden="true"></span>
+          <p class="chrome-notice__eyebrow">แนะนำให้เปิดด้วย Google Chrome</p>
+        </div>
         <h2 id="chromeNoticeTitle">เว็บนี้เหมาะกับ Google Chrome</h2>
         <p class="chrome-notice__text">หากเปิดผ่านแอปอื่นหรือ browser ในแอป บางระบบ เช่น Login, Copy Link หรือ Popup อาจทำงานไม่สมบูรณ์</p>
         <div class="chrome-notice__actions">
@@ -90,7 +97,6 @@
     `;
 
     const closeNotice = () => {
-      rememberDismissedNotice();
       overlay.remove();
     };
 
