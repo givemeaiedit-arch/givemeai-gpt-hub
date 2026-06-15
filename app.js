@@ -23,6 +23,14 @@ const userAvatar = document.querySelector("#userAvatar");
 const userName = document.querySelector("#userName");
 const userStatus = document.querySelector("#userStatus");
 const adminLink = document.querySelector("#adminLink");
+const memberDashboardLevel = document.querySelector("#memberDashboardLevel");
+const memberDashboardAccess = document.querySelector("#memberDashboardAccess");
+const memberDashboardUpdate = document.querySelector("#memberDashboardUpdate");
+const memberDashboardAccount = document.querySelector("#memberDashboardAccount");
+const memberDashboardStatus = document.querySelector("#memberDashboardStatus");
+const memberDashboardPrimary = document.querySelector("#memberDashboardPrimary");
+const memberUpgradeButton = document.querySelector("#memberUpgradeButton");
+const memberDashboardHelp = document.querySelector("#memberDashboardHelp");
 const toast = document.querySelector("#toast");
 const cardsGrid = document.querySelector("#cards");
 const allCards = [...document.querySelectorAll(".card")];
@@ -45,11 +53,66 @@ function showToast(message) {
 
 function getStatusLabel(profile) {
   if (!currentUser) return "ยังไม่ได้เข้าสู่ระบบ";
-  if (isAdminEmail(currentUser.email)) return "Admin";
+  if (isAdminEmail(currentUser.email)) return "ระดับสมาชิก: Admin";
   if (!profile) return "กำลังตรวจสอบสิทธิ์";
-  if (profile.status === "approved") return "อนุมัติแล้ว";
+  if (profile.status === "approved") return "ระดับสมาชิก: Member";
   if (profile.status === "revoked") return "ถูกปิดสิทธิ์";
-  return "รอใส่ VIP Code";
+  return "ระดับสมาชิก: Free";
+}
+
+function setDashboardLink(link, href, text) {
+  if (!link) return;
+  link.href = href;
+  link.textContent = text;
+}
+
+function updateMemberDashboard(user, profile, approved) {
+  const admin = Boolean(user && isAdminEmail(user.email));
+  const revoked = profile?.status === "revoked";
+  const accountText = user?.email || "เข้าสู่ระบบด้วย Gmail";
+
+  if (memberDashboardAccount) memberDashboardAccount.textContent = accountText;
+
+  if (admin) {
+    if (memberDashboardLevel) memberDashboardLevel.textContent = "Admin";
+    if (memberDashboardAccess) memberDashboardAccess.textContent = "ปลดล็อกทุก GPT";
+    if (memberDashboardUpdate) memberDashboardUpdate.textContent = "จัดการระบบได้";
+    if (memberDashboardStatus) memberDashboardStatus.textContent = "สถานะ: Admin ใช้งานได้ทุกระบบ";
+    setDashboardLink(memberDashboardPrimary, "admin.html", "เปิด Admin Panel");
+    setDashboardLink(memberUpgradeButton, "pricing.html", "ดูแพ็กสมาชิก");
+    if (memberDashboardHelp) memberDashboardHelp.innerHTML = 'สิทธิ์ Admin สามารถจัดการสมาชิกและระบบหลังบ้านได้';
+    return;
+  }
+
+  if (approved) {
+    if (memberDashboardLevel) memberDashboardLevel.textContent = "Member";
+    if (memberDashboardAccess) memberDashboardAccess.textContent = "ปลดล็อก GPT สมาชิก";
+    if (memberDashboardUpdate) memberDashboardUpdate.textContent = "อัปเดตต่อเนื่อง";
+    if (memberDashboardStatus) memberDashboardStatus.textContent = "สถานะ: จ่ายแล้ว ใช้งาน GPT สมาชิกได้";
+    setDashboardLink(memberDashboardPrimary, "#links", "เปิดเครื่องมือ GPT");
+    setDashboardLink(memberUpgradeButton, "pricing.html", "อัปเกรดระดับสมาชิก");
+    if (memberDashboardHelp) memberDashboardHelp.innerHTML = 'ต้องการเพิ่มบทเรียนเสริม? กดอัปเกรดเป็น Pro ได้จากหน้าสมัครสมาชิก';
+    return;
+  }
+
+  if (revoked) {
+    if (memberDashboardLevel) memberDashboardLevel.textContent = "ถูกปิดสิทธิ์";
+    if (memberDashboardAccess) memberDashboardAccess.textContent = "ใช้งาน Free เท่านั้น";
+    if (memberDashboardUpdate) memberDashboardUpdate.textContent = "ติดต่อ Admin";
+    if (memberDashboardStatus) memberDashboardStatus.textContent = "สถานะ: ถูกปิดสิทธิ์";
+    setDashboardLink(memberDashboardPrimary, "pricing.html", "ดูรายละเอียดสมาชิก");
+    setDashboardLink(memberUpgradeButton, "https://www.facebook.com/AiCreativesN/", "ติดต่อ Admin");
+    if (memberDashboardHelp) memberDashboardHelp.innerHTML = 'บัญชีนี้ถูกปิดสิทธิ์ กรุณาติดต่อแอดมินเพื่อเปิดใช้งานอีกครั้ง';
+    return;
+  }
+
+  if (memberDashboardLevel) memberDashboardLevel.textContent = user ? "Free" : "Guest";
+  if (memberDashboardAccess) memberDashboardAccess.textContent = "Free 2 GPT";
+  if (memberDashboardUpdate) memberDashboardUpdate.textContent = "ต้องสมัครเพื่อปลดล็อก";
+  if (memberDashboardStatus) memberDashboardStatus.textContent = user ? "สถานะ: ยังไม่ได้ชำระ Member" : "สถานะ: ยังไม่ได้เข้าสู่ระบบ";
+  setDashboardLink(memberDashboardPrimary, "pricing.html", user ? "สมัคร Member" : "เข้าสู่ระบบ / สมัครสมาชิก");
+  setDashboardLink(memberUpgradeButton, "pricing.html", "อัปเกรดระดับสมาชิก");
+  if (memberDashboardHelp) memberDashboardHelp.innerHTML = 'Member 390 บาทขึ้นไปจะปลดล็อก GPT สมาชิกและกดเข้ากลุ่มเรียนรู้ได้';
 }
 
 function ensureSystemNote() {
@@ -101,13 +164,13 @@ function setMemberStatus(user, profile, approved) {
 
   if (isAdminEmail(user.email)) {
     status.className = "member-status approved";
-    status.textContent = "Admin - ปลดล็อกทุก GPT แล้ว";
+    status.textContent = "ระดับสมาชิก: Admin - ปลดล็อกทุก GPT แล้ว";
     return;
   }
 
   if (approved) {
     status.className = "member-status approved";
-    status.textContent = "อนุมัติแล้ว - ใช้งาน GPT สมาชิกได้";
+    status.textContent = "ระดับสมาชิก: Member - ใช้งาน GPT สมาชิกได้";
     return;
   }
 
@@ -119,12 +182,12 @@ function setMemberStatus(user, profile, approved) {
 
   status.className = "member-status pending";
   status.innerHTML = `
-    <strong>ยังไม่เป็น VIP</strong>
-    <span>กรอกรหัส VIP 5 ตัวที่ได้รับจาก Admin เพื่อปลดล็อก GPT สมาชิก</span>
+    <strong>ยังไม่เป็น Member</strong>
+    <span>กรอกรหัสสมาชิก 5 ตัวที่ได้รับจาก Admin เพื่อปลดล็อก GPT สมาชิก</span>
     <div class="vip-redeem">
       <input id="vipCodeInput" type="text" inputmode="text" autocomplete="one-time-code" maxlength="5" pattern="[A-Za-z0-9]{5}" placeholder="เช่น A7K2Q" />
-      <button class="primary-button" id="redeemCodeButton" type="button">ปลดล็อก VIP</button>
-      <a class="ghost-button vip-signup-button" href="pricing.html">สมัคร VIP</a>
+      <button class="primary-button" id="redeemCodeButton" type="button">ปลดล็อก Member</button>
+      <a class="ghost-button vip-signup-button" href="pricing.html">สมัครสมาชิก</a>
     </div>
     <small>หลังกรอกสำเร็จ Code จะผูกกับ Gmail นี้อัตโนมัติ และใช้ซ้ำไม่ได้</small>
   `;
@@ -295,6 +358,7 @@ function updateAuthUi(user, profile) {
   }
 
   setProtectedAccess(approved);
+  updateMemberDashboard(user, profile, approved);
   setMemberStatus(user, profile, approved);
   setFavoriteUi();
   renderCardSettings();

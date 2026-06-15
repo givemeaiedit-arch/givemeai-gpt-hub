@@ -912,6 +912,11 @@
         color: #d8d0c4;
       }
 
+      .vip-benefits li strong {
+        color: #fff8ee;
+        font-weight: 900;
+      }
+
       .vip-benefits li::before {
         position: absolute;
         left: 0;
@@ -1357,24 +1362,24 @@
           <div class="business-dashboard" aria-label="สรุปสถานะระบบสำหรับเจ้าของธุรกิจ">
             <div class="vip-title">
               <span class="vip-crown">♛</span>
-              <strong>VIP <em>Member</em></strong>
+              <strong>Dashboard <em>สถานะสมาชิก</em></strong>
             </div>
             <ul class="vip-benefits">
-              <li>เข้าถึงเครื่องมือ GPT สมาชิกทั้งหมด</li>
-              <li>อัปเดตเครื่องมือใหม่ทุกสัปดาห์</li>
-              <li>ใช้งานได้ไม่จำกัด</li>
-              <li>สำหรับ 1 บัญชี Gmail</li>
+              <li>ระดับสมาชิก: <strong id="memberDashboardLevel">Free</strong></li>
+              <li>สิทธิ์ใช้งาน GPT: <strong id="memberDashboardAccess">Free 2 GPT</strong></li>
+              <li>อัปเดตเครื่องมือ: <strong id="memberDashboardUpdate">รายสัปดาห์</strong></li>
+              <li>บัญชีใช้งาน: <strong id="memberDashboardAccount">เข้าสู่ระบบด้วย Gmail</strong></li>
             </ul>
             <div class="vip-actions-card">
-              <span class="vip-dot">สถานะ: VIP Member</span>
-              <a class="primary-button" href="pricing.html">สมัครสมาชิก</a>
-              <a class="ghost-button" href="pricing.html">จำลองชำระเงินแล้ว</a>
-              <small>ต้องการความช่วยเหลือ? <a href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">ติดต่อแอดมิน</a></small>
+              <span class="vip-dot" id="memberDashboardStatus">สถานะ: ยังไม่ได้เข้าสู่ระบบ</span>
+              <a class="primary-button" id="memberDashboardPrimary" href="pricing.html">สมัครสมาชิก</a>
+              <a class="ghost-button" id="memberUpgradeButton" href="pricing.html">อัปเกรดระดับสมาชิก</a>
+              <small id="memberDashboardHelp">ต้องการความช่วยเหลือ? <a href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">ติดต่อแอดมิน</a></small>
             </div>
             <div class="dashboard-metrics">
-              <span>Free 2 GPT</span>
-              <span>VIP 3 GPT</span>
-              <span>New weekly</span>
+              <span id="memberDashboardMetricA">Free 2 GPT</span>
+              <span id="memberDashboardMetricB">Member 3 GPT</span>
+              <span id="memberDashboardMetricC">Pro Lessons</span>
             </div>
           </div>
         </div>
