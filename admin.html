@@ -594,6 +594,7 @@
           <a class="is-active" href="#membersSection" data-admin-tab="membersPage">สมาชิก</a>
           <a href="#vipCodeSection" data-admin-tab="vipPage">VIP Code</a>
           <a href="#ordersSection" data-admin-tab="ordersPage">Orders</a>
+          <a href="#communityRequestsSection" data-admin-tab="communityPage">กลุ่มเรียนรู้</a>
           <a href="#pricingSection" data-admin-tab="pricingPage">Pricing</a>
           <a href="#announcementSection" data-admin-tab="announcementPage">ประกาศ</a>
           <a href="#gptDisplaySection" data-admin-tab="gptDisplayPage">GPT Display</a>
@@ -649,6 +650,25 @@
               </table>
             </div>
             <div class="empty" id="ordersEmpty" hidden>ยังไม่มี Order</div>
+          </section>
+
+          <section class="config-card admin-page" id="communityPage">
+            <p class="section-title">รายชื่อขอเข้ากลุ่มเรียนรู้</p>
+            <p class="lead" style="font-size: 0.9rem; margin: 0 0 14px">สมาชิก Member / Pro กรอกชื่อ Facebook จากหน้า “กลุ่มเรียนรู้” เพื่อให้ Admin ตรวจรับเข้ากลุ่ม Facebook ได้เร็วขึ้น</p>
+            <div class="table-wrap" id="communityRequestsSection">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Facebook</th>
+                    <th>Gmail</th>
+                    <th>Status</th>
+                    <th>แจ้งเมื่อ</th>
+                  </tr>
+                </thead>
+                <tbody id="communityRequestsBody"></tbody>
+              </table>
+            </div>
+            <div class="empty" id="communityRequestsEmpty" hidden>ยังไม่มีสมาชิกแจ้งชื่อ Facebook</div>
           </section>
 
           <section class="config-card admin-page" id="pricingPage">

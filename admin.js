@@ -64,12 +64,15 @@ const vipCodesBody = document.querySelector("#vipCodesBody");
 const vipCodesEmpty = document.querySelector("#vipCodesEmpty");
 const ordersBody = document.querySelector("#ordersBody");
 const ordersEmpty = document.querySelector("#ordersEmpty");
+const communityRequestsBody = document.querySelector("#communityRequestsBody");
+const communityRequestsEmpty = document.querySelector("#communityRequestsEmpty");
 
 let currentUser = null;
 let users = [];
 let analyticsEvents = [];
 let vipCodes = [];
 let orders = [];
+let communityRequests = [];
 let announcement = null;
 let gptSettings = {};
 let pricingPage = null;
@@ -77,6 +80,7 @@ let unsubscribeUsers = null;
 let unsubscribeAnalytics = null;
 let unsubscribeVipCodes = null;
 let unsubscribeOrders = null;
+let unsubscribeCommunityRequests = null;
 let unsubscribeAnnouncement = null;
 let unsubscribeGptSettings = null;
 let unsubscribePricingPage = null;
@@ -225,6 +229,32 @@ function renderOrders() {
       <td>${formatDate(order.paidAt)}</td>
     `;
     ordersBody.appendChild(tr);
+  }
+}
+
+function renderCommunityRequests() {
+  if (!communityRequestsBody) return;
+  const sorted = [...communityRequests].sort((a, b) => {
+    const aTime = typeof a.updatedAt?.toMillis === "function" ? a.updatedAt.toMillis() : 0;
+    const bTime = typeof b.updatedAt?.toMillis === "function" ? b.updatedAt.toMillis() : 0;
+    return bTime - aTime;
+  });
+
+  communityRequestsBody.innerHTML = "";
+  if (communityRequestsEmpty) communityRequestsEmpty.hidden = sorted.length > 0;
+
+  for (const request of sorted) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <strong>${request.facebookName || "-"}</strong>
+        <small>${request.displayName || request.uid || "-"}</small>
+      </td>
+      <td>${request.email || "-"}</td>
+      <td><span class="status ${request.status || "pending"}">${request.status || "pending"}</span></td>
+      <td>${formatDate(request.updatedAt || request.createdAt)}</td>
+    `;
+    communityRequestsBody.appendChild(tr);
   }
 }
 
@@ -383,6 +413,23 @@ function startOrdersListener() {
   );
 }
 
+function startCommunityRequestsListener() {
+  if (unsubscribeCommunityRequests) return;
+  const svc = getFirebaseServices();
+  if (!svc) return;
+
+  unsubscribeCommunityRequests = onSnapshot(
+    collection(svc.db, "communityRequests"),
+    (snapshot) => {
+      communityRequests = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+      renderCommunityRequests();
+    },
+    (error) => {
+      setMessage(`อ่านรายชื่อขอเข้ากลุ่มไม่สำเร็จ: ${error.message}`, true);
+    },
+  );
+}
+
 function startAdminConfigListeners() {
   const svc = getFirebaseServices();
   if (!svc) return;
@@ -431,6 +478,12 @@ function stopOrdersListener() {
   if (!unsubscribeOrders) return;
   unsubscribeOrders();
   unsubscribeOrders = null;
+}
+
+function stopCommunityRequestsListener() {
+  if (!unsubscribeCommunityRequests) return;
+  unsubscribeCommunityRequests();
+  unsubscribeCommunityRequests = null;
 }
 
 function stopAdminConfigListeners() {
@@ -602,6 +655,7 @@ if (!isFirebaseConfigured()) {
       stopAnalyticsListener();
       stopVipCodesListener();
       stopOrdersListener();
+      stopCommunityRequestsListener();
       stopAdminConfigListeners();
       return;
     }
@@ -613,6 +667,7 @@ if (!isFirebaseConfigured()) {
       stopAnalyticsListener();
       stopVipCodesListener();
       stopOrdersListener();
+      stopCommunityRequestsListener();
       stopAdminConfigListeners();
       return;
     }
@@ -624,6 +679,7 @@ if (!isFirebaseConfigured()) {
       stopAnalyticsListener();
       stopVipCodesListener();
       stopOrdersListener();
+      stopCommunityRequestsListener();
       stopAdminConfigListeners();
       return;
     }
@@ -634,6 +690,7 @@ if (!isFirebaseConfigured()) {
     startAnalyticsListener();
     startVipCodesListener();
     startOrdersListener();
+    startCommunityRequestsListener();
     startAdminConfigListeners();
   });
 }
