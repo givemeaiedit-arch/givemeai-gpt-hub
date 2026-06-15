@@ -59,7 +59,7 @@
     const overlay = document.createElement("div");
     overlay.className = "chrome-notice";
     overlay.style.cssText =
-      "position:fixed;top:0;right:0;bottom:0;left:0;z-index:2147483647;display:flex;align-items:flex-end;justify-content:center;width:100vw;height:100vh;min-height:100vh;padding:18px;box-sizing:border-box;overflow:hidden;background:rgba(0,0,0,.82);";
+      "position:fixed;top:0;left:0;right:auto;bottom:auto;z-index:2147483647;display:flex;align-items:flex-end;justify-content:center;width:100%;height:100%;min-height:100%;padding:18px;box-sizing:border-box;overflow:hidden;background:rgba(0,0,0,.9);";
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
     overlay.setAttribute("aria-labelledby", "chromeNoticeTitle");
@@ -86,11 +86,51 @@
       </div>
     `;
 
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousBodyTouchAction = document.body.style.touchAction;
+
+    const getViewportSize = () => {
+      const viewport = window.visualViewport;
+      return {
+        width: Math.ceil(
+          Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, viewport?.width || 0),
+        ),
+        height: Math.ceil(
+          Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0, viewport?.height || 0),
+        ),
+      };
+    };
+
+    const lockPage = () => {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+    };
+
+    const sizeOverlay = () => {
+      const size = getViewportSize();
+      overlay.style.width = `${size.width}px`;
+      overlay.style.height = `${size.height}px`;
+      overlay.style.minHeight = `${size.height}px`;
+    };
+
     const closeNotice = () => {
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      document.body.style.touchAction = previousBodyTouchAction;
+      window.removeEventListener("resize", sizeOverlay);
+      window.visualViewport?.removeEventListener("resize", sizeOverlay);
+      window.visualViewport?.removeEventListener("scroll", sizeOverlay);
       overlay.remove();
     };
 
     document.body.appendChild(overlay);
+    lockPage();
+    sizeOverlay();
+    window.addEventListener("resize", sizeOverlay);
+    window.visualViewport?.addEventListener("resize", sizeOverlay);
+    window.visualViewport?.addEventListener("scroll", sizeOverlay);
     const copyButton = overlay.querySelector(".chrome-notice__copy");
     const status = overlay.querySelector(".chrome-notice__status");
     overlay.querySelector(".chrome-notice__close")?.addEventListener("click", closeNotice);
