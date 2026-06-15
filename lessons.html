@@ -37,40 +37,54 @@
       }
 
       .shell {
-        width: min(1080px, calc(100% - 32px));
+        width: min(1220px, calc(100% - 40px));
         margin: 0 auto;
-        padding: 28px 0 48px;
+        padding: 24px 0 44px;
       }
 
       .topbar {
+        position: sticky;
+        top: 14px;
+        z-index: 20;
         display: grid;
         grid-template-columns: minmax(250px, 1fr) auto minmax(260px, 1fr);
         align-items: center;
         gap: 18px;
         min-height: 64px;
         margin-bottom: 42px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: rgba(8, 8, 7, 0.74);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 18px 54px rgba(0, 0, 0, 0.34);
       }
 
       .brand {
         display: flex;
         align-items: center;
         gap: 12px;
+        min-width: 0;
       }
 
       .brand img {
         width: 46px;
         height: 46px;
         border-radius: 50%;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 10px 30px rgba(255, 138, 0, 0.2);
       }
 
-      .brand strong,
+      .brand strong {
+        display: block;
+        font-size: 1rem;
+        line-height: 1.2;
+      }
+
       .brand span {
         display: block;
-      }
-
-      .brand span {
         color: var(--muted);
         font-size: 0.86rem;
+        margin-top: 2px;
       }
 
       .main-nav {
@@ -89,7 +103,7 @@
 
       .main-nav a.is-active,
       .main-nav a:hover {
-        color: var(--gold);
+        color: #e7c27e;
       }
 
       .main-nav a.is-active::after {
@@ -99,12 +113,13 @@
         bottom: -18px;
         height: 2px;
         border-radius: 999px;
-        background: var(--gold);
+        background: #e7c27e;
         content: "";
       }
 
       .top-actions {
         display: flex;
+        align-items: center;
         justify-content: flex-end;
         gap: 10px;
       }
@@ -262,14 +277,18 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 42px;
-        margin-top: 18px;
+        min-height: 40px;
         border: 1px solid var(--line);
         border-radius: 8px;
         padding: 0 14px;
         background: rgba(244, 232, 211, 0.055);
         color: var(--text);
-        font-weight: 850;
+        font-size: 0.9rem;
+        font-weight: 750;
+      }
+
+      .hero-card > .ghost-button {
+        margin-top: 18px;
       }
 
       @media (max-width: 1180px) {
@@ -284,6 +303,14 @@
       }
 
       @media (max-width: 900px) {
+        .shell {
+          width: min(100% - 24px, 1220px);
+        }
+
+        .topbar {
+          position: static;
+        }
+
         .hero {
           grid-template-columns: 1fr;
         }
@@ -320,7 +347,7 @@
           <img src="assets/favicon.png" alt="GivemeAI" />
           <span>
             <strong>GivemeAI GPT Hub</strong>
-            <span>Business AI Toolkit</span>
+            <span>รวมเครื่องมือ AI พร้อมใช้</span>
           </span>
         </a>
         <nav class="main-nav" aria-label="เมนูหลัก">
@@ -332,8 +359,18 @@
           <a href="index.html#upcomingTools">อัปเดตข่าวสาร</a>
         </nav>
         <div class="top-actions">
-          <a class="ghost-button" href="index.html#links">ดู GPT ทั้งหมด</a>
-          <a class="ghost-button" href="pricing.html">สมัคร VIP</a>
+          <div class="auth-panel" aria-label="สถานะสมาชิก">
+            <button class="ghost-button auth-button" id="loginButton" type="button">เข้าสู่ระบบด้วย Google</button>
+            <div class="user-badge" id="userBadge" hidden>
+              <img id="userAvatar" alt="" />
+              <span>
+                <strong id="userName">Guest</strong>
+                <small id="userStatus">ยังไม่ได้เข้าสู่ระบบ</small>
+              </span>
+            </div>
+            <a class="ghost-button admin-link" id="adminLink" href="admin.html" hidden>Admin</a>
+            <button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
+          </div>
         </div>
       </header>
 
@@ -437,5 +474,65 @@
         </div>
       </section>
     </main>
+    <script type="module">
+      import {
+        isAdminEmail,
+        isFirebaseConfigured,
+        signInWithGoogle,
+        signOutUser,
+        watchAuth,
+      } from "./auth-shared.js";
+
+      const loginButton = document.querySelector("#loginButton");
+      const logoutButton = document.querySelector("#logoutButton");
+      const userBadge = document.querySelector("#userBadge");
+      const userAvatar = document.querySelector("#userAvatar");
+      const userName = document.querySelector("#userName");
+      const userStatus = document.querySelector("#userStatus");
+      const adminLink = document.querySelector("#adminLink");
+
+      function getStatusText(profile) {
+        if (isAdminEmail(profile?.email)) return "Admin";
+        if (profile?.status === "approved") return "VIP Member";
+        if (profile?.status === "revoked") return "ถูกปิดสิทธิ์";
+        return "รอใส่ VIP Code";
+      }
+
+      loginButton?.addEventListener("click", async () => {
+        try {
+          await signInWithGoogle();
+        } catch (error) {
+          alert(`Login ไม่สำเร็จ: ${error.message}`);
+        }
+      });
+
+      logoutButton?.addEventListener("click", () => signOutUser());
+
+      if (!isFirebaseConfigured()) {
+        loginButton?.setAttribute("disabled", "true");
+      }
+
+      watchAuth(({ user, profile }) => {
+        if (!user) {
+          if (loginButton) loginButton.hidden = false;
+          if (logoutButton) logoutButton.hidden = true;
+          if (userBadge) userBadge.hidden = true;
+          if (adminLink) adminLink.hidden = true;
+          return;
+        }
+
+        const memberProfile = profile || { email: user.email };
+        if (loginButton) loginButton.hidden = true;
+        if (logoutButton) logoutButton.hidden = false;
+        if (userBadge) userBadge.hidden = false;
+        if (adminLink) adminLink.hidden = !isAdminEmail(memberProfile.email || user.email);
+        if (userAvatar) {
+          userAvatar.src = user.photoURL || "assets/favicon.png";
+          userAvatar.alt = user.displayName || user.email || "";
+        }
+        if (userName) userName.textContent = user.displayName || user.email || "Member";
+        if (userStatus) userStatus.textContent = getStatusText(memberProfile);
+      });
+    </script>
   </body>
 </html>
