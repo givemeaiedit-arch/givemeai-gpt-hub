@@ -292,6 +292,44 @@
         margin-top: 18px;
       }
 
+      .lesson-soon-popup {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(0, 0, 0, 0.72);
+      }
+
+      .lesson-soon-popup.show {
+        display: flex;
+      }
+
+      .lesson-soon-card {
+        width: min(420px, 100%);
+        border: 1px solid rgba(231, 194, 126, 0.44);
+        border-radius: 12px;
+        padding: 24px;
+        background:
+          radial-gradient(circle at 80% 0%, rgba(217, 180, 111, 0.2), transparent 12rem),
+          #11100e;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.62);
+      }
+
+      .lesson-soon-card h2 {
+        margin: 0 0 10px;
+        color: #fff8ee;
+        font-size: 1.55rem;
+      }
+
+      .lesson-soon-card p {
+        margin: 0 0 18px;
+        color: #d8d0c4;
+        line-height: 1.65;
+      }
+
       @media (max-width: 1180px) {
         .topbar {
           grid-template-columns: 1fr;
@@ -422,6 +460,7 @@
           <p class="eyebrow">LESSONS</p>
           <h1>บทเรียนสำหรับเจ้าของธุรกิจ</h1>
           <p class="lead">พื้นที่รวมบทเรียนการใช้ GPT และ AI ให้ทำงานได้จริง ตั้งแต่การสร้างภาพโปรโมท วิเคราะห์โฆษณา ไปจนถึงการทำงานซ้ำให้เร็วขึ้น</p>
+          <button class="ghost-button" id="lessonSoonButton" type="button">เข้าใช้บทเรียน</button>
           <a class="ghost-button" href="pricing.html">ดูรายละเอียด VIP</a>
         </article>
         <aside class="hero-card side-panel">
@@ -517,6 +556,13 @@
         </div>
       </section>
     </main>
+    <div class="lesson-soon-popup" id="lessonSoonPopup" role="dialog" aria-modal="true" aria-labelledby="lessonSoonTitle">
+      <div class="lesson-soon-card">
+        <h2 id="lessonSoonTitle">บทเรียนจะเปิดให้เข้าใช้เร็ว ๆ นี้</h2>
+        <p>ตอนนี้กำลังเตรียมเนื้อหาเสริมสำหรับสมาชิก Pro เมื่อพร้อมแล้วจะแจ้งอัปเดตในหน้านี้และในกลุ่มเรียนรู้</p>
+        <button class="ghost-button" id="lessonSoonClose" type="button">รับทราบ</button>
+      </div>
+    </div>
     <script type="module">
       import {
         isAdminEmail,
@@ -533,6 +579,9 @@
       const userName = document.querySelector("#userName");
       const userStatus = document.querySelector("#userStatus");
       const adminLink = document.querySelector("#adminLink");
+      const lessonSoonButton = document.querySelector("#lessonSoonButton");
+      const lessonSoonPopup = document.querySelector("#lessonSoonPopup");
+      const lessonSoonClose = document.querySelector("#lessonSoonClose");
 
       function getStatusText(profile) {
         if (isAdminEmail(profile?.email)) return "Admin";
@@ -550,6 +599,18 @@
       });
 
       logoutButton?.addEventListener("click", () => signOutUser());
+
+      lessonSoonButton?.addEventListener("click", () => {
+        lessonSoonPopup?.classList.add("show");
+      });
+
+      lessonSoonClose?.addEventListener("click", () => {
+        lessonSoonPopup?.classList.remove("show");
+      });
+
+      lessonSoonPopup?.addEventListener("click", (event) => {
+        if (event.target === lessonSoonPopup) lessonSoonPopup.classList.remove("show");
+      });
 
       if (!isFirebaseConfigured()) {
         loginButton?.setAttribute("disabled", "true");
