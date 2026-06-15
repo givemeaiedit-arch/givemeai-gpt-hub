@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>บทเรียน | GivemeAI GPT Hub</title>
     <link rel="icon" href="assets/favicon.png" />
-    <link rel="stylesheet" href="styles-auth.css?v=chrome-notice-5" />
+    <link rel="stylesheet" href="styles-auth.css?v=menu-card-1" />
     <script defer src="browser-check.js?v=chrome-notice-5"></script>
     <style>
       :root {
@@ -337,6 +337,48 @@
         .section-head,
         .plan-row {
           grid-template-columns: 1fr;
+        }
+      }
+
+      .main-nav {
+        gap: 6px;
+      }
+
+      .main-nav a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        border: 1px solid rgba(244, 232, 211, 0.14);
+        border-radius: 8px;
+        padding: 0 10px;
+        background: rgba(244, 232, 211, 0.045);
+      }
+
+      .main-nav a.is-active,
+      .main-nav a:hover {
+        border-color: rgba(231, 194, 126, 0.44);
+        background: rgba(231, 194, 126, 0.11);
+      }
+
+      .main-nav a.is-active::after {
+        display: none;
+      }
+
+      @media (max-width: 720px) {
+        .main-nav {
+          flex-wrap: wrap;
+          overflow: visible;
+          padding-bottom: 0;
+        }
+
+        .main-nav a {
+          flex: 1 1 calc(50% - 8px);
+          min-height: 44px;
+          padding: 8px 10px;
+          text-align: center;
+          white-space: normal;
+          line-height: 1.18;
         }
       }
     </style>
