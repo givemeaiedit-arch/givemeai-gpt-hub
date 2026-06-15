@@ -314,6 +314,35 @@
           width: min(100% - 24px, 1180px);
         }
 
+        .layout {
+          grid-template-columns: 1fr;
+          gap: 14px;
+        }
+
+        .hero-image {
+          order: -1;
+        }
+
+        .hero-image img {
+          aspect-ratio: 16 / 10;
+          max-height: 260px;
+        }
+
+        #detailView > article,
+        .panel {
+          padding: 18px;
+        }
+
+        h1 {
+          font-size: clamp(2rem, 10vw, 2.85rem);
+          line-height: 1.08;
+        }
+
+        .lead {
+          font-size: 1rem;
+          line-height: 1.75;
+        }
+
         .topbar {
           position: static;
         }
