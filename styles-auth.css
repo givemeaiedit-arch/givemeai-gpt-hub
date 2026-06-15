@@ -872,22 +872,28 @@ body::after {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.62);
-  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.54);
 }
 
 .chrome-notice__card {
   position: relative;
-  width: min(460px, 100%);
-  border: 1px solid rgba(231, 194, 126, 0.32);
+  z-index: 10000;
+  width: min(480px, calc(100% - 28px));
+  max-height: calc(100dvh - 54px);
+  overflow: auto;
+  border: 1px solid rgba(231, 194, 126, 0.48);
   border-radius: 10px;
   padding: 26px;
   background:
     radial-gradient(circle at 85% 0%, rgba(231, 194, 126, 0.18), transparent 12rem),
-    rgba(14, 13, 11, 0.96);
+    #11100e;
   box-shadow: 0 28px 80px rgba(0, 0, 0, 0.58);
 }
 
@@ -925,7 +931,7 @@ body::after {
 .chrome-notice__text,
 .chrome-notice__status {
   margin: 0;
-  color: #cfc7ba;
+  color: #eee4d5;
   line-height: 1.65;
 }
 
@@ -943,7 +949,9 @@ body::after {
 
 @media (max-width: 520px) {
   .chrome-notice__card {
+    width: calc(100% - 20px);
     padding: 22px;
+    border-radius: 12px;
   }
 
   .chrome-notice__actions {

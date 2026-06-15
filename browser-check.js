@@ -32,6 +32,10 @@
     return isChromeLike && !isOtherChromium;
   }
 
+  function shouldForceNotice() {
+    return window.location.search.includes("showChromeNotice=1");
+  }
+
   function copyCurrentLink(button, status) {
     const link = window.location.href;
     const fallback = () => {
@@ -64,7 +68,7 @@
   }
 
   function showChromeNotice() {
-    if (isGoogleChrome() || hasDismissedNotice()) return;
+    if (!shouldForceNotice() && (isGoogleChrome() || hasDismissedNotice())) return;
 
     const overlay = document.createElement("div");
     overlay.className = "chrome-notice";
