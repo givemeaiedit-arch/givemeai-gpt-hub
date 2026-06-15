@@ -44,7 +44,7 @@
 
       .topbar {
         display: grid;
-        grid-template-columns: minmax(220px, 1fr) auto;
+        grid-template-columns: minmax(250px, 1fr) auto minmax(260px, 1fr);
         align-items: center;
         gap: 18px;
         min-height: 64px;
@@ -76,8 +76,8 @@
       .main-nav {
         display: flex;
         align-items: center;
-        justify-content: flex-end;
-        gap: clamp(16px, 3vw, 34px);
+        justify-content: center;
+        gap: clamp(18px, 3vw, 42px);
       }
 
       .main-nav a {
@@ -90,6 +90,23 @@
       .main-nav a.is-active,
       .main-nav a:hover {
         color: var(--gold);
+      }
+
+      .main-nav a.is-active::after {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -18px;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--gold);
+        content: "";
+      }
+
+      .top-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
       }
 
       .hero {
@@ -262,8 +279,18 @@
         font-weight: 850;
       }
 
+      @media (max-width: 1180px) {
+        .topbar {
+          grid-template-columns: 1fr;
+        }
+
+        .main-nav,
+        .top-actions {
+          justify-content: flex-start;
+        }
+      }
+
       @media (max-width: 900px) {
-        .topbar,
         .hero {
           grid-template-columns: 1fr;
         }
@@ -272,6 +299,14 @@
           justify-content: flex-start;
           overflow-x: auto;
           padding-bottom: 4px;
+        }
+
+        .main-nav a.is-active::after {
+          bottom: -6px;
+        }
+
+        .top-actions {
+          flex-wrap: wrap;
         }
 
         .community-grid {
@@ -303,6 +338,10 @@
           <a class="is-active" href="community.html">กลุ่มเรียนรู้</a>
           <a href="index.html#upcomingTools">อัปเดตข่าวสาร</a>
         </nav>
+        <div class="top-actions">
+          <a class="ghost-button" href="index.html#links">ดู GPT ทั้งหมด</a>
+          <a class="ghost-button" href="pricing.html">สมัคร VIP</a>
+        </div>
       </header>
 
       <section class="hero">
