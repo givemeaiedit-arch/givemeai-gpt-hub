@@ -58,14 +58,22 @@
 
     const overlay = document.createElement("div");
     overlay.className = "chrome-notice";
+    overlay.style.cssText =
+      "position:fixed;top:0;right:0;bottom:0;left:0;z-index:2147483647;display:flex;align-items:flex-end;justify-content:center;width:100vw;height:100vh;min-height:100vh;padding:18px;box-sizing:border-box;overflow:hidden;background:rgba(0,0,0,.82);";
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
     overlay.setAttribute("aria-labelledby", "chromeNoticeTitle");
     overlay.innerHTML = `
-      <div class="chrome-notice__card">
+      <div class="chrome-notice__card" style="position:relative;z-index:2147483647;width:min(480px, calc(100% - 20px));max-height:calc(100vh - 54px);overflow:auto;box-sizing:border-box;border:1px solid rgba(231,194,126,.5);border-radius:12px;padding:22px;background:#11100e;color:#f7f1e7;box-shadow:0 28px 80px rgba(0,0,0,.68);">
         <button class="chrome-notice__close" type="button" aria-label="ปิด">x</button>
         <div class="chrome-notice__header">
-          <span class="chrome-logo" aria-hidden="true"></span>
+          <svg class="chrome-logo-svg" width="44" height="44" viewBox="0 0 48 48" aria-hidden="true" style="flex:0 0 auto;width:44px;height:44px;border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,.25),0 10px 26px rgba(66,133,244,.25);">
+            <circle cx="24" cy="24" r="22" fill="#ffffff"></circle>
+            <path d="M24 24 5.5 24A22 22 0 0 1 43 8.5Z" fill="#ea4335"></path>
+            <path d="M24 24 33.5 40.5A22 22 0 0 1 5.5 24Z" fill="#34a853"></path>
+            <path d="M24 24 43 8.5A22 22 0 0 1 33.5 40.5Z" fill="#fbbc05"></path>
+            <circle cx="24" cy="24" r="10" fill="#4285f4" stroke="#ffffff" stroke-width="4"></circle>
+          </svg>
           <p class="chrome-notice__eyebrow">แนะนำให้เปิดด้วย Google Chrome</p>
         </div>
         <h2 id="chromeNoticeTitle">เว็บนี้เหมาะกับ Google Chrome</h2>
