@@ -1,22 +1,4 @@
 (() => {
-  const dismissedKey = "givemeaiChromeNoticeDismissed";
-
-  function hasDismissedNotice() {
-    try {
-      return sessionStorage.getItem(dismissedKey) === "1";
-    } catch {
-      return false;
-    }
-  }
-
-  function rememberDismissedNotice() {
-    try {
-      sessionStorage.setItem(dismissedKey, "1");
-    } catch {
-      return;
-    }
-  }
-
   function isGoogleChrome() {
     const ua = navigator.userAgent || "";
     const isInAppBrowser =
@@ -72,7 +54,7 @@
   }
 
   function showChromeNotice() {
-    if (!shouldForceNotice() && (isGoogleChrome() || hasDismissedNotice())) return;
+    if (!shouldForceNotice() && isGoogleChrome()) return;
 
     const overlay = document.createElement("div");
     overlay.className = "chrome-notice";
