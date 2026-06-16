@@ -3,1317 +3,65 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GivemeAI GPT Hub</title>
+    <title>AI Hub | GivemeAI GPT Hub</title>
     <link rel="icon" href="assets/favicon.png" />
-    <link rel="stylesheet" href="styles-auth.css?v=menu-card-1" />
-    <script defer src="browser-check.js?v=chrome-notice-5"></script>
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #090d12;
-        --panel: rgba(18, 23, 31, 0.82);
-        --panel-strong: rgba(27, 34, 45, 0.95);
-        --text: #f7fafc;
-        --muted: #a8b3c2;
-        --line: rgba(255, 255, 255, 0.12);
-        --orange: #ff8a00;
-        --gold: #ffd166;
-        --teal: #38d6c7;
-        --blue: #8bb8ff;
-        --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        background:
-          radial-gradient(circle at 18% 14%, rgba(16, 185, 129, 0.1), transparent 24rem),
-          radial-gradient(circle at 82% 18%, rgba(34, 211, 238, 0.08), transparent 26rem),
-          linear-gradient(135deg, #05070a 0%, #071110 48%, #05070a 100%);
-        color: var(--text);
-        font-family:
-          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          "Noto Sans Thai", Arial, sans-serif;
-        letter-spacing: 0;
-      }
-
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-
-      .shell {
-        width: min(1180px, calc(100% - 32px));
-        margin: 0 auto;
-        padding: 28px 0 44px;
-      }
-
-      .topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 18px;
-        margin-bottom: 24px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 0;
-      }
-
-      .brand img {
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 10px 30px rgba(255, 138, 0, 0.2);
-      }
-
-      .brand strong {
-        display: block;
-        font-size: 1rem;
-        line-height: 1.2;
-      }
-
-      .brand span {
-        display: block;
-        color: var(--muted);
-        font-size: 0.86rem;
-        margin-top: 2px;
-      }
-
-      .top-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .ghost-button,
-      .primary-button,
-      .copy-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 40px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 0 14px;
-        color: var(--text);
-        font-weight: 750;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-      }
-
-      .ghost-button,
-      .copy-button {
-        background: rgba(255, 255, 255, 0.06);
-      }
-
-      .primary-button {
-        background: linear-gradient(135deg, var(--orange), #ffb020);
-        color: #160c00;
-        border-color: rgba(255, 255, 255, 0.08);
-      }
-
-      .ghost-button:hover,
-      .primary-button:hover,
-      .copy-button:hover {
-        transform: translateY(-1px);
-        border-color: rgba(255, 255, 255, 0.28);
-      }
-
-      .hero {
-        display: grid;
-        grid-template-columns: minmax(0, 0.82fr) minmax(420px, 1.18fr);
-        gap: 28px;
-        align-items: center;
-      }
-
-      .hero-copy {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 12px 0;
-      }
-
-      .eyebrow {
-        color: var(--teal);
-        font-weight: 800;
-        font-size: 0.86rem;
-        margin-bottom: 14px;
-      }
-
-      h1 {
-        margin: 0;
-        max-width: 720px;
-        font-size: clamp(2.25rem, 5.9vw, 4.9rem);
-        line-height: 0.95;
-        letter-spacing: 0;
-      }
-
-      .lead {
-        color: #d5dde7;
-        max-width: 620px;
-        font-size: clamp(0.98rem, 1.55vw, 1.05rem);
-        line-height: 1.55;
-        margin: 16px 0 0;
-      }
-
-      .hero-panel {
-        position: relative;
-        overflow: hidden;
-        aspect-ratio: 2.2 / 1;
-        min-height: 0;
-        border-radius: 8px;
-        border: 1px solid var(--line);
-        background: #111922;
-        box-shadow: var(--shadow);
-      }
-
-      .hero-panel img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-      }
-
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
-        margin-top: 18px;
-        max-width: 560px;
-      }
-
-      .stat {
-        border: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.06);
-        border-radius: 8px;
-        padding: 10px 12px;
-      }
-
-      .stat b {
-        display: block;
-        font-size: 1.25rem;
-      }
-
-      .stat span {
-        color: var(--muted);
-        font-size: 0.82rem;
-      }
-
-      .toolbar {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 12px;
-        align-items: center;
-        margin: 34px 0 18px;
-      }
-
-      .search {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        min-height: 48px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.07);
-        padding: 0 14px;
-      }
-
-      .search svg {
-        flex: 0 0 auto;
-        color: var(--muted);
-      }
-
-      .search input {
-        width: 100%;
-        border: 0;
-        outline: 0;
-        background: transparent;
-        color: var(--text);
-        font: inherit;
-        min-width: 0;
-      }
-
-      .search input::placeholder {
-        color: #7f8b9b;
-      }
-
-      .count {
-        color: var(--muted);
-        font-size: 0.92rem;
-        white-space: nowrap;
-      }
-
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 14px;
-      }
-
-      .card {
-        display: flex;
-        min-width: 0;
-        flex-direction: column;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--panel);
-        overflow: hidden;
-        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
-      }
-
-      .card[hidden] {
-        display: none !important;
-      }
-
-      .card-media {
-        aspect-ratio: 1 / 1;
-        background:
-          linear-gradient(135deg, rgba(255, 138, 0, 0.15), rgba(56, 214, 199, 0.06)),
-          #111821;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .card-media img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-      }
-
-      .coming-card {
-        border-style: dashed;
-        background:
-          linear-gradient(135deg, rgba(255, 138, 0, 0.11), rgba(56, 214, 199, 0.08)),
-          var(--panel);
-      }
-
-      .coming-card .card-media {
-        position: relative;
-        display: grid;
-        place-items: center;
-        overflow: hidden;
-      }
-
-      .coming-card .card-media::before {
-        position: absolute;
-        inset: 18%;
-        border: 1px solid rgba(255, 209, 102, 0.26);
-        border-radius: 50%;
-        background:
-          radial-gradient(circle, rgba(255, 138, 0, 0.22), transparent 58%),
-          conic-gradient(from 0deg, transparent, rgba(56, 214, 199, 0.28), transparent, rgba(255, 138, 0, 0.24), transparent);
-        content: "";
-        animation: comingPulse 9s linear infinite;
-      }
-
-      .coming-card .card-media::after {
-        position: relative;
-        z-index: 1;
-        color: var(--gold);
-        content: "LOCKED";
-        border: 1px solid rgba(255, 209, 102, 0.36);
-        border-radius: 999px;
-        padding: 10px 14px;
-        background: rgba(0, 0, 0, 0.52);
-        font-size: clamp(0.85rem, 2vw, 1.1rem);
-        font-weight: 950;
-        letter-spacing: 0;
-        line-height: 1.1;
-        text-shadow: 0 0 24px rgba(255, 138, 0, 0.4);
-      }
-
-      .coming-date {
-        color: var(--teal);
-        font-size: 0.82rem;
-        font-weight: 900;
-        line-height: 1.45;
-      }
-
-      @keyframes comingPulse {
-        from {
-          transform: rotate(0deg) scale(1);
-        }
-
-        50% {
-          transform: rotate(180deg) scale(1.06);
-        }
-
-        to {
-          transform: rotate(360deg) scale(1);
-        }
-      }
-
-      .card-body {
-        display: flex;
-        flex: 1;
-        flex-direction: column;
-        padding: 15px;
-      }
-
-      .tag {
-        align-self: flex-start;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 999px;
-        color: var(--gold);
-        font-weight: 750;
-        font-size: 0.72rem;
-        padding: 5px 9px;
-        margin-bottom: 10px;
-      }
-
-      h2 {
-        margin: 0;
-        font-size: 1rem;
-        line-height: 1.35;
-      }
-
-      .description {
-        margin: 9px 0 14px;
-        color: var(--muted);
-        font-size: 0.88rem;
-        line-height: 1.55;
-      }
-
-      .card-actions {
-        display: grid;
-        grid-template-columns: 1fr 44px;
-        gap: 8px;
-        margin-top: auto;
-      }
-
-      .copy-button {
-        min-width: 44px;
-        padding: 0;
-      }
-
-      .copy-button svg,
-      .primary-button svg,
-      .ghost-button svg {
-        width: 18px;
-        height: 18px;
-      }
-
-      .primary-button svg {
-        margin-left: 8px;
-      }
-
-      .footer {
-        display: flex;
-        justify-content: space-between;
-        gap: 16px;
-        margin-top: 28px;
-        padding-top: 18px;
-        border-top: 1px solid var(--line);
-        color: var(--muted);
-        font-size: 0.86rem;
-      }
-
-      .toast {
-        position: fixed;
-        left: 50%;
-        bottom: 22px;
-        transform: translate(-50%, 20px);
-        opacity: 0;
-        pointer-events: none;
-        background: var(--panel-strong);
-        color: var(--text);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 10px 14px;
-        box-shadow: var(--shadow);
-        transition: opacity 0.2s ease, transform 0.2s ease;
-      }
-
-      .toast.show {
-        opacity: 1;
-        transform: translate(-50%, 0);
-      }
-
-      @media (max-width: 1050px) {
-        .grid {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .hero {
-          grid-template-columns: 1fr;
-          min-height: 0;
-        }
-
-        .hero-panel {
-          aspect-ratio: 2.2 / 1;
-        }
-      }
-
-      @media (max-width: 720px) {
-        .shell {
-          width: min(100% - 24px, 1180px);
-          padding-top: 18px;
-        }
-
-        .topbar,
-        .footer {
-          align-items: flex-start;
-          flex-direction: column;
-        }
-
-        .top-actions {
-          width: 100%;
-        }
-
-        .ghost-button {
-          width: 100%;
-        }
-
-        .hero-copy {
-          padding: 8px 0 0;
-        }
-
-        .hero-panel {
-          aspect-ratio: 2.2 / 1;
-        }
-
-        .stats {
-          grid-template-columns: 1fr;
-        }
-
-        .toolbar {
-          grid-template-columns: 1fr;
-        }
-
-        .grid {
-          grid-template-columns: 1fr;
-        }
-
-        .card {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .card-media {
-          width: 100%;
-          height: auto;
-          aspect-ratio: 1 / 1;
-          max-height: none;
-        }
-
-        .card-body {
-          padding: 14px;
-          background: rgba(12, 17, 24, 0.96);
-        }
-
-        .description {
-          font-size: 0.9rem;
-          line-height: 1.62;
-        }
-
-        .card-actions {
-          grid-template-columns: minmax(0, 1fr) 46px;
-        }
-
-        .primary-button {
-          min-width: 0;
-        }
-      }
-
-      /* Luxury Minimal dashboard refresh */
-      :root {
-        --bg: #050505;
-        --panel: rgba(18, 18, 16, 0.82);
-        --panel-strong: rgba(28, 27, 23, 0.96);
-        --text: #f7f1e7;
-        --muted: #b7afa2;
-        --line: rgba(244, 232, 211, 0.13);
-        --orange: #c8893d;
-        --gold: #d9b46f;
-        --teal: #77d6c8;
-        --shadow: 0 28px 70px rgba(0, 0, 0, 0.5);
-      }
-
-      body {
-        background:
-          radial-gradient(circle at 82% 16%, rgba(217, 180, 111, 0.13), transparent 25rem),
-          radial-gradient(circle at 12% 30%, rgba(119, 214, 200, 0.08), transparent 25rem),
-          linear-gradient(135deg, #030303 0%, #0d0d0b 48%, #050505 100%);
-      }
-
-      .shell {
-        width: min(1220px, calc(100% - 40px));
-        padding-top: 24px;
-      }
-
-      .topbar {
-        position: sticky;
-        top: 14px;
-        z-index: 20;
-        margin-bottom: 42px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 12px;
-        background: rgba(8, 8, 7, 0.74);
-        backdrop-filter: blur(18px);
-        box-shadow: 0 18px 54px rgba(0, 0, 0, 0.34);
-      }
-
-      .brand img {
-        box-shadow: 0 0 0 1px rgba(217, 180, 111, 0.34), 0 12px 34px rgba(200, 137, 61, 0.18);
-      }
-
-      .ghost-button,
-      .copy-button {
-        background: rgba(244, 232, 211, 0.055);
-      }
-
-      .primary-button {
-        background: linear-gradient(135deg, #d9b46f, #b97831);
-        color: #15100a;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
-      }
-
-      .hero {
-        grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
-        align-items: stretch;
-        gap: 24px;
-      }
-
-      .hero-copy {
-        min-height: 520px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: clamp(24px, 4vw, 44px);
-        background:
-          linear-gradient(145deg, rgba(244, 232, 211, 0.065), transparent 48%),
-          rgba(18, 18, 16, 0.58);
-        box-shadow: var(--shadow);
-      }
-
-      h1 {
-        max-width: 620px;
-        color: #fff8ee;
-        font-size: clamp(2.6rem, 5.4vw, 5.15rem);
-      }
-
-      .lead {
-        max-width: 600px;
-        color: #d8d0c4;
-      }
-
-      .eyebrow {
-        color: var(--gold);
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .hero-side {
-        display: grid;
-        grid-template-rows: 1fr auto;
-        gap: 14px;
-      }
-
-      .hero-panel {
-        aspect-ratio: auto;
-        min-height: 390px;
-        background: #080807;
-      }
-
-      .hero-panel::after {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        content: "";
-        background: linear-gradient(180deg, transparent 62%, rgba(0, 0, 0, 0.42));
-      }
-
-      .business-dashboard {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 12px;
-        align-items: center;
-        border: 1px solid rgba(217, 180, 111, 0.28);
-        border-radius: 8px;
-        padding: 16px;
-        background:
-          linear-gradient(135deg, rgba(217, 180, 111, 0.13), transparent 52%),
-          rgba(18, 18, 16, 0.9);
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.32);
-      }
-
-      .business-dashboard span {
-        display: block;
-        color: var(--muted);
-        font-size: 0.82rem;
-        font-weight: 800;
-      }
-
-      .business-dashboard strong {
-        display: block;
-        margin-top: 3px;
-        color: #fff8ee;
-        font-size: 1.05rem;
-      }
-
-      .dashboard-metrics {
-        grid-column: 1 / -1;
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 8px;
-      }
-
-      .dashboard-metrics span {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 9px 10px;
-        color: #e7ded0;
-        background: rgba(244, 232, 211, 0.055);
-      }
-
-      .stats .stat,
-      .search,
-      .card {
-        background: rgba(18, 18, 16, 0.78);
-        backdrop-filter: blur(14px);
-      }
-
-      .grid {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-      }
-
-      .card {
-        border-color: rgba(244, 232, 211, 0.12);
-        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3);
-      }
-
-      .card-media {
-        background:
-          radial-gradient(circle at 50% 34%, rgba(217, 180, 111, 0.16), transparent 54%),
-          #0b0b0a;
-      }
-
-      .tag {
-        color: #e7c27e;
-        background: rgba(217, 180, 111, 0.08);
-      }
-
-      .description {
-        color: #bdb4a7;
-      }
-
-      .coming-card {
-        background:
-          linear-gradient(135deg, rgba(217, 180, 111, 0.08), rgba(119, 214, 200, 0.04)),
-          rgba(18, 18, 16, 0.76);
-      }
-
-      .footer {
-        border-top-color: var(--line);
-      }
-
-      @media (max-width: 1050px) {
-        .hero {
-          grid-template-columns: 1fr;
-        }
-
-        .hero-copy {
-          min-height: auto;
-        }
-
-        .hero-panel {
-          min-height: 320px;
-          aspect-ratio: 2.2 / 1;
-        }
-      }
-
-      @media (max-width: 720px) {
-        .shell {
-          width: min(100% - 24px, 1220px);
-        }
-
-        .topbar {
-          position: static;
-        }
-
-        .hero-copy {
-          padding: 22px;
-        }
-
-        .hero-panel {
-          min-height: 0;
-          aspect-ratio: 2.2 / 1;
-        }
-
-        .business-dashboard {
-          grid-template-columns: 1fr;
-        }
-
-        .dashboard-metrics {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      /* Mockup matched dashboard layout */
-      .topbar {
-        display: grid;
-        grid-template-columns: minmax(250px, 1fr) auto minmax(260px, 1fr);
-        min-height: 64px;
-      }
-
-      .main-nav {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: clamp(18px, 3vw, 42px);
-      }
-
-      .main-nav a {
-        position: relative;
-        color: #cfc7ba;
-        font-weight: 850;
-        white-space: nowrap;
-      }
-
-      .main-nav a.is-active,
-      .main-nav a:hover {
-        color: #e7c27e;
-      }
-
-      .main-nav a.is-active::after {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: -18px;
-        height: 2px;
-        border-radius: 999px;
-        background: #e7c27e;
-        content: "";
-      }
-
-      .top-actions {
-        justify-content: flex-end;
-      }
-
-      .hero {
-        grid-template-columns: minmax(0, 0.92fr) minmax(520px, 1.08fr);
-        gap: 28px;
-        margin-bottom: 18px;
-      }
-
-      .hero-copy {
-        min-height: 300px;
-        border: 0;
-        background:
-          radial-gradient(circle at 78% 52%, rgba(217, 180, 111, 0.08), transparent 17rem),
-          transparent;
-        box-shadow: none;
-        padding: 34px 22px 22px;
-      }
-
-      .hero-copy h1 {
-        font-size: clamp(3rem, 5vw, 4.95rem);
-        letter-spacing: 0;
-      }
-
-      .hero-copy .lead {
-        max-width: 560px;
-        font-size: 1.08rem;
-      }
-
-      .benefit-row {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 18px;
-        max-width: 640px;
-        margin-top: 28px;
-      }
-
-      .benefit-row div {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: #d2c8ba;
-      }
-
-      .benefit-row b {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        border: 1px solid rgba(217, 180, 111, 0.25);
-        border-radius: 50%;
-        color: #e7c27e;
-        background: rgba(217, 180, 111, 0.07);
-      }
-
-      .stats {
-        display: none;
-      }
-
-      .hero-side {
-        align-self: center;
-      }
-
-      .hero-panel {
-        display: none;
-      }
-
-      .business-dashboard {
-        grid-template-columns: 0.9fr 1.1fr;
-        gap: 22px;
-        min-height: 250px;
-        padding: 28px 30px;
-        border-color: rgba(217, 180, 111, 0.32);
-        background:
-          linear-gradient(135deg, rgba(244, 232, 211, 0.09), transparent 52%),
-          rgba(25, 24, 21, 0.88);
-      }
-
-      .vip-title {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-
-      .vip-crown {
-        color: #e7c27e !important;
-        font-size: 3.1rem !important;
-        line-height: 1;
-      }
-
-      .vip-title strong {
-        color: #e7c27e;
-        font-size: 2.2rem;
-      }
-
-      .vip-title em {
-        color: #fff8ee;
-        font-size: 1.6rem;
-        font-style: normal;
-        margin-left: 8px;
-      }
-
-      .vip-benefits {
-        grid-column: 1;
-        margin: 8px 0 0;
-        padding: 0;
-        list-style: none;
-      }
-
-      .vip-benefits li {
-        position: relative;
-        margin-top: 14px;
-        padding-left: 28px;
-        color: #d8d0c4;
-      }
-
-      .vip-benefits li strong {
-        color: #fff8ee;
-        font-weight: 900;
-      }
-
-      .vip-benefits li::before {
-        position: absolute;
-        left: 0;
-        top: 1px;
-        color: #d9b46f;
-        content: "◎";
-      }
-
-      .vip-actions-card {
-        grid-column: 2;
-        grid-row: 1 / span 3;
-        display: grid;
-        align-content: center;
-        gap: 12px;
-        border-left: 1px solid rgba(244, 232, 211, 0.12);
-        padding-left: 24px;
-      }
-
-      .vip-actions-card > span,
-      .vip-actions-card small {
-        color: #d8d0c4;
-      }
-
-      .vip-dot::before {
-        display: inline-block;
-        width: 9px;
-        height: 9px;
-        margin-right: 8px;
-        border-radius: 50%;
-        background: #79db83;
-        content: "";
-      }
-
-      .vip-actions-card small a {
-        color: #e7c27e;
-        text-decoration: underline;
-        text-underline-offset: 3px;
-      }
-
-      .dashboard-metrics {
-        display: none;
-      }
-
-      #links {
-        position: relative;
-        display: block;
-      }
-
-      #links .announcement-banner,
-      #links .system-note {
-        width: calc(100% - 320px);
-      }
-
-      .toolbar {
-        width: calc(100% - 320px);
-        grid-template-columns: minmax(320px, 1fr) auto auto auto;
-        gap: 10px;
-        margin: 0;
-      }
-
-      .filter-pills,
-      .view-toggle {
-        display: flex;
-        gap: 8px;
-      }
-
-      .filter-pills .ghost-button,
-      .view-toggle .ghost-button {
-        min-height: 46px;
-        color: #cfc7ba;
-      }
-
-      .filter-pills .is-active,
-      .view-toggle .is-active {
-        border-color: rgba(217, 180, 111, 0.44);
-        color: #fff8ee;
-        background: rgba(217, 180, 111, 0.12);
-      }
-
-      .count {
-        display: none;
-      }
-
-      .grid {
-        width: calc(100% - 320px);
-        margin-top: 10px;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 12px;
-        counter-reset: tool-card;
-      }
-
-      .grid.is-list-view {
-        grid-template-columns: 1fr;
-      }
-
-      .grid.is-list-view .card:not(.coming-card) {
-        display: grid;
-        grid-template-columns: 190px minmax(0, 1fr);
-      }
-
-      .grid.is-list-view .card-media {
-        height: 100%;
-        min-height: 150px;
-        aspect-ratio: auto;
-      }
-
-      .card:not(.coming-card) {
-        counter-increment: tool-card;
-      }
-
-      .card:not(.coming-card)::after {
-        position: absolute;
-        top: 13px;
-        right: 12px;
-        z-index: 4;
-        color: #fff8ee;
-        content: counter(tool-card, decimal-leading-zero);
-        font-size: 1.02rem;
-        font-weight: 950;
-        text-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
-      }
-
-      .card-media {
-        aspect-ratio: 1.6 / 0.92;
-      }
-
-      .card-body {
-        padding: 13px;
-      }
-
-      .card h2 {
-        font-size: 1.05rem;
-      }
-
-      .description {
-        min-height: 66px;
-        font-size: 0.84rem;
-      }
-
-      .card-actions {
-        grid-template-columns: minmax(0, 1fr) 40px;
-      }
-
-      .card-actions .primary-button,
-      .card-actions .copy-button {
-        min-height: 38px;
-      }
-
-      .detail-link {
-        min-height: 34px;
-        margin-top: 8px;
-        color: #d9b46f;
-        background: rgba(217, 180, 111, 0.08);
-        border-color: rgba(217, 180, 111, 0.22);
-      }
-
-      .coming-card {
-        min-height: 150px;
-        border-style: dashed;
-        border-color: rgba(217, 180, 111, 0.35);
-        background: rgba(12, 12, 10, 0.64);
-      }
-
-      .coming-card .card-media {
-        aspect-ratio: 1.8 / 0.62;
-      }
-
-      .coming-card .card-body {
-        text-align: center;
-      }
-
-      .usage-sidebar {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 300px;
-        display: grid;
-        gap: 14px;
-      }
-
-      .usage-sidebar section {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 18px;
-        background:
-          linear-gradient(145deg, rgba(244, 232, 211, 0.055), transparent),
-          rgba(18, 18, 16, 0.82);
-        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
-      }
-
-      .sidebar-head {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 12px;
-      }
-
-      .usage-sidebar h2 {
-        margin: 0;
-        font-size: 1rem;
-      }
-
-      .sidebar-head span,
-      .usage-sidebar li {
-        color: var(--muted);
-      }
-
-      .usage-list {
-        display: grid;
-        gap: 14px;
-      }
-
-      .usage-list div {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        color: #d8d0c4;
-      }
-
-      .usage-list b {
-        color: #fff8ee;
-      }
-
-      .usage-sidebar ul {
-        display: grid;
-        gap: 12px;
-        margin: 0 0 16px;
-        padding-left: 16px;
-      }
-
-      @media (max-width: 1180px) {
-        .topbar {
-          grid-template-columns: 1fr;
-        }
-
-        .main-nav,
-        .top-actions {
-          justify-content: flex-start;
-        }
-
-        .hero,
-        #links {
-          grid-template-columns: 1fr;
-        }
-
-        .toolbar,
-        .grid,
-        #links .announcement-banner,
-        #links .system-note {
-          width: 100%;
-        }
-
-        .usage-sidebar {
-          position: static;
-          width: auto;
-          margin-top: 14px;
-        }
-
-        .grid {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-      }
-
-      @media (max-width: 720px) {
-        .main-nav {
-          width: 100%;
-          justify-content: flex-start;
-          overflow-x: auto;
-          padding-bottom: 4px;
-        }
-
-        .main-nav a.is-active::after {
-          bottom: -6px;
-        }
-
-        .hero-copy {
-          padding: 12px 0;
-        }
-
-        .benefit-row,
-        .business-dashboard,
-        .toolbar {
-          grid-template-columns: 1fr;
-        }
-
-        .vip-actions-card {
-          grid-column: 1;
-          grid-row: auto;
-          border-left: 0;
-          border-top: 1px solid rgba(244, 232, 211, 0.12);
-          padding: 14px 0 0;
-        }
-
-        .filter-pills,
-        .view-toggle {
-          overflow-x: auto;
-        }
-
-        .grid {
-          grid-template-columns: 1fr;
-        }
-
-        .grid.is-list-view .card:not(.coming-card) {
-          grid-template-columns: 1fr;
-        }
-
-        .grid.is-list-view .card-media {
-          min-height: 0;
-          aspect-ratio: 1.6 / 0.92;
-        }
-      }
-
-      /* Final responsive polish */
-      .main-nav {
-        gap: 6px;
-      }
-
-      .main-nav a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 38px;
-        border: 1px solid rgba(244, 232, 211, 0.14);
-        border-radius: 8px;
-        padding: 0 10px;
-        background: rgba(244, 232, 211, 0.045);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
-      }
-
-      .main-nav a.is-active,
-      .main-nav a:hover {
-        border-color: rgba(231, 194, 126, 0.44);
-        background: rgba(231, 194, 126, 0.11);
-      }
-
-      .main-nav a.is-active::after {
-        display: none;
-      }
-
-      @media (max-width: 720px) {
-        .main-nav {
-          gap: 8px;
-          flex-wrap: wrap;
-          overflow: visible;
-          padding-bottom: 0;
-        }
-
-        .main-nav a {
-          flex: 1 1 calc(50% - 8px);
-          min-height: 44px;
-          padding: 8px 10px;
-          text-align: center;
-          white-space: normal;
-          line-height: 1.18;
-        }
-
-        .grid .card:not(.coming-card) .card-media {
-          aspect-ratio: 2.35 / 1;
-          max-height: 150px;
-          background: #050505;
-        }
-
-        .grid .card:not(.coming-card) .card-media img {
-          object-fit: contain;
-          padding: 8px;
-          background: #050505;
-        }
-
-        .grid.is-list-view .card-media {
-          aspect-ratio: 2.35 / 1;
-          max-height: 150px;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="aihub.css?v=aihub-1" />
+    <script defer src="browser-check.js?v=chrome-notice-6"></script>
   </head>
   <body>
-    <main class="shell">
-      <header class="topbar" aria-label="หัวเว็บ">
-        <a class="brand" href="#links" aria-label="ไปที่ลิงก์ GPT">
-          <img src="assets/favicon.png" alt="GivemeAI" />
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="เมนูหลัก">
+        <a class="brand" href="index.html" aria-label="AI Hub">
+          <span class="brand-mark">G</span>
           <span>
-            <strong>GivemeAI GPT Hub</strong>
-            <span>รวมเครื่องมือ AI พร้อมใช้</span>
+            <span class="brand-title">AI <span>Hub</span></span>
+            <span class="brand-subtitle">By AI ภาพนี้ให้หน่อย</span>
           </span>
         </a>
-        <nav class="main-nav" aria-label="เมนูหลัก">
-          <a class="is-active" href="index.html">หน้าแรก</a>
-          <a href="#links">เครื่องมือ GPT</a>
-          <a href="pricing.html">รายละเอียดการสมัคร</a>
-          <a href="lessons.html">บทเรียน</a>
-          <a href="community.html">กลุ่มเรียนรู้</a>
-          <a href="#upcomingTools">อัปเดตข่าวสาร</a>
+        <nav class="side-nav">
+          <a class="nav-link is-active" href="index.html">🏠 หน้าแรก</a>
+          <p class="nav-section">เครื่องมือ AI</p>
+          <a class="nav-link" href="tools.html">🖼️ สร้างภาพ AI</a>
+          <a class="nav-link" href="tools.html#video">▶️ สร้างวิดีโอ AI</a>
+          <a class="nav-link" href="tools.html#ads">📈 วิเคราะห์ Ads</a>
+          <a class="nav-link" href="tools.html#agent">🤖 AI Agent</a>
+          <p class="nav-section">บทเรียนและ Prompt</p>
+          <a class="nav-link" href="lessons.html">🎓 บทเรียน AI</a>
+          <a class="nav-link" href="prompts.html">🎁 Prompt ยอดนิยม</a>
+          <a class="nav-link" href="ai-tools.html">🔥 AI ยอดนิยม</a>
+          <a class="nav-link" href="community.html">👥 กลุ่มเรียนรู้</a>
+          <a class="nav-link" href="updates.html">🆕 อัปเดตข่าวสาร</a>
+          <a class="nav-link" href="account.html">♡ สมาชิก</a>
         </nav>
-        <div class="top-actions">
-          <div class="auth-panel" aria-label="สถานะสมาชิก">
-            <button class="ghost-button auth-button" id="loginButton" type="button">เข้าสู่ระบบด้วย Google</button>
+        <div class="upgrade-box">
+          <strong>อัปเกรดเป็น Pro</strong>
+          <span>ปลดล็อก GPT และบทเรียนเสริมสำหรับธุรกิจ</span>
+          <a class="primary-button" href="pricing.html">ดูแพ็กสมาชิก</a>
+        </div>
+      </aside>
+
+      <main class="main-area">
+        <header class="mobile-header">
+          <button class="mobile-icon-button" type="button" aria-label="เมนู">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <a class="mobile-brand" href="index.html">
+            <span class="brand-mark">G</span>
+            <span><span class="brand-title">AI <span>Hub</span></span><span class="brand-subtitle">By AI ภาพนี้ให้หน่อย</span></span>
+          </a>
+          <a class="mobile-icon-button" href="updates.html" aria-label="อัปเดต">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </header>
+
+        <header class="topbar">
+          <div></div>
+          <label class="page-search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input id="globalSearch" type="search" placeholder="ค้นหา AI Tools, บทเรียน, Prompt..." />
+          </label>
+          <div class="auth-panel">
+            <button class="ghost-button auth-button" id="loginButton" type="button">Login Gmail</button>
             <div class="user-badge" id="userBadge" hidden>
               <img id="userAvatar" alt="" />
               <span>
@@ -1324,340 +72,231 @@
             <a class="ghost-button admin-link" id="adminLink" href="admin.html" hidden>Admin</a>
             <button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <section class="hero" aria-label="GivemeAI GPT Hub">
-        <div class="hero-copy">
-          <div class="eyebrow">CUSTOM GPT COLLECTION</div>
-          <h1>GivemeAI GPT Hub</h1>
-          <p class="lead">
-            รวมลิงก์ Custom GPT สำหรับงานโฆษณา วิเคราะห์ Andromeda สร้างภาพโปรโมท
-            ปรับภาพสินค้า และคำนวณ BOQ ไว้ในหน้าเดียว เปิดใช้งานได้เร็วบนมือถือและเดสก์ท็อป
-          </p>
-          <div class="benefit-row" aria-label="จุดเด่น">
-            <div><b>↯</b><span>ใช้งานง่าย<br />ได้ผลลัพธ์จริง</span></div>
-            <div><b>◈</b><span>ปลอดภัย<br />ข้อมูลไม่รั่วไหล</span></div>
-            <div><b>↻</b><span>อัปเดตเครื่องมือ<br />ใหม่ทุกสัปดาห์</span></div>
-          </div>
-          <div class="stats" aria-label="สรุปจำนวนเครื่องมือ">
-            <div class="stat">
-              <b>5</b>
-              <span>GPT พร้อมใช้งาน</span>
+        <section class="hero">
+          <article class="hero-card">
+            <p class="eyebrow">One Stop AI Platform</p>
+            <h1>AI ทุกตัวที่คุณต้องใช้ <span class="accent">อยู่ในเว็บเดียว</span></h1>
+            <p class="lead">รวมเครื่องมือ AI สำหรับเจ้าของธุรกิจ การตลาด งานโฆษณา ภาพโปรโมท วิเคราะห์ครีเอทีฟ และงาน BOQ ให้เปิดใช้งานได้เร็วขึ้นในที่เดียว</p>
+            <div class="hero-actions">
+              <a class="primary-button" href="#links">ค้นหา AI ทั้งหมด</a>
+              <a class="ghost-button" href="tools.html">ดูหมวดหมู่</a>
             </div>
-            <div class="stat">
-              <b>1K+</b>
-              <span>แชตใน GPT โปรโมท</span>
+            <div class="feature-row">
+              <div><span class="icon">⚡</span><span>ใช้งานง่าย<br />ได้ผลลัพธ์จริง</span></div>
+              <div><span class="icon">◇</span><span>ปลอดภัย<br />ข้อมูลไม่รั่วไหล</span></div>
+              <div><span class="icon">↻</span><span>อัปเดตเครื่องมือ<br />ใหม่ทุกสัปดาห์</span></div>
             </div>
-            <div class="stat">
-              <b>Link</b>
-              <span>เปิดได้สำหรับคนที่มีลิงก์</span>
-            </div>
-          </div>
-        </div>
-        <div class="hero-side">
-          <div class="hero-panel">
-            <img src="assets/hero-gpt-hub.jpg" alt="ภาพรวมโลโก้ GPT ของ GivemeAI" />
-          </div>
-          <div class="business-dashboard" aria-label="สรุปสถานะระบบสำหรับเจ้าของธุรกิจ">
-            <div class="vip-title">
-              <span class="vip-crown">♛</span>
-              <strong>Dashboard <em>สถานะสมาชิก</em></strong>
-            </div>
-            <ul class="vip-benefits">
-              <li>ระดับสมาชิก: <strong id="memberDashboardLevel">Free</strong></li>
-              <li>สิทธิ์ใช้งาน GPT: <strong id="memberDashboardAccess">Free 2 GPT</strong></li>
-              <li>อัปเดตเครื่องมือ: <strong id="memberDashboardUpdate">รายสัปดาห์</strong></li>
-              <li>บัญชีใช้งาน: <strong id="memberDashboardAccount">เข้าสู่ระบบด้วย Gmail</strong></li>
-            </ul>
-            <div class="vip-actions-card">
-              <span class="vip-dot" id="memberDashboardStatus">สถานะ: ยังไม่ได้เข้าสู่ระบบ</span>
-              <a class="primary-button" id="memberDashboardPrimary" href="pricing.html">สมัครสมาชิก</a>
-              <a class="ghost-button" id="memberUpgradeButton" href="pricing.html">อัปเกรดระดับสมาชิก</a>
-              <small id="memberDashboardHelp">ต้องการความช่วยเหลือ? <a href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">ติดต่อแอดมิน</a></small>
-            </div>
-            <div class="dashboard-metrics">
-              <span id="memberDashboardMetricA">Free 2 GPT</span>
-              <span id="memberDashboardMetricB">Member 3 GPT</span>
-              <span id="memberDashboardMetricC">Pro Lessons</span>
-            </div>
-          </div>
-        </div>
-      </section>
+          </article>
+          <aside class="hero-card hero-visual" aria-label="AI Hub visual">
+            <div class="ai-cube">AI<br /><small style="font-size: .34em">Hub</small></div>
+          </aside>
+        </section>
 
-      <section id="links" aria-label="ลิงก์ GPT">
-        <div class="toolbar">
-          <label class="search">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
-              <path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            </svg>
-            <input id="search" type="search" placeholder="ค้นหา เช่น Andromeda, BOQ, รูปโปรโมท" autocomplete="off" />
-          </label>
-          <div class="filter-pills" aria-label="ตัวกรอง">
-            <button class="ghost-button is-active" type="button" data-filter="all">ทั้งหมด</button>
-            <button class="ghost-button" type="button" data-filter="free">Free Member</button>
-            <button class="ghost-button" type="button" data-filter="vip">VIP Member</button>
-            <button class="ghost-button" type="button" data-filter="latest">ล่าสุด</button>
-          </div>
-          <div class="view-toggle" aria-label="มุมมอง">
-            <button class="ghost-button is-active" type="button" data-view="grid">▦</button>
-            <button class="ghost-button" type="button" data-view="list">☷</button>
-          </div>
-          <div class="count"><span id="visibleCount">10</span> / 10 เครื่องมือ</div>
-        </div>
-
-        <div class="grid" id="cards">
-          <article class="card" data-gpt-id="promo-builder" data-search="สร้างรูปโปรโมท โปรโมทอัตโนมัติ gpt image อัปโหลดรูป สินค้า ร้าน ราคา ติดต่อ">
-            <div class="card-media">
-              <img src="assets/promo-builder.webp" alt="สร้างรูปโปรโมท By Ai" />
+        <section aria-label="หมวดหมู่ AI">
+          <div class="section-head">
+            <div>
+              <h2>หมวดหมู่เครื่องมือ</h2>
+              <p class="muted">เลือกจากงานที่ต้องทำจริงในธุรกิจ</p>
             </div>
-            <div class="card-body">
-              <span class="tag">Promo Builder</span>
-              <h2>สร้างรูปโปรโมท</h2>
-              <p class="description">วิเคราะห์รูปแล้วสร้างภาพโปรโมทอัตโนมัติด้วย GPT Image ใส่ชื่อสินค้า ร้าน ราคา รายละเอียด และช่องทางติดต่อได้</p>
-              <div class="card-actions">
-                <a class="primary-button" href="https://chatgpt.com/g/g-69fc59f80d088191b76b9b7ee01feb59-sraangruupopromth-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
-                <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-69fc59f80d088191b76b9b7ee01feb59-sraangruupopromth-by-ai-phaaphniiaihhn-y" aria-label="คัดลอกลิงก์สร้างรูปโปรโมท"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></button>
+            <a class="ghost-button" href="tools.html">ดูทั้งหมด</a>
+          </div>
+          <div class="category-grid">
+            <a class="category-card" href="tools.html#image"><span class="icon">🖼️</span><strong>สร้างภาพ AI</strong></a>
+            <a class="category-card" href="tools.html#video"><span class="icon">▶️</span><strong>สร้างวิดีโอ AI</strong></a>
+            <a class="category-card" href="prompts.html"><span class="icon">✎</span><strong>เขียนคอนเทนต์</strong></a>
+            <a class="category-card" href="tools.html#ads"><span class="icon">📊</span><strong>วิเคราะห์ Ads</strong></a>
+            <a class="category-card" href="tools.html#agent"><span class="icon">🤖</span><strong>AI Agent</strong></a>
+            <a class="category-card" href="tools.html#product"><span class="icon">🛍️</span><strong>ปรับภาพสินค้า</strong></a>
+          </div>
+        </section>
+
+        <section class="content-layout" id="links">
+          <div>
+            <div id="announcementBanner" class="announcement-banner" role="status"></div>
+            <div id="systemNote" class="system-note"></div>
+            <div id="memberStatus" class="member-status" hidden></div>
+
+            <div class="toolbar">
+              <label class="search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <input id="search" type="search" placeholder="ค้นหา เช่น Andromeda, BOQ, รูปโปรโมท" />
+              </label>
+              <button class="ghost-button filter-button is-active" type="button" data-filter="all">ทั้งหมด</button>
+              <button class="ghost-button filter-button" type="button" data-filter="free">Free Member</button>
+              <button class="ghost-button filter-button" type="button" data-filter="vip">VIP Member</button>
+              <button class="ghost-button filter-button" type="button" data-filter="latest">ล่าสุด</button>
+              <button class="ghost-button view-button is-active" type="button" data-view="grid">▦</button>
+              <button class="ghost-button view-button" type="button" data-view="list">☰</button>
+            </div>
+
+            <div class="grid" id="cards">
+              <article class="card" data-gpt-id="promo-builder" data-protected="false" data-search="promo builder สร้างรูปโปรโมท ภาพขายสินค้า โฆษณา">
+                <span class="card-number">01</span>
+                <div class="member-ribbon free">Free Member</div>
+                <div class="card-media"><img src="assets/promo-builder.webp" alt="สร้างรูปโปรโมท" /></div>
+                <div class="card-body">
+                  <span class="tag">Promo Builder</span>
+                  <h3>สร้างรูปโปรโมท</h3>
+                  <p class="description">สร้างภาพโปรโมทสินค้าและบริการ พร้อมแคปชันสำหรับโพสต์ขาย</p>
+                  <div class="card-actions">
+                    <a class="primary-button" href="https://chatgpt.com/g/g-69fc59f80d088191b76b9b7ee01feb59-sraangruupopromth-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT</a>
+                    <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-69fc59f80d088191b76b9b7ee01feb59-sraangruupopromth-by-ai-phaaphniiaihhn-y">⧉</button>
+                    <a class="detail-link" href="detail.html?id=promo-builder">รายละเอียด</a>
+                  </div>
+                </div>
+              </article>
+
+              <article class="card" data-gpt-id="andromeda-score" data-protected="false" data-search="andromeda score audit วิเคราะห์ ads meta creative">
+                <span class="card-number">02</span>
+                <div class="member-ribbon free">Free Member</div>
+                <div class="card-media"><img src="assets/andromeda-score.webp" alt="Andromeda Score" /></div>
+                <div class="card-body">
+                  <span class="tag">Audit Score</span>
+                  <h3>Andromeda Score</h3>
+                  <p class="description">วิเคราะห์ภาพ/วิดีโอ Meta Ads ให้คะแนน จุดแข็ง และจุดที่ควรปรับ</p>
+                  <div class="card-actions">
+                    <a class="primary-button" href="https://chatgpt.com/g/g-6a291dd04c448191a633b6691e9be820-andromeda-score-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT</a>
+                    <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a291dd04c448191a633b6691e9be820-andromeda-score-by-ai-phaaphniiaihhn-y">⧉</button>
+                    <a class="detail-link" href="detail.html?id=andromeda-score">รายละเอียด</a>
+                  </div>
+                </div>
+              </article>
+
+              <article class="card" data-gpt-id="ads-andromeda-image" data-protected="true" data-search="ads andromeda image สร้างรูปโฆษณา facebook ig ads">
+                <span class="card-number">03</span>
+                <div class="member-ribbon vip">VIP Member</div>
+                <div class="card-media"><img src="assets/ads-andromeda-image.webp" alt="Ads Andromeda Image" /></div>
+                <div class="card-body">
+                  <span class="tag">Ads Creative</span>
+                  <h3>Ads Andromeda Image</h3>
+                  <p class="description">สร้างภาพโฆษณา Facebook/IG Ads พร้อมมุมขายและข้อความบนภาพ</p>
+                  <div class="card-actions">
+                    <a class="primary-button" href="https://chatgpt.com/g/g-6a293fa148fc8191a1c66a1da8b2de48-ads-andromeda-image-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT</a>
+                    <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a293fa148fc8191a1c66a1da8b2de48-ads-andromeda-image-by-ai-phaaphniiaihhn-y">⧉</button>
+                    <a class="detail-link" href="detail.html?id=ads-andromeda-image">รายละเอียด</a>
+                  </div>
+                </div>
+              </article>
+
+              <article class="card" data-gpt-id="boq-calculator" data-protected="true" data-search="boq คำนวณ ถอดปริมาณวัสดุ ประมาณราคา บ้าน อาคาร">
+                <span class="card-number">04</span>
+                <div class="member-ribbon vip">VIP Member</div>
+                <div class="card-media"><img src="assets/boq-calculator.webp" alt="คำนวณ BOQ" /></div>
+                <div class="card-body">
+                  <span class="tag">BOQ</span>
+                  <h3>คำนวณ BOQ</h3>
+                  <p class="description">ช่วยคำนวณ BOQ งานก่อสร้าง รวดเร็ว แม่นยำ ใช้งานง่าย</p>
+                  <div class="card-actions">
+                    <a class="primary-button" href="https://chatgpt.com/g/g-6a2789efcb0081919216a422cf8c9611-khmaanwn-boq-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT</a>
+                    <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a2789efcb0081919216a422cf8c9611-khmaanwn-boq-by-ai-phaaphniiaihhn-y">⧉</button>
+                    <a class="detail-link" href="detail.html?id=boq-calculator">รายละเอียด</a>
+                  </div>
+                </div>
+              </article>
+
+              <article class="card" data-gpt-id="ai-image-pro" data-protected="true" data-search="ai image pro ปรับภาพสินค้า ภาพโปรไฟล์ ภาพโฆษณา">
+                <span class="card-number">05</span>
+                <div class="member-ribbon vip">VIP Member</div>
+                <div class="card-media"><img src="assets/ai-image-pro.webp" alt="AI Image Pro" /></div>
+                <div class="card-body">
+                  <span class="tag">Product Edit</span>
+                  <h3>AI Image Pro</h3>
+                  <p class="description">สร้าง/แก้ไขภาพด้วย AI ระดับมืออาชีพ คมชัด สวยงาม ทุกสไตล์</p>
+                  <div class="card-actions">
+                    <a class="primary-button" href="https://chatgpt.com/g/g-6a250d11a4548191bbbd4b05882273a7-ai-image-pro-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT</a>
+                    <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a250d11a4548191bbbd4b05882273a7-ai-image-pro-by-ai-phaaphniiaihhn-y">⧉</button>
+                    <a class="detail-link" href="detail.html?id=ai-image-pro">รายละเอียด</a>
+                  </div>
+                </div>
+              </article>
+
+              <article id="upcomingTools" class="card coming-card is-locked" data-upcoming="true" data-order="1" data-search="coming soon 20/6/68 ai sales assistant">
+                <span class="card-number">06</span>
+                <div class="card-media" aria-hidden="true"></div>
+                <div class="card-body"><span class="tag">Coming Soon</span><h3>AI Sales Assistant</h3><p class="description">ช่วยตอบแชทและสรุปลูกค้าก่อนปิดการขาย</p><strong class="muted">20/6/68</strong></div>
+              </article>
+              <article class="card coming-card is-locked" data-upcoming="true" data-order="2" data-search="coming soon 27/6/68 content calendar">
+                <span class="card-number">07</span><div class="card-media" aria-hidden="true"></div><div class="card-body"><span class="tag">Coming Soon</span><h3>Content Calendar</h3><p class="description">วางแผนโพสต์รายสัปดาห์จากสินค้าและแคมเปญ</p><strong class="muted">27/6/68</strong></div>
+              </article>
+              <article class="card coming-card is-locked" data-upcoming="true" data-order="3" data-search="coming soon 4/7/68 review analyzer">
+                <span class="card-number">08</span><div class="card-media" aria-hidden="true"></div><div class="card-body"><span class="tag">Coming Soon</span><h3>Review Analyzer</h3><p class="description">สรุปรีวิวลูกค้าเป็น pain point และโอกาสขาย</p><strong class="muted">4/7/68</strong></div>
+              </article>
+              <article class="card coming-card is-locked" data-upcoming="true" data-order="4" data-search="coming soon 11/7/68 offer builder">
+                <span class="card-number">09</span><div class="card-media" aria-hidden="true"></div><div class="card-body"><span class="tag">Coming Soon</span><h3>Offer Builder</h3><p class="description">ช่วยคิดโปรโมชัน bundle และข้อเสนอที่น่าสนใจ</p><strong class="muted">11/7/68</strong></div>
+              </article>
+              <article class="card coming-card is-locked" data-upcoming="true" data-order="5" data-search="coming soon 18/7/68 line oa script">
+                <span class="card-number">10</span><div class="card-media" aria-hidden="true"></div><div class="card-body"><span class="tag">Coming Soon</span><h3>Line OA Script</h3><p class="description">สร้างข้อความบรอดแคสต์และติดตามลูกค้า</p><strong class="muted">18/7/68</strong></div>
+              </article>
+            </div>
+          </div>
+
+          <aside class="usage-sidebar">
+            <section class="panel">
+              <div class="section-head" style="margin-top: 0">
+                <h2>ภาพรวมการใช้งาน</h2>
+                <span class="muted">ตัวอย่าง 7 วันล่าสุด</span>
               </div>
-              <a class="detail-link" href="detail.html?id=promo-builder">รายละเอียด</a>
-            </div>
-          </article>
-          <article class="card" data-gpt-id="andromeda-score" data-search="andromeda score วิเคราะห์ภาพนิ่ง วิดีโอ meta ads คะแนน จุดแข็ง จุดอ่อน audience">
-            <div class="card-media">
-              <img src="assets/andromeda-score.webp" alt="Andromeda Score By Ai" />
-            </div>
-            <div class="card-body">
-              <span class="tag">Audit Score</span>
-              <h2>Andromeda Score</h2>
-              <p class="description">วิเคราะห์ภาพนิ่งและวิดีโอโฆษณา Meta Ads ให้คะแนน จุดแข็ง จุดอ่อน และประเมินกลุ่มเป้าหมายในไทย</p>
-              <div class="card-actions">
-                <a class="primary-button" href="https://chatgpt.com/g/g-6a291dd04c448191a633b6691e9be820-andromeda-score-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
-                <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a291dd04c448191a633b6691e9be820-andromeda-score-by-ai-phaaphniiaihhn-y" aria-label="คัดลอกลิงก์ Andromeda Score"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></button>
+              <div class="usage-list">
+                <div><span>เปิดใช้งาน GPT</span><b>162 ครั้ง</b></div>
+                <div><span>คัดลอกลิงก์</span><b>48 ครั้ง</b></div>
+                <div><span>เข้าดูรายละเอียด</span><b>73 ครั้ง</b></div>
+                <div><span>คลิกการ์ดล็อก</span><b>25 ครั้ง</b></div>
               </div>
-              <a class="detail-link" href="detail.html?id=andromeda-score">รายละเอียด</a>
-            </div>
-          </article>
-          <article class="card" data-gpt-id="ads-andromeda-image" data-protected="true" data-search="ads andromeda image โฆษณา creative signal target audience hook offer proof cta">
-            <div class="card-media">
-              <img src="assets/ads-andromeda-image.webp" alt="Ads Andromeda Image By Ai" />
-            </div>
-            <div class="card-body">
-              <span class="tag">Ads Creative</span>
-              <h2>Ads Andromeda Image</h2>
-              <p class="description">สร้างภาพโฆษณาพร้อมใช้จากรูปสินค้า/บริการ พร้อมวิเคราะห์ creative signal, audience, hook, offer, proof และ CTA</p>
-              <div class="card-actions">
-                <a class="primary-button" href="https://chatgpt.com/g/g-6a293fa148fc8191a1c66a1da8b2de48-ads-andromeda-image-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
-                <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a293fa148fc8191a1c66a1da8b2de48-ads-andromeda-image-by-ai-phaaphniiaihhn-y" aria-label="คัดลอกลิงก์ Ads Andromeda"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></button>
+            </section>
+            <section class="panel">
+              <h2>Dashboard สมาชิก</h2>
+              <ul>
+                <li>ระดับสมาชิก: <strong id="memberDashboardLevel">Free</strong></li>
+                <li>สิทธิ์ใช้งาน: <strong id="memberDashboardAccess">Free 2 GPT</strong></li>
+                <li>อัปเดต: <strong id="memberDashboardUpdate">รายสัปดาห์</strong></li>
+                <li>บัญชี: <strong id="memberDashboardAccount">เข้าสู่ระบบด้วย Gmail</strong></li>
+              </ul>
+              <p class="pill" id="memberDashboardStatus">สถานะ: ยังไม่ได้เข้าสู่ระบบ</p>
+              <div class="action-row" style="margin-top: 12px">
+                <a class="primary-button" id="memberDashboardPrimary" href="pricing.html">สมัครสมาชิก</a>
+                <a class="ghost-button" id="memberUpgradeButton" href="pricing.html">อัปเกรดระดับสมาชิก</a>
               </div>
-              <a class="detail-link" href="detail.html?id=ads-andromeda-image">รายละเอียด</a>
-            </div>
-          </article>
-          <article class="card" data-gpt-id="boq-calculator" data-protected="true" data-search="boq คำนวณ ถอดปริมาณวัสดุ ประมาณราคา บ้าน อาคาร google sheet">
-            <div class="card-media">
-              <img src="assets/boq-calculator.webp" alt="คำนวณ BOQ By Ai" />
-            </div>
-            <div class="card-body">
-              <span class="tag">BOQ</span>
-              <h2>คำนวณ BOQ</h2>
-              <p class="description">ถอดปริมาณวัสดุและประมาณราคา BOQ สำหรับบ้านหรืออาคารเล็กจากแบบแปลน พร้อมสร้าง Google Sheet ผ่าน Action</p>
-              <div class="card-actions">
-                <a class="primary-button" href="https://chatgpt.com/g/g-6a2789efcb0081919216a422cf8c9611-khmaanwn-boq-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
-                <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a2789efcb0081919216a422cf8c9611-khmaanwn-boq-by-ai-phaaphniiaihhn-y" aria-label="คัดลอกลิงก์ BOQ"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></button>
-              </div>
-              <a class="detail-link" href="detail.html?id=boq-calculator">รายละเอียด</a>
-            </div>
-          </article>
-          <article class="card" data-gpt-id="ai-image-pro" data-protected="true" data-search="ai image pro อัปโหลดรูป ปรับภาพ ทำภาพดูดีขึ้น">
-            <div class="card-media">
-              <img src="assets/ai-image-pro.webp" alt="AI Image Pro By AI" />
-            </div>
-            <div class="card-body">
-              <span class="tag">Image Upgrade</span>
-              <h2>AI Image Pro</h2>
-              <p class="description">อัปโหลดรูปที่ต้องการปรับให้ภาพดูดีขึ้น เหมาะกับงานภาพสินค้า ภาพโปรไฟล์ และภาพประกอบโฆษณา</p>
-              <div class="card-actions">
-                <a class="primary-button" href="https://chatgpt.com/g/g-6a250d11a4548191bbbd4b05882273a7-ai-image-pro-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
-                <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a250d11a4548191bbbd4b05882273a7-ai-image-pro-by-ai-phaaphniiaihhn-y" aria-label="คัดลอกลิงก์ AI Image Pro"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></button>
-              </div>
-              <a class="detail-link" href="detail.html?id=ai-image-pro">รายละเอียด</a>
-            </div>
-          </article>
+              <p class="fineprint" id="memberDashboardHelp">Member 390 บาทขึ้นไปจะปลดล็อก GPT สมาชิก</p>
+            </section>
+          </aside>
+        </section>
 
-          <article id="upcomingTools" class="card coming-card is-locked" data-upcoming="true" data-order="1" data-search="coming soon gpt ใหม่ ทุกอาทิตย์ 20/6/68">
-            <div class="card-media" aria-hidden="true"></div>
-            <div class="card-body">
-              <span class="tag">Coming Soon</span>
-              <h2>GPT ใหม่เร็ว ๆ นี้</h2>
-              <p class="description">ช่องโปรโมทสำหรับ GPT ใหม่ที่กำลังเตรียมเพิ่มเข้าระบบ</p>
-              <p class="coming-date">ปลดล็อกคิวแรก: 20/6/68</p>
-            </div>
-          </article>
-          <article class="card coming-card is-locked" data-upcoming="true" data-order="2" data-search="coming soon gpt ใหม่ ทุกอาทิตย์ 27/6/68">
-            <div class="card-media" aria-hidden="true"></div>
-            <div class="card-body">
-              <span class="tag">Coming Soon</span>
-              <h2>พื้นที่ GPT ใหม่</h2>
-              <p class="description">เตรียมพบเครื่องมือใหม่สำหรับช่วยทำงาน AI และคอนเทนต์</p>
-              <p class="coming-date">ปลดล็อกคิวถัดไป: 27/6/68</p>
-            </div>
-          </article>
-          <article class="card coming-card is-locked" data-upcoming="true" data-order="3" data-search="coming soon gpt ใหม่ ทุกอาทิตย์ 4/7/68">
-            <div class="card-media" aria-hidden="true"></div>
-            <div class="card-body">
-              <span class="tag">Coming Soon</span>
-              <h2>เตรียมอัปเดต</h2>
-              <p class="description">กำลังคัดเครื่องมือที่ใช้ได้จริงมาเพิ่มให้สมาชิกใช้งานต่อเนื่อง</p>
-              <p class="coming-date">ปลดล็อกคิวถัดไป: 4/7/68</p>
-            </div>
-          </article>
-          <article class="card coming-card is-locked" data-upcoming="true" data-order="4" data-search="coming soon gpt ใหม่ ทุกอาทิตย์ 11/7/68">
-            <div class="card-media" aria-hidden="true"></div>
-            <div class="card-body">
-              <span class="tag">Coming Soon</span>
-              <h2>GPT โปรโมทใหม่</h2>
-              <p class="description">ช่องว่างสำหรับเครื่องมือโปรโมทและการขายที่จะเพิ่มในรอบถัดไป</p>
-              <p class="coming-date">ปลดล็อกคิวถัดไป: 11/7/68</p>
-            </div>
-          </article>
-          <article class="card coming-card is-locked" data-upcoming="true" data-order="5" data-search="coming soon gpt ใหม่ ทุกอาทิตย์ 18/7/68">
-            <div class="card-media" aria-hidden="true"></div>
-            <div class="card-body">
-              <span class="tag">Coming Soon</span>
-              <h2>กำลังจะมา</h2>
-              <p class="description">เตรียมเพิ่ม GPT ใหม่เพื่อให้เว็บมีเครื่องมือใช้งานครบขึ้นทุกสัปดาห์</p>
-              <p class="coming-date">ปลดล็อกคิวถัดไป: 18/7/68</p>
-            </div>
-          </article>
+        <section>
+          <div class="section-head">
+            <div><h2>บทเรียน AI แนะนำ</h2><p class="muted">ตัวอย่างบทเรียนสำหรับเจ้าของธุรกิจ</p></div>
+            <a class="ghost-button" href="lessons.html">ดูทั้งหมด</a>
+          </div>
+          <div class="lessons-grid">
+            <article class="lesson-card"><img class="lesson-cover" src="assets/andromeda-score.webp" alt="" /><span class="tag">AI</span><h3>เริ่มต้นใช้งาน AI สำหรับมือใหม่</h3><p class="muted">12 บทเรียน • ความคืบหน้า 80%</p></article>
+            <article class="lesson-card"><img class="lesson-cover" src="assets/promo-builder.webp" alt="" /><span class="tag">AI</span><h3>สร้างภาพโปรโมทด้วย Midjourney</h3><p class="muted">18 บทเรียน • ความคืบหน้า 65%</p></article>
+            <article class="lesson-card"><img class="lesson-cover" src="assets/ads-andromeda-image.webp" alt="" /><span class="tag">AI</span><h3>สร้างวิดีโอ AI ให้ไวรัล</h3><p class="muted">15 บทเรียน • ความคืบหน้า 40%</p></article>
+          </div>
+        </section>
 
-        </div>
-        <aside class="usage-sidebar" aria-label="ภาพรวมการใช้งาน">
-          <section>
-            <div class="sidebar-head">
-              <h2>ภาพรวมการใช้งาน</h2>
-              <span>7 วันล่าสุด</span>
-            </div>
-            <div class="usage-list">
-              <div><span>▣ เปิดใช้งาน GPT</span><b>162 ครั้ง</b></div>
-              <div><span>🔗 คัดลอกลิงก์</span><b>48 ครั้ง</b></div>
-              <div><span>⌕ เข้าดูรายละเอียด</span><b>73 ครั้ง</b></div>
-              <div><span>▣ คลิกการ์ดล็อก</span><b>25 ครั้ง</b></div>
-            </div>
-          </section>
-          <section>
-            <h2>คำแนะนำสำหรับคุณ</h2>
-            <ul>
-              <li>ลองใช้ Andromeda Score เพื่อวิเคราะห์โฆษณาของคุณ</li>
-              <li>สร้างภาพโฆษณาด้วย Ads Andromeda Image</li>
-              <li>คำนวณ BOQ เพื่อลดเวลาทำงานเอกสาร</li>
-            </ul>
-            <a class="ghost-button" href="admin.html">ดูสถิติทั้งหมด</a>
-          </section>
-        </aside>
-      </section>
+        <section>
+          <div class="section-head">
+            <div><h2>Prompt ยอดนิยม</h2><p class="muted">ใช้เป็นตัวอย่างก่อนส่งงานให้ GPT</p></div>
+            <a class="ghost-button" href="prompts.html">ดูทั้งหมด</a>
+          </div>
+          <div class="panel-grid">
+            <article class="prompt-row"><img src="assets/promo-builder.webp" alt="" /><div><h3>Prompt โปรโมทร้านอาหาร</h3><p class="muted">⭐ 4.9 (1.2K)</p></div><button class="copy-button" type="button" data-copy="ช่วยสร้างภาพโปรโมทร้านอาหาร โดยเน้นเมนูขายดี โปรโมชัน ราคา และ CTA ให้ลูกค้าทักแชท">คัดลอก</button></article>
+            <article class="prompt-row"><img src="assets/ai-image-pro.webp" alt="" /><div><h3>Prompt ภาพสินค้า Luxury</h3><p class="muted">⭐ 4.8 (892)</p></div><button class="copy-button" type="button" data-copy="ปรับภาพสินค้าให้ดู Luxury พรีเมียม แสงสวย ฉากสะอาด เหมาะกับโพสต์ขายออนไลน์">คัดลอก</button></article>
+            <article class="prompt-row"><img src="assets/ads-andromeda-image.webp" alt="" /><div><h3>Prompt โฆษณา Facebook Ads</h3><p class="muted">⭐ 4.9 (1.5K)</p></div><button class="copy-button" type="button" data-copy="วิเคราะห์สินค้า กลุ่มเป้าหมาย pain point และสร้างภาพโฆษณา Facebook Ads พร้อม hook offer proof CTA">คัดลอก</button></article>
+          </div>
+        </section>
+      </main>
+    </div>
 
-      <footer class="footer">
-        <span>GivemeAI GPT Hub</span>
-        <span>ดึงลิงก์จากหน้า My GPTs ของบัญชี Givemeai.edit@gmail.com</span>
-      </footer>
-    </main>
-    <div class="toast" id="toast" role="status" aria-live="polite">คัดลอกลิงก์แล้ว</div>
-
-    <script>
-      const search = document.querySelector("#search");
-      const cardsGrid = document.querySelector("#cards");
-      const cards = [...document.querySelectorAll(".card")];
-      const filterButtons = [...document.querySelectorAll("[data-filter]")];
-      const viewButtons = [...document.querySelectorAll("[data-view]")];
-      const visibleCount = document.querySelector("#visibleCount");
-      const toast = document.querySelector("#toast");
-      const copyResetTimers = new WeakMap();
-      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      let activeFilter = "all";
-
-      window.applyCardSearch = () => {
-        const value = search.value.trim().toLowerCase();
-        let total = 0;
-        cards.forEach((card) => {
-          const text = card.textContent.toLowerCase() + " " + card.dataset.search.toLowerCase();
-          const hiddenByAdmin = card.dataset.hiddenByAdmin === "true";
-          const isVip = card.dataset.protected === "true";
-          const isUpcoming = card.dataset.upcoming === "true";
-          const matchesFilter =
-            activeFilter === "all" ||
-            (activeFilter === "free" && !isVip && !isUpcoming) ||
-            (activeFilter === "vip" && isVip && !isUpcoming) ||
-            (activeFilter === "latest" && isUpcoming);
-          const show = !hiddenByAdmin && matchesFilter && (!value || text.includes(value));
-          card.hidden = !show;
-          card.style.display = show ? "" : "none";
-          if (show) total += 1;
-        });
-        visibleCount.textContent = total;
-      };
-
-      search.addEventListener("input", window.applyCardSearch);
-
-      filterButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          activeFilter = button.dataset.filter;
-          filterButtons.forEach((item) => item.classList.toggle("is-active", item === button));
-          window.applyCardSearch();
-        });
-      });
-
-      viewButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          viewButtons.forEach((item) => item.classList.toggle("is-active", item === button));
-          cardsGrid.classList.toggle("is-list-view", button.dataset.view === "list");
-        });
-      });
-
-      if (!reducedMotion) {
-        cards.forEach((card) => {
-          card.addEventListener("pointermove", (event) => {
-            const rect = card.getBoundingClientRect();
-            const x = ((event.clientX - rect.left) / rect.width) * 100;
-            const y = ((event.clientY - rect.top) / rect.height) * 100;
-            card.style.setProperty("--card-glow-x", `${x.toFixed(1)}%`);
-            card.style.setProperty("--card-glow-y", `${y.toFixed(1)}%`);
-            card.classList.add("is-card-active");
-          });
-
-          card.addEventListener("pointerleave", () => {
-            card.classList.remove("is-card-active");
-          });
-        });
-      }
-
-      document.querySelectorAll("[data-copy]").forEach((button) => {
-        button.addEventListener("click", async () => {
-          const link = button.dataset.copy;
-          const originalLabel = button.getAttribute("aria-label");
-          try {
-            await navigator.clipboard.writeText(link);
-          } catch {
-            const temp = document.createElement("textarea");
-            temp.value = link;
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand("copy");
-            temp.remove();
-          }
-          window.clearTimeout(copyResetTimers.get(button));
-          button.classList.add("is-copied");
-          button.setAttribute("aria-label", "คัดลอกแล้ว");
-          toast.classList.add("show");
-          copyResetTimers.set(
-            button,
-            window.setTimeout(() => {
-              button.classList.remove("is-copied");
-              if (originalLabel) button.setAttribute("aria-label", originalLabel);
-              toast.classList.remove("show");
-            }, 1600),
-          );
-        });
-      });
-    </script>
-    <script type="module" src="app.js"></script>
+    <nav class="bottom-nav" aria-label="เมนูมือถือ">
+      <a class="is-active" href="index.html">🏠<span>ภาพรวม</span></a>
+      <a href="pricing.html">💳<span>ค่าใช้จ่าย</span></a>
+      <a href="account.html">♡<span>สมาชิก</span></a>
+      <a href="tools.html">⇄<span>เครื่องมือ</span></a>
+      <a href="updates.html">☰<span>อัปเดต</span></a>
+    </nav>
+    <div class="toast" id="toast" role="status" aria-live="polite">คัดลอกแล้ว</div>
+    <script type="module" src="app.js?v=aihub-1"></script>
   </body>
 </html>

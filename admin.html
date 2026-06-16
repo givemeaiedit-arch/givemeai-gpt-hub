@@ -5,769 +5,120 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Admin Panel | GivemeAI GPT Hub</title>
     <link rel="icon" href="assets/favicon.png" />
-    <link rel="stylesheet" href="styles-auth.css?v=menu-card-1" />
-    <script defer src="browser-check.js?v=chrome-notice-5"></script>
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #090d12;
-        --panel: rgba(18, 23, 31, 0.86);
-        --panel-strong: rgba(27, 34, 45, 0.95);
-        --text: #f7fafc;
-        --muted: #a8b3c2;
-        --line: rgba(255, 255, 255, 0.12);
-        --orange: #ff8a00;
-        --gold: #ffd166;
-        --teal: #38d6c7;
-        --danger: #ff6b6b;
-        --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        background:
-          radial-gradient(circle at 18% 14%, rgba(16, 185, 129, 0.1), transparent 24rem),
-          radial-gradient(circle at 82% 18%, rgba(34, 211, 238, 0.08), transparent 26rem),
-          linear-gradient(135deg, #05070a 0%, #071110 48%, #05070a 100%);
-        color: var(--text);
-        font-family:
-          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          "Noto Sans Thai", Arial, sans-serif;
-      }
-
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-
-      .shell {
-        width: min(1120px, calc(100% - 32px));
-        margin: 0 auto;
-        padding: 28px 0 48px;
-      }
-
-      .topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-        margin-bottom: 34px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .brand img {
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-      }
-
-      .ghost-button,
-      .primary-button,
-      .danger-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 38px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 0 12px;
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.06);
-        font-weight: 800;
-        cursor: pointer;
-      }
-
-      .primary-button {
-        border-color: transparent;
-        color: #160c00;
-        background: linear-gradient(135deg, var(--orange), #ffb020);
-      }
-
-      .danger-button {
-        border-color: rgba(255, 107, 107, 0.45);
-        color: #ffd9d9;
-        background: rgba(255, 107, 107, 0.12);
-      }
-
-      h1 {
-        margin: 0;
-        font-size: clamp(2.2rem, 5vw, 4.5rem);
-        line-height: 1;
-      }
-
-      .lead {
-        color: var(--muted);
-        line-height: 1.7;
-        margin: 14px 0 24px;
-      }
-
-      .panel {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--panel);
-        box-shadow: var(--shadow);
-        overflow: hidden;
-      }
-
-      .analytics-section {
-        padding: 14px;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .admin-config {
-        display: grid;
-        gap: 18px;
-        padding: 14px;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .admin-head-menu {
-        position: sticky;
-        top: 0;
-        z-index: 8;
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        padding: 12px 14px;
-        border-bottom: 1px solid var(--line);
-        background: rgba(12, 17, 24, 0.96);
-        backdrop-filter: blur(12px);
-      }
-
-      .admin-head-menu a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 36px;
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        padding: 0 12px;
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.06);
-        font-size: 0.86rem;
-        font-weight: 850;
-        white-space: nowrap;
-      }
-
-      .admin-head-menu a.is-active {
-        border-color: rgba(56, 214, 199, 0.5);
-        color: #d8fffb;
-        background: rgba(56, 214, 199, 0.14);
-      }
-
-      .admin-page {
-        display: none;
-      }
-
-      .admin-page.is-active {
-        display: block;
-      }
-
-      .config-card {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.05);
-        padding: 14px;
-      }
-
-      .config-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 10px;
-      }
-
-      .config-card textarea,
-      .config-card input[type="text"],
-      .config-card input[type="email"],
-      .config-card input[type="url"],
-      .order-input {
-        width: 100%;
-        min-height: 42px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.06);
-        padding: 10px 12px;
-        font: inherit;
-      }
-
-      .config-card textarea {
-        min-height: 86px;
-        resize: vertical;
-      }
-
-      .pricing-grid {
-        display: grid;
-        grid-template-columns: 150px minmax(0, 1fr);
-        gap: 10px;
-        margin-bottom: 10px;
-      }
-
-      .vip-code-grid {
-        display: grid;
-        grid-template-columns: minmax(160px, 240px) auto auto auto;
-        gap: 10px;
-        align-items: center;
-      }
-
-      .last-code {
-        display: none;
-        align-items: center;
-        gap: 8px;
-        margin: 12px 0 4px;
-        color: #d8fffb;
-        font-weight: 850;
-      }
-
-      .last-code.show {
-        display: flex;
-      }
-
-      .order-input {
-        max-width: 86px;
-      }
-
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
-        margin-bottom: 14px;
-      }
-
-      .stat-card {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.06);
-        padding: 14px;
-      }
-
-      .stat-card b {
-        display: block;
-        font-size: 1.55rem;
-      }
-
-      .stat-card span {
-        color: var(--muted);
-        font-size: 0.84rem;
-      }
-
-      .section-title {
-        margin: 0 0 12px;
-        color: var(--gold);
-        font-size: 0.9rem;
-        font-weight: 900;
-        text-transform: uppercase;
-      }
-
-      .toolbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 14px;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .toolbar input {
-        width: min(360px, 100%);
-        min-height: 42px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.06);
-        padding: 0 12px;
-        font: inherit;
-      }
-
-      .table-wrap {
-        overflow-x: auto;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      th,
-      td {
-        border-bottom: 1px solid var(--line);
-        padding: 13px 14px;
-        text-align: left;
-        vertical-align: middle;
-        white-space: nowrap;
-      }
-
-      th {
-        color: var(--muted);
-        font-size: 0.78rem;
-        text-transform: uppercase;
-      }
-
-      td small {
-        display: block;
-        color: var(--muted);
-        margin-top: 2px;
-      }
-
-      .status {
-        display: inline-flex;
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        padding: 5px 9px;
-        font-size: 0.78rem;
-        font-weight: 900;
-      }
-
-      .status.approved {
-        color: #c7ffdf;
-        border-color: rgba(73, 222, 128, 0.4);
-        background: rgba(73, 222, 128, 0.1);
-      }
-
-      .status.active {
-        color: #bff7ff;
-        border-color: rgba(34, 211, 238, 0.45);
-        background: rgba(34, 211, 238, 0.12);
-      }
-
-      .status.used {
-        color: #d5dde7;
-        border-color: rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.08);
-      }
-
-      .status.paid {
-        color: #c7ffdf;
-        border-color: rgba(73, 222, 128, 0.4);
-        background: rgba(73, 222, 128, 0.1);
-      }
-
-      .status.pending {
-        color: #ffe5ba;
-        border-color: rgba(255, 138, 0, 0.4);
-        background: rgba(255, 138, 0, 0.1);
-      }
-
-      .status.revoked {
-        color: #ffd9d9;
-        border-color: rgba(255, 107, 107, 0.45);
-        background: rgba(255, 107, 107, 0.12);
-      }
-
-      .row-actions {
-        display: flex;
-        gap: 8px;
-      }
-
-      .visible-toggle {
-        width: 18px;
-        height: 18px;
-      }
-
-      .empty,
-      .denied {
-        padding: 24px;
-        color: var(--muted);
-      }
-
-      .denied {
-        border: 1px solid rgba(255, 107, 107, 0.45);
-        border-radius: 8px;
-        background: rgba(255, 107, 107, 0.1);
-      }
-
-      @media (max-width: 780px) {
-        .topbar,
-        .toolbar {
-          align-items: flex-start;
-          flex-direction: column;
-        }
-
-        .stats-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .pricing-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .vip-code-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      /* Luxury Minimal admin dashboard refresh */
-      :root {
-        --bg: #050505;
-        --panel: rgba(18, 18, 16, 0.84);
-        --panel-strong: rgba(28, 27, 23, 0.96);
-        --text: #f7f1e7;
-        --muted: #b7afa2;
-        --line: rgba(244, 232, 211, 0.13);
-        --orange: #c8893d;
-        --gold: #d9b46f;
-        --teal: #77d6c8;
-        --shadow: 0 28px 70px rgba(0, 0, 0, 0.5);
-      }
-
-      body {
-        background:
-          radial-gradient(circle at 84% 18%, rgba(217, 180, 111, 0.12), transparent 26rem),
-          radial-gradient(circle at 12% 30%, rgba(119, 214, 200, 0.08), transparent 26rem),
-          linear-gradient(135deg, #030303 0%, #0d0d0b 48%, #050505 100%);
-      }
-
-      .shell {
-        width: min(1220px, calc(100% - 40px));
-      }
-
-      .topbar {
-        position: sticky;
-        top: 14px;
-        z-index: 20;
-        margin-bottom: 28px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 12px;
-        background: rgba(8, 8, 7, 0.74);
-        backdrop-filter: blur(18px);
-        box-shadow: 0 18px 54px rgba(0, 0, 0, 0.34);
-      }
-
-      h1 {
-        color: #fff8ee;
-      }
-
-      .lead {
-        color: #d8d0c4;
-      }
-
-      .panel {
-        border-color: var(--line);
-        background: rgba(18, 18, 16, 0.78);
-        backdrop-filter: blur(16px);
-      }
-
-      .admin-head-menu {
-        top: 84px;
-        padding: 12px;
-        background: rgba(8, 8, 7, 0.82);
-      }
-
-      .admin-head-menu a {
-        border-color: rgba(244, 232, 211, 0.13);
-        background: rgba(244, 232, 211, 0.055);
-      }
-
-      .admin-head-menu a.is-active {
-        border-color: rgba(217, 180, 111, 0.45);
-        color: #fff8ee;
-        background: rgba(217, 180, 111, 0.14);
-      }
-
-      .admin-config,
-      .analytics-section,
-      .toolbar {
-        padding: 18px;
-      }
-
-      .config-card,
-      .stat-card {
-        border-color: rgba(244, 232, 211, 0.13);
-        background:
-          linear-gradient(145deg, rgba(244, 232, 211, 0.045), transparent 54%),
-          rgba(10, 10, 9, 0.55);
-      }
-
-      .section-title {
-        color: #e7c27e;
-      }
-
-      .primary-button {
-        background: linear-gradient(135deg, #e7c27e, #b97831);
-        color: #15100a;
-      }
-
-      .ghost-button,
-      .danger-button,
-      .config-card textarea,
-      .config-card input[type="text"],
-      .config-card input[type="email"],
-      .config-card input[type="url"],
-      .toolbar input,
-      .order-input {
-        border-color: rgba(244, 232, 211, 0.13);
-        background: rgba(244, 232, 211, 0.055);
-      }
-
-      table {
-        font-size: 0.92rem;
-      }
-
-      th {
-        color: #c8bda9;
-      }
-
-      td {
-        color: #eee5d7;
-      }
-
-      tr:hover td {
-        background: rgba(244, 232, 211, 0.035);
-      }
-
-      .status.paid,
-      .status.approved {
-        color: #d9fff6;
-        border-color: rgba(119, 214, 200, 0.34);
-        background: rgba(119, 214, 200, 0.1);
-      }
-
-      .status.pending,
-      .status.active {
-        color: #f0d49a;
-        border-color: rgba(217, 180, 111, 0.34);
-        background: rgba(217, 180, 111, 0.1);
-      }
-
-      @media (max-width: 780px) {
-        .shell {
-          width: min(100% - 24px, 1220px);
-        }
-
-        .topbar,
-        .admin-head-menu {
-          position: static;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="aihub.css?v=aihub-1" />
+    <script defer src="browser-check.js?v=chrome-notice-6"></script>
   </head>
   <body>
-    <main class="shell">
-      <header class="topbar">
-        <a class="brand" href="index.html">
-          <img src="assets/favicon.png" alt="GivemeAI" />
-          <strong>GivemeAI GPT Hub</strong>
-        </a>
-        <nav class="main-nav" aria-label="เมนูหลัก">
-          <a href="index.html">หน้าแรก</a>
-          <a href="index.html#links">เครื่องมือ GPT</a>
-          <a href="pricing.html">รายละเอียดการสมัคร</a>
-          <a href="lessons.html">บทเรียน</a>
-          <a href="community.html">กลุ่มเรียนรู้</a>
-          <a class="is-active" href="admin.html">Admin</a>
-        </nav>
-        <div class="auth-panel">
-          <button class="ghost-button auth-button" id="loginButton" type="button">เข้าสู่ระบบด้วย Google</button>
-          <div class="user-badge" id="userBadge" hidden>
-            <img id="userAvatar" alt="" />
-            <span>
-              <strong id="userName">Guest</strong>
-              <small id="userStatus">ยังไม่ได้เข้าสู่ระบบ</small>
-            </span>
-          </div>
-          <button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
-        </div>
-      </header>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="index.html"><span class="brand-mark">G</span><span><span class="brand-title">AI <span>Hub</span></span><span class="brand-subtitle">Admin Dashboard</span></span></a>
+        <nav class="side-nav"><a class="nav-link" href="index.html">🏠 หน้าแรก</a><a class="nav-link" href="tools.html">🖼️ เครื่องมือ GPT</a><a class="nav-link" href="pricing.html">💳 Pricing</a><a class="nav-link" href="community.html">👥 กลุ่มเรียนรู้</a><a class="nav-link is-active" href="admin.html">⚙️ Admin</a></nav>
+      </aside>
+      <main class="main-area">
+        <header class="mobile-header"><a class="mobile-brand" href="index.html"><span class="brand-mark">G</span><span><span class="brand-title">AI <span>Hub</span></span><span class="brand-subtitle">Admin</span></span></a><button class="ghost-button js-login" type="button">Login</button></header>
+        <header class="topbar">
+          <div></div>
+          <label class="page-search"><span>⌕</span><input id="userSearch" type="search" placeholder="ค้นหา Gmail หรือชื่อผู้ใช้" /></label>
+          <div class="auth-panel"><button class="ghost-button auth-button" id="loginButton" type="button">Login Gmail</button><div class="user-badge" id="userBadge" hidden><img id="userAvatar" alt="" /><span><strong id="userName">Guest</strong><small id="userStatus">pending</small></span></div><button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button></div>
+        </header>
 
-      <section>
-        <p style="color: var(--teal); font-weight: 900; margin: 0 0 12px">ADMIN PANEL</p>
-        <h1>VIP Code สมาชิก</h1>
-        <p class="lead">Admin สร้าง VIP Code 5 หลักแบบตัวอักษรอังกฤษผสมตัวเลข ผู้ใช้กรอกโค้ดเพื่อปลดล็อก GPT สมาชิกได้เอง และระบบจะผูก Code กับ Gmail ของผู้ใช้คนนั้นอัตโนมัติ</p>
-      </section>
-
-      <div id="adminMessage" class="system-note show">กำลังตรวจสอบสิทธิ์ Admin...</div>
-
-      <section class="panel" id="adminPanel" hidden>
-        <nav class="admin-head-menu" aria-label="Admin menu">
-          <a class="is-active" href="#membersSection" data-admin-tab="membersPage">สมาชิก</a>
-          <a href="#vipCodeSection" data-admin-tab="vipPage">VIP Code</a>
-          <a href="#ordersSection" data-admin-tab="ordersPage">Orders</a>
-          <a href="#communityRequestsSection" data-admin-tab="communityPage">กลุ่มเรียนรู้</a>
-          <a href="#pricingSection" data-admin-tab="pricingPage">Pricing</a>
-          <a href="#announcementSection" data-admin-tab="announcementPage">ประกาศ</a>
-          <a href="#gptDisplaySection" data-admin-tab="gptDisplayPage">GPT Display</a>
-          <a href="#analyticsSection" data-admin-tab="analyticsPage">Analytics</a>
-        </nav>
-        <div class="admin-config">
-          <section class="config-card admin-page" id="vipPage">
-            <p class="section-title">VIP Code</p>
-            <div class="vip-code-grid">
-              <input id="vipCodeInput" type="text" inputmode="text" maxlength="5" pattern="[A-Za-z0-9]{5}" placeholder="A7K2Q" />
-              <button class="ghost-button" id="generateCodeButton" type="button">Generate</button>
-              <button class="primary-button" id="saveCodeButton" type="button">บันทึก Code</button>
-              <button class="ghost-button" id="copyLatestCodeButton" type="button" disabled>Copy</button>
-            </div>
-            <p class="lead" style="font-size: 0.9rem; margin: 10px 0 14px">Code ต้องมี 5 ตัว เป็นตัวอักษรอังกฤษ/ตัวเลข และจะผูกกับ Gmail อัตโนมัติเมื่อผู้ใช้กรอกสำเร็จ 1 Code ใช้ได้ครั้งเดียว</p>
-            <div class="last-code" id="latestCodeBox">
-              <span>Code ล่าสุด: <strong id="latestCodeText"></strong></span>
-              <button class="ghost-button" id="copyLatestCodeInlineButton" type="button">Copy Code</button>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Code</th>
-                    <th>Email ที่ใช้ Code</th>
-                    <th>Status</th>
-                    <th>วันที่</th>
-                    <th>ใช้โดย</th>
-                    <th>Copy</th>
-                  </tr>
-                </thead>
-                <tbody id="vipCodesBody"></tbody>
-              </table>
-            </div>
-            <div class="empty" id="vipCodesEmpty" hidden>ยังไม่มี VIP Code</div>
-          </section>
-
-          <section class="config-card admin-page" id="ordersPage">
-            <p class="section-title">Orders</p>
-            <div class="table-wrap" id="ordersSection">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Order</th>
-                    <th>Email</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Created</th>
-                    <th>Paid</th>
-                  </tr>
-                </thead>
-                <tbody id="ordersBody"></tbody>
-              </table>
-            </div>
-            <div class="empty" id="ordersEmpty" hidden>ยังไม่มี Order</div>
-          </section>
-
-          <section class="config-card admin-page" id="communityPage">
-            <p class="section-title">รายชื่อขอเข้ากลุ่มเรียนรู้</p>
-            <p class="lead" style="font-size: 0.9rem; margin: 0 0 14px">สมาชิก Member / Pro กรอกชื่อ Facebook จากหน้า “กลุ่มเรียนรู้” เพื่อให้ Admin ตรวจรับเข้ากลุ่ม Facebook ได้เร็วขึ้น</p>
-            <div class="table-wrap" id="communityRequestsSection">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Facebook</th>
-                    <th>Gmail</th>
-                    <th>Status</th>
-                    <th>แจ้งเมื่อ</th>
-                  </tr>
-                </thead>
-                <tbody id="communityRequestsBody"></tbody>
-              </table>
-            </div>
-            <div class="empty" id="communityRequestsEmpty" hidden>ยังไม่มีสมาชิกแจ้งชื่อ Facebook</div>
-          </section>
-
-          <section class="config-card admin-page" id="pricingPage">
-            <p class="section-title">Pricing Page</p>
-            <div class="pricing-grid">
-              <input id="pricingPriceInput" type="text" placeholder="390" />
-              <input id="pricingHeadlineInput" type="text" placeholder="หัวข้อหน้า pricing" />
-            </div>
-            <textarea id="pricingDescriptionInput" placeholder="คำโปรโมทการขายและความคุ้ม"></textarea>
-            <textarea id="pricingBenefitsInput" placeholder="รายการ benefit บรรทัดละ 1 ข้อ"></textarea>
-            <div class="pricing-grid">
-              <input id="pricingCtaInput" type="text" placeholder="สมัครผ่าน Inbox Fanpage" />
-              <input id="pricingFacebookInput" type="url" placeholder="https://www.facebook.com/AiCreativesN/" />
-            </div>
-            <button class="primary-button" id="savePricingButton" type="button">บันทึกหน้า Pricing</button>
-          </section>
-
-          <section class="config-card admin-page" id="announcementPage">
-            <p class="section-title">Announcement</p>
-            <label class="config-row">
-              <input id="announcementEnabled" type="checkbox" />
-              <span>เปิดประกาศหน้าเว็บ</span>
-            </label>
-            <textarea id="announcementMessage" placeholder="พิมพ์ประกาศ เช่น เพิ่ม GPT ใหม่ หรือแจ้งโปรสมัครสมาชิก"></textarea>
-            <button class="primary-button" id="saveAnnouncementButton" type="button">บันทึกประกาศ</button>
-          </section>
-
-          <section class="config-card admin-page" id="gptDisplayPage">
-            <p class="section-title">GPT Display</p>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>GPT</th>
-                    <th>ลำดับ</th>
-                    <th>แสดง</th>
-                    <th>จัดการ</th>
-                  </tr>
-                </thead>
-                <tbody id="gptSettingsBody"></tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-        <div class="analytics-section admin-page" id="analyticsPage">
-          <p class="section-title">Analytics</p>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <b id="totalOpenCount">0</b>
-              <span>ยอดเปิด GPT รวม</span>
-            </div>
-            <div class="stat-card">
-              <b id="signupCtaCount">0</b>
-              <span>ยอดคลิกลิงก์สมัคร</span>
-            </div>
-            <div class="stat-card">
-              <b id="lockedClickCount">0</b>
-              <span>ยอดคลิกการ์ดล็อก</span>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>GPT</th>
-                  <th>เปิด GPT</th>
-                  <th>คัดลอกลิงก์</th>
-                  <th>ดูรายละเอียด</th>
-                  <th>คลิกตอนล็อก</th>
-                </tr>
-              </thead>
-              <tbody id="analyticsBody"></tbody>
-            </table>
-          </div>
-        </div>
-        <section class="admin-page is-active" id="membersPage">
-        <div class="toolbar" id="membersSection">
-          <input id="userSearch" type="search" placeholder="ค้นหา Gmail หรือชื่อผู้ใช้" />
-          <a class="ghost-button" href="index.html#links">กลับไปหน้า GPT Hub</a>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>ผู้ใช้</th>
-                <th>สถานะ</th>
-                <th>สร้างเมื่อ</th>
-                <th>VIP / อนุมัติโดย</th>
-                <th>จัดการ</th>
-              </tr>
-            </thead>
-            <tbody id="usersBody"></tbody>
-          </table>
-        </div>
-        <div class="empty" id="emptyState" hidden>ยังไม่มีผู้ใช้ในระบบ</div>
+        <section class="hero-card">
+          <p class="eyebrow">ADMIN PANEL</p>
+          <h1>จัดการสมาชิกและระบบหลังบ้าน</h1>
+          <p class="lead">ดูสมาชิก สร้าง VIP Code ตรวจ Orders แก้ Pricing ประกาศ จัดลำดับ GPT และดู Analytics ในหน้าเดียว</p>
         </section>
-      </section>
-    </main>
+
+        <div id="adminMessage" class="system-note show">กำลังตรวจสอบสิทธิ์ Admin...</div>
+
+        <section class="panel" id="adminPanel" hidden>
+          <nav class="admin-head-menu" aria-label="Admin menu">
+            <a class="is-active" href="#membersSection" data-admin-tab="membersPage">สมาชิก</a>
+            <a href="#vipCodeSection" data-admin-tab="vipPage">VIP Code</a>
+            <a href="#ordersSection" data-admin-tab="ordersPage">Orders</a>
+            <a href="#communityRequestsSection" data-admin-tab="communityPage">กลุ่มเรียนรู้</a>
+            <a href="#pricingSection" data-admin-tab="pricingPage">Pricing</a>
+            <a href="#announcementSection" data-admin-tab="announcementPage">ประกาศ</a>
+            <a href="#gptDisplaySection" data-admin-tab="gptDisplayPage">GPT Display</a>
+            <a href="#analyticsSection" data-admin-tab="analyticsPage">Analytics</a>
+          </nav>
+
+          <div class="admin-grid">
+            <section class="admin-card admin-page is-active" id="membersPage">
+              <h2 id="membersSection">สมาชิก</h2>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>ผู้ใช้</th><th>สถานะ</th><th>สร้างเมื่อ</th><th>VIP / อนุมัติโดย</th><th>จัดการ</th></tr></thead>
+                  <tbody id="usersBody"></tbody>
+                </table>
+              </div>
+              <div class="empty" id="emptyState" hidden>ยังไม่มีผู้ใช้ในระบบ</div>
+            </section>
+
+            <section class="admin-card admin-page" id="vipPage">
+              <h2 id="vipCodeSection">VIP Code</h2>
+              <div class="vip-code-grid">
+                <input id="vipCodeInput" type="text" inputmode="text" maxlength="5" pattern="[A-Za-z0-9]{5}" placeholder="A7K2Q" />
+                <button class="ghost-button" id="generateCodeButton" type="button">Generate</button>
+                <button class="primary-button" id="saveCodeButton" type="button">บันทึก Code</button>
+                <button class="ghost-button" id="copyLatestCodeButton" type="button" disabled>Copy</button>
+              </div>
+              <p class="muted">Code มี 5 หลัก เป็นตัวอักษรอังกฤษ/ตัวเลข และจะผูกกับ Gmail อัตโนมัติเมื่อผู้ใช้กรอกสำเร็จ</p>
+              <div class="last-code" id="latestCodeBox"><span>Code ล่าสุด: <strong id="latestCodeText"></strong></span><button class="ghost-button" id="copyLatestCodeInlineButton" type="button">Copy Code</button></div>
+              <div class="table-wrap">
+                <table><thead><tr><th>Code</th><th>Email ที่ใช้ Code</th><th>Status</th><th>วันที่</th><th>ใช้โดย</th><th>Copy</th></tr></thead><tbody id="vipCodesBody"></tbody></table>
+              </div>
+              <div class="empty" id="vipCodesEmpty" hidden>ยังไม่มี VIP Code</div>
+            </section>
+
+            <section class="admin-card admin-page" id="ordersPage">
+              <h2 id="ordersSection">Orders</h2>
+              <div class="table-wrap"><table><thead><tr><th>Order</th><th>Email</th><th>Amount</th><th>Status</th><th>Created</th><th>Paid</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
+              <div class="empty" id="ordersEmpty" hidden>ยังไม่มี Order</div>
+            </section>
+
+            <section class="admin-card admin-page" id="communityPage">
+              <h2 id="communityRequestsSection">รายชื่อขอเข้ากลุ่มเรียนรู้</h2>
+              <p class="muted">สมาชิก Member / Pro แจ้งชื่อ Facebook จากหน้า “กลุ่มเรียนรู้” เพื่อให้ Admin ตรวจรับเข้ากลุ่มได้เร็วขึ้น</p>
+              <div class="table-wrap"><table><thead><tr><th>Facebook</th><th>Gmail</th><th>Status</th><th>แจ้งเมื่อ</th></tr></thead><tbody id="communityRequestsBody"></tbody></table></div>
+              <div class="empty" id="communityRequestsEmpty" hidden>ยังไม่มีสมาชิกแจ้งชื่อ Facebook</div>
+            </section>
+
+            <section class="admin-card admin-page" id="pricingPage">
+              <h2 id="pricingSection">Pricing Page</h2>
+              <div class="pricing-grid"><input id="pricingPriceInput" type="text" placeholder="390" /><input id="pricingHeadlineInput" type="text" placeholder="หัวข้อหน้า pricing" /></div>
+              <textarea id="pricingDescriptionInput" placeholder="คำโปรโมทการขายและความคุ้ม"></textarea>
+              <textarea id="pricingBenefitsInput" placeholder="รายการ benefit บรรทัดละ 1 ข้อ"></textarea>
+              <div class="pricing-grid"><input id="pricingCtaInput" type="text" placeholder="สมัครผ่าน Inbox Fanpage" /><input id="pricingFacebookInput" type="url" placeholder="https://www.facebook.com/AiCreativesN/" /></div>
+              <button class="primary-button" id="savePricingButton" type="button">บันทึกหน้า Pricing</button>
+            </section>
+
+            <section class="admin-card admin-page" id="announcementPage">
+              <h2 id="announcementSection">ประกาศหน้าเว็บ</h2>
+              <label class="config-row"><input id="announcementEnabled" type="checkbox" /><span>เปิดประกาศหน้าเว็บ</span></label>
+              <textarea id="announcementMessage" placeholder="พิมพ์ประกาศ เช่น เพิ่ม GPT ใหม่ หรือแจ้งโปรสมัครสมาชิก"></textarea>
+              <button class="primary-button" id="saveAnnouncementButton" type="button">บันทึกประกาศ</button>
+            </section>
+
+            <section class="admin-card admin-page" id="gptDisplayPage">
+              <h2 id="gptDisplaySection">GPT Display</h2>
+              <div class="table-wrap"><table><thead><tr><th>GPT</th><th>ลำดับ</th><th>แสดง</th><th>จัดการ</th></tr></thead><tbody id="gptSettingsBody"></tbody></table></div>
+            </section>
+
+            <section class="admin-card admin-page" id="analyticsPage">
+              <h2 id="analyticsSection">Analytics</h2>
+              <div class="metrics-grid">
+                <article class="panel"><b id="totalOpenCount">0</b><p class="muted">ยอดเปิด GPT รวม</p></article>
+                <article class="panel"><b id="signupCtaCount">0</b><p class="muted">ยอดคลิกลิงก์สมัคร</p></article>
+                <article class="panel"><b id="lockedClickCount">0</b><p class="muted">ยอดคลิกการ์ดล็อก</p></article>
+              </div>
+              <div class="table-wrap"><table><thead><tr><th>GPT</th><th>เปิด GPT</th><th>คัดลอกลิงก์</th><th>ดูรายละเอียด</th><th>คลิกตอนล็อก</th></tr></thead><tbody id="analyticsBody"></tbody></table></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+    <nav class="bottom-nav"><a href="index.html">🏠<span>ภาพรวม</span></a><a href="pricing.html">💳<span>ค่าใช้จ่าย</span></a><a href="account.html">♡<span>สมาชิก</span></a><a href="tools.html">⇄<span>เครื่องมือ</span></a><a class="is-active" href="admin.html">⚙️<span>Admin</span></a></nav>
     <div class="toast" id="toast" role="status" aria-live="polite">บันทึกแล้ว</div>
-    <script type="module" src="admin.js"></script>
+    <script type="module" src="admin.js?v=aihub-1"></script>
   </body>
 </html>

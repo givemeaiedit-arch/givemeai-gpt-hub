@@ -1,7 +1,4 @@
-import {
-  collection,
-  onSnapshot,
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import {
   ADMIN_EMAIL,
   createVipCode,
@@ -24,7 +21,7 @@ import {
   watchPricingPage,
 } from "./hub-state.js";
 
-const loginButton = document.querySelector("#loginButton");
+const loginButtons = [...document.querySelectorAll("#loginButton, .js-login")];
 const logoutButton = document.querySelector("#logoutButton");
 const userBadge = document.querySelector("#userBadge");
 const userAvatar = document.querySelector("#userAvatar");
@@ -95,8 +92,8 @@ function showToast(message) {
 function setMessage(message, error = false) {
   adminMessage.textContent = message;
   adminMessage.classList.add("show");
-  adminMessage.style.borderColor = error ? "rgba(255, 107, 107, 0.45)" : "";
-  adminMessage.style.background = error ? "rgba(255, 107, 107, 0.12)" : "";
+  adminMessage.style.borderColor = error ? "rgba(255, 113, 113, 0.45)" : "";
+  adminMessage.style.background = error ? "rgba(255, 113, 113, 0.12)" : "";
 }
 
 async function copyText(text) {
@@ -107,12 +104,8 @@ async function copyText(text) {
 }
 
 function setActiveAdminPage(pageId) {
-  adminTabs.forEach((tab) => {
-    tab.classList.toggle("is-active", tab.dataset.adminTab === pageId);
-  });
-  adminPages.forEach((page) => {
-    page.classList.toggle("is-active", page.id === pageId);
-  });
+  adminTabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.adminTab === pageId));
+  adminPages.forEach((page) => page.classList.toggle("is-active", page.id === pageId));
 }
 
 function formatDate(value) {
@@ -124,7 +117,7 @@ function formatDate(value) {
 
 function updateAuthUi(user, profile) {
   const admin = Boolean(user && isAdminEmail(user.email));
-  if (loginButton) loginButton.hidden = Boolean(user);
+  loginButtons.forEach((button) => (button.hidden = Boolean(user)));
   if (logoutButton) logoutButton.hidden = !user;
   if (userBadge) userBadge.hidden = !user;
   if (userAvatar) userAvatar.src = user?.photoURL || "assets/favicon.png";
@@ -140,57 +133,40 @@ function filteredUsers() {
     if (byStatus !== 0) return byStatus;
     return String(a.email || "").localeCompare(String(b.email || ""));
   });
-
   if (!query) return sorted;
-  return sorted.filter((user) =>
-    `${user.email || ""} ${user.displayName || ""} ${user.status || ""}`.toLowerCase().includes(query),
-  );
+  return sorted.filter((user) => `${user.email || ""} ${user.displayName || ""} ${user.status || ""}`.toLowerCase().includes(query));
 }
 
 function renderUsers() {
   const rows = filteredUsers();
   usersBody.innerHTML = "";
   emptyState.hidden = rows.length > 0;
-
   for (const user of rows) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>
-        <strong>${user.email || "-"}</strong>
-        <small>${user.displayName || user.uid}</small>
-      </td>
+      <td><strong>${user.email || "-"}</strong><small>${user.displayName || user.uid}</small></td>
       <td><span class="status ${user.status || "pending"}">${user.status || "pending"}</span></td>
       <td>${formatDate(user.createdAt)}</td>
       <td>${user.vipCode || user.approvedBy || "-"}</td>
-      <td>
-        <div class="row-actions">
-          <button class="danger-button" type="button" data-action="revoked" data-uid="${user.uid}">ปิดสิทธิ์</button>
-        </div>
-      </td>
+      <td><div class="row-actions"><button class="danger-button" type="button" data-action="revoked" data-uid="${user.uid}">ปิดสิทธิ์</button></div></td>
     `;
     usersBody.appendChild(tr);
   }
 }
 
 function renderVipCodes() {
-  if (!vipCodesBody) return;
   const sorted = [...vipCodes].sort((a, b) => {
-    const statusScore = { active: 0, used: 1 };
-    const byStatus = (statusScore[a.status] ?? 9) - (statusScore[b.status] ?? 9);
+    const score = { active: 0, used: 1 };
+    const byStatus = (score[a.status] ?? 9) - (score[b.status] ?? 9);
     if (byStatus !== 0) return byStatus;
     return String(a.code || a.id || "").localeCompare(String(b.code || b.id || ""));
   });
-
   vipCodesBody.innerHTML = "";
-  if (vipCodesEmpty) vipCodesEmpty.hidden = sorted.length > 0;
-
+  vipCodesEmpty.hidden = sorted.length > 0;
   for (const code of sorted) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>
-        <strong>${code.code || code.id}</strong>
-        <small>${code.id}</small>
-      </td>
+      <td><strong>${code.code || code.id}</strong><small>${code.id}</small></td>
       <td>${code.email || code.usedBy || "-"}</td>
       <td><span class="status ${code.status || "active"}">${code.status || "active"}</span></td>
       <td>${formatDate(code.usedAt || code.createdAt)}</td>
@@ -202,27 +178,18 @@ function renderVipCodes() {
 }
 
 function renderOrders() {
-  if (!ordersBody) return;
   const sorted = [...orders].sort((a, b) => {
     const aTime = typeof a.createdAt?.toMillis === "function" ? a.createdAt.toMillis() : 0;
     const bTime = typeof b.createdAt?.toMillis === "function" ? b.createdAt.toMillis() : 0;
     return bTime - aTime;
   });
-
   ordersBody.innerHTML = "";
-  if (ordersEmpty) ordersEmpty.hidden = sorted.length > 0;
-
+  ordersEmpty.hidden = sorted.length > 0;
   for (const order of sorted) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>
-        <strong>${order.id}</strong>
-        <small>${order.provider || "mock"}</small>
-      </td>
-      <td>
-        <strong>${order.email || "-"}</strong>
-        <small>${order.displayName || order.uid || "-"}</small>
-      </td>
+      <td><strong>${order.id}</strong><small>${order.provider || "mock"}</small></td>
+      <td><strong>${order.email || "-"}</strong><small>${order.displayName || order.uid || "-"}</small></td>
       <td>${order.amount || 0} ${order.currency || "THB"}</td>
       <td><span class="status ${order.status || "pending"}">${order.status || "pending"}</span></td>
       <td>${formatDate(order.createdAt)}</td>
@@ -233,23 +200,17 @@ function renderOrders() {
 }
 
 function renderCommunityRequests() {
-  if (!communityRequestsBody) return;
   const sorted = [...communityRequests].sort((a, b) => {
     const aTime = typeof a.updatedAt?.toMillis === "function" ? a.updatedAt.toMillis() : 0;
     const bTime = typeof b.updatedAt?.toMillis === "function" ? b.updatedAt.toMillis() : 0;
     return bTime - aTime;
   });
-
   communityRequestsBody.innerHTML = "";
-  if (communityRequestsEmpty) communityRequestsEmpty.hidden = sorted.length > 0;
-
+  communityRequestsEmpty.hidden = sorted.length > 0;
   for (const request of sorted) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>
-        <strong>${request.facebookName || "-"}</strong>
-        <small>${request.displayName || request.uid || "-"}</small>
-      </td>
+      <td><strong>${request.facebookName || "-"}</strong><small>${request.displayName || request.uid || "-"}</small></td>
       <td>${request.email || "-"}</td>
       <td><span class="status ${request.status || "pending"}">${request.status || "pending"}</span></td>
       <td>${formatDate(request.updatedAt || request.createdAt)}</td>
@@ -259,73 +220,41 @@ function renderCommunityRequests() {
 }
 
 function renderAnalytics() {
-  if (!analyticsBody) return;
-
-  const counts = Object.fromEntries(
-    GPTS.map((gpt) => [
-      gpt.id,
-      {
-        gpt_open: 0,
-        copy_link: 0,
-        detail_view: 0,
-        locked_click: 0,
-      },
-    ]),
-  );
-  const totals = {
-    gpt_open: 0,
-    signup_cta: 0,
-    locked_click: 0,
-  };
-
+  const counts = Object.fromEntries(GPTS.map((gpt) => [gpt.id, { gpt_open: 0, copy_link: 0, detail_view: 0, locked_click: 0 }]));
+  const totals = { gpt_open: 0, signup_cta: 0, locked_click: 0 };
   for (const event of analyticsEvents) {
     if (event.type in totals) totals[event.type] += 1;
-    if (event.gptId && counts[event.gptId] && event.type in counts[event.gptId]) {
-      counts[event.gptId][event.type] += 1;
-    }
+    if (event.gptId && counts[event.gptId] && event.type in counts[event.gptId]) counts[event.gptId][event.type] += 1;
   }
-
   totalOpenCount.textContent = totals.gpt_open;
   signupCtaCount.textContent = totals.signup_cta;
   lockedClickCount.textContent = totals.locked_click;
   analyticsBody.innerHTML = "";
-
   for (const gpt of GPTS) {
     const row = counts[gpt.id];
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>
-        <strong>${GPTS_BY_ID[gpt.id]?.title || gpt.id}</strong>
-        <small>${gpt.id}</small>
-      </td>
-      <td>${row.gpt_open}</td>
-      <td>${row.copy_link}</td>
-      <td>${row.detail_view}</td>
-      <td>${row.locked_click}</td>
-    `;
+    tr.innerHTML = `<td><strong>${GPTS_BY_ID[gpt.id]?.title || gpt.id}</strong><small>${gpt.id}</small></td><td>${row.gpt_open}</td><td>${row.copy_link}</td><td>${row.detail_view}</td><td>${row.locked_click}</td>`;
     analyticsBody.appendChild(tr);
   }
 }
 
 function renderAnnouncement() {
-  if (announcementEnabled) announcementEnabled.checked = Boolean(announcement?.enabled);
-  if (announcementMessage) announcementMessage.value = announcement?.message || "";
+  announcementEnabled.checked = Boolean(announcement?.enabled);
+  announcementMessage.value = announcement?.message || "";
 }
 
 function renderPricingPage() {
   if (!pricingPage) return;
-  if (pricingPriceInput) pricingPriceInput.value = pricingPage.price || "";
-  if (pricingHeadlineInput) pricingHeadlineInput.value = pricingPage.headline || "";
-  if (pricingDescriptionInput) pricingDescriptionInput.value = pricingPage.description || "";
-  if (pricingBenefitsInput) pricingBenefitsInput.value = (pricingPage.benefits || []).join("\n");
-  if (pricingCtaInput) pricingCtaInput.value = pricingPage.ctaText || "";
-  if (pricingFacebookInput) pricingFacebookInput.value = pricingPage.facebookUrl || "";
+  pricingPriceInput.value = pricingPage.price || "";
+  pricingHeadlineInput.value = pricingPage.headline || "";
+  pricingDescriptionInput.value = pricingPage.description || "";
+  pricingBenefitsInput.value = (pricingPage.benefits || []).join("\n");
+  pricingCtaInput.value = pricingPage.ctaText || "";
+  pricingFacebookInput.value = pricingPage.facebookUrl || "";
 }
 
 function renderGptSettings() {
-  if (!gptSettingsBody) return;
   gptSettingsBody.innerHTML = "";
-
   GPTS.forEach((gpt, index) => {
     const setting = gptSettings[gpt.id] || {};
     const order = Number.isFinite(Number(setting.order)) ? Number(setting.order) : index + 1;
@@ -333,181 +262,58 @@ function renderGptSettings() {
     const tr = document.createElement("tr");
     tr.dataset.gptId = gpt.id;
     tr.innerHTML = `
-      <td>
-        <strong>${gpt.title}</strong>
-        <small>${gpt.id}</small>
-      </td>
+      <td><strong>${gpt.title}</strong><small>${gpt.id}</small></td>
       <td><input class="order-input" type="number" min="1" step="1" value="${order}" data-field="order" /></td>
-      <td><input class="visible-toggle" type="checkbox" ${visible ? "checked" : ""} data-field="visible" /></td>
+      <td><input type="checkbox" ${visible ? "checked" : ""} data-field="visible" /></td>
       <td><button class="primary-button" type="button" data-action="save-gpt-setting">บันทึก</button></td>
     `;
     gptSettingsBody.appendChild(tr);
   });
 }
 
-function startUsersListener() {
-  if (unsubscribeUsers) return;
+function listenCollection(name, setData, render, errorLabel) {
   const svc = getFirebaseServices();
-  if (!svc) return;
-
-  unsubscribeUsers = onSnapshot(
-    collection(svc.db, "users"),
+  if (!svc) return null;
+  return onSnapshot(
+    collection(svc.db, name),
     (snapshot) => {
-      users = snapshot.docs.map((docSnap) => ({ uid: docSnap.id, ...docSnap.data() }));
-      renderUsers();
+      setData(snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() })));
+      render();
     },
-    (error) => {
-      setMessage(`อ่านรายชื่อผู้ใช้ไม่สำเร็จ: ${error.message}`, true);
-    },
+    (error) => setMessage(`อ่าน${errorLabel}ไม่สำเร็จ: ${error.message}`, true),
   );
 }
 
-function startAnalyticsListener() {
-  if (unsubscribeAnalytics) return;
-  const svc = getFirebaseServices();
-  if (!svc) return;
-
-  unsubscribeAnalytics = onSnapshot(
-    collection(svc.db, "analyticsEvents"),
-    (snapshot) => {
-      analyticsEvents = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-      renderAnalytics();
-    },
-    (error) => {
-      setMessage(`อ่านสถิติไม่สำเร็จ: ${error.message}`, true);
-    },
-  );
+function startListeners() {
+  unsubscribeUsers ||= listenCollection("users", (value) => (users = value), renderUsers, "รายชื่อผู้ใช้");
+  unsubscribeAnalytics ||= listenCollection("analyticsEvents", (value) => (analyticsEvents = value), renderAnalytics, "สถิติ");
+  unsubscribeVipCodes ||= listenCollection("vipCodes", (value) => (vipCodes = value), renderVipCodes, " VIP Code");
+  unsubscribeOrders ||= listenCollection("orders", (value) => (orders = value), renderOrders, " Orders");
+  unsubscribeCommunityRequests ||= listenCollection("communityRequests", (value) => (communityRequests = value), renderCommunityRequests, "รายชื่อขอเข้ากลุ่ม");
+  unsubscribePricingPage ||= watchPricingPage((value) => {
+    pricingPage = value;
+    renderPricingPage();
+  });
+  unsubscribeAnnouncement ||= watchAnnouncement((value) => {
+    announcement = value;
+    renderAnnouncement();
+  });
+  unsubscribeGptSettings ||= watchGptSettings((settings) => {
+    gptSettings = settings;
+    renderGptSettings();
+  });
 }
 
-function startVipCodesListener() {
-  if (unsubscribeVipCodes) return;
-  const svc = getFirebaseServices();
-  if (!svc) return;
-
-  unsubscribeVipCodes = onSnapshot(
-    collection(svc.db, "vipCodes"),
-    (snapshot) => {
-      vipCodes = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-      renderVipCodes();
-    },
-    (error) => {
-      setMessage(`อ่าน VIP Code ไม่สำเร็จ: ${error.message}`, true);
-    },
-  );
+function stopListeners() {
+  [unsubscribeUsers, unsubscribeAnalytics, unsubscribeVipCodes, unsubscribeOrders, unsubscribeCommunityRequests, unsubscribePricingPage, unsubscribeAnnouncement, unsubscribeGptSettings]
+    .filter(Boolean)
+    .forEach((unsubscribe) => unsubscribe());
+  unsubscribeUsers = unsubscribeAnalytics = unsubscribeVipCodes = unsubscribeOrders = unsubscribeCommunityRequests = unsubscribePricingPage = unsubscribeAnnouncement = unsubscribeGptSettings = null;
 }
 
-function startOrdersListener() {
-  if (unsubscribeOrders) return;
-  const svc = getFirebaseServices();
-  if (!svc) return;
-
-  unsubscribeOrders = onSnapshot(
-    collection(svc.db, "orders"),
-    (snapshot) => {
-      orders = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-      renderOrders();
-    },
-    (error) => {
-      setMessage(`อ่าน Orders ไม่สำเร็จ: ${error.message}`, true);
-    },
-  );
-}
-
-function startCommunityRequestsListener() {
-  if (unsubscribeCommunityRequests) return;
-  const svc = getFirebaseServices();
-  if (!svc) return;
-
-  unsubscribeCommunityRequests = onSnapshot(
-    collection(svc.db, "communityRequests"),
-    (snapshot) => {
-      communityRequests = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-      renderCommunityRequests();
-    },
-    (error) => {
-      setMessage(`อ่านรายชื่อขอเข้ากลุ่มไม่สำเร็จ: ${error.message}`, true);
-    },
-  );
-}
-
-function startAdminConfigListeners() {
-  const svc = getFirebaseServices();
-  if (!svc) return;
-
-  if (!unsubscribePricingPage) {
-    unsubscribePricingPage = watchPricingPage((value) => {
-      pricingPage = value;
-      renderPricingPage();
-    });
-  }
-
-  if (!unsubscribeAnnouncement) {
-    unsubscribeAnnouncement = watchAnnouncement((value) => {
-      announcement = value;
-      renderAnnouncement();
-    });
-  }
-
-  if (!unsubscribeGptSettings) {
-    unsubscribeGptSettings = watchGptSettings((settings) => {
-      gptSettings = settings;
-      renderGptSettings();
-    });
-  }
-}
-
-function stopUsersListener() {
-  if (!unsubscribeUsers) return;
-  unsubscribeUsers();
-  unsubscribeUsers = null;
-}
-
-function stopAnalyticsListener() {
-  if (!unsubscribeAnalytics) return;
-  unsubscribeAnalytics();
-  unsubscribeAnalytics = null;
-}
-
-function stopVipCodesListener() {
-  if (!unsubscribeVipCodes) return;
-  unsubscribeVipCodes();
-  unsubscribeVipCodes = null;
-}
-
-function stopOrdersListener() {
-  if (!unsubscribeOrders) return;
-  unsubscribeOrders();
-  unsubscribeOrders = null;
-}
-
-function stopCommunityRequestsListener() {
-  if (!unsubscribeCommunityRequests) return;
-  unsubscribeCommunityRequests();
-  unsubscribeCommunityRequests = null;
-}
-
-function stopAdminConfigListeners() {
-  if (unsubscribePricingPage) {
-    unsubscribePricingPage();
-    unsubscribePricingPage = null;
-  }
-  if (unsubscribeAnnouncement) {
-    unsubscribeAnnouncement();
-    unsubscribeAnnouncement = null;
-  }
-  if (unsubscribeGptSettings) {
-    unsubscribeGptSettings();
-    unsubscribeGptSettings = null;
-  }
-}
-
-loginButton?.addEventListener("click", async () => {
-  try {
-    await signInWithGoogle();
-  } catch (error) {
-    showToast(error.message === "Firebase is not configured." ? "ยังไม่ได้ตั้งค่า Firebase" : "เข้าสู่ระบบไม่สำเร็จ");
-  }
-});
+loginButtons.forEach((button) => button.addEventListener("click", () => signInWithGoogle()));
+logoutButton?.addEventListener("click", () => signOutUser());
+userSearch?.addEventListener("input", renderUsers);
 
 adminTabs.forEach((tab) => {
   tab.addEventListener("click", (event) => {
@@ -516,15 +322,35 @@ adminTabs.forEach((tab) => {
   });
 });
 
-logoutButton?.addEventListener("click", async () => {
-  await signOutUser();
-  showToast("ออกจากระบบแล้ว");
-});
-
-userSearch?.addEventListener("input", renderUsers);
-
 vipCodeInput?.addEventListener("input", () => {
   vipCodeInput.value = vipCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5);
+});
+generateCodeButton?.addEventListener("click", () => {
+  vipCodeInput.value = generateVipCode();
+});
+copyLatestCodeButton?.addEventListener("click", () => copyText(vipCodeInput?.value));
+copyLatestCodeInlineButton?.addEventListener("click", () => copyText(latestCodeText?.textContent));
+
+saveCodeButton?.addEventListener("click", async () => {
+  if (!currentUser) return;
+  saveCodeButton.disabled = true;
+  try {
+    const code = await createVipCode({ code: vipCodeInput?.value || generateVipCode(), adminEmail: currentUser.email });
+    vipCodeInput.value = code;
+    copyLatestCodeButton.disabled = false;
+    latestCodeText.textContent = code;
+    latestCodeBox.classList.add("show");
+    showToast(`สร้าง VIP Code แล้ว: ${code}`);
+  } catch (error) {
+    showToast(error.code === "permission-denied" ? "สร้าง VIP Code ไม่สำเร็จ: ต้อง Publish Firestore Rules เวอร์ชันใหม่ก่อน" : `สร้าง VIP Code ไม่สำเร็จ: ${error.message}`);
+  } finally {
+    saveCodeButton.disabled = false;
+  }
+});
+
+vipCodesBody?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-copy-code]");
+  if (button) copyText(button.dataset.copyCode);
 });
 
 usersBody?.addEventListener("click", async (event) => {
@@ -541,53 +367,17 @@ usersBody?.addEventListener("click", async (event) => {
   }
 });
 
-generateCodeButton?.addEventListener("click", () => {
-  if (vipCodeInput) vipCodeInput.value = generateVipCode();
-});
-
-copyLatestCodeButton?.addEventListener("click", () => copyText(vipCodeInput?.value));
-copyLatestCodeInlineButton?.addEventListener("click", () => copyText(latestCodeText?.textContent));
-
-saveCodeButton?.addEventListener("click", async () => {
-  if (!currentUser) return;
-  saveCodeButton.disabled = true;
-  try {
-    const code = await createVipCode({
-      code: vipCodeInput?.value || generateVipCode(),
-      adminEmail: currentUser.email,
-    });
-    if (vipCodeInput) vipCodeInput.value = code;
-    if (copyLatestCodeButton) copyLatestCodeButton.disabled = false;
-    if (latestCodeText) latestCodeText.textContent = code;
-    latestCodeBox?.classList.add("show");
-    showToast(`สร้าง VIP Code แล้ว: ${code}`);
-  } catch (error) {
-    const message = error.code === "permission-denied"
-      ? "สร้าง VIP Code ไม่สำเร็จ: ต้อง Publish Firestore Rules เวอร์ชันใหม่ก่อน"
-      : `สร้าง VIP Code ไม่สำเร็จ: ${error.message}`;
-    showToast(message);
-  } finally {
-    saveCodeButton.disabled = false;
-  }
-});
-
-vipCodesBody?.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-copy-code]");
-  if (!button) return;
-  await copyText(button.dataset.copyCode);
-});
-
 savePricingButton?.addEventListener("click", async () => {
   if (!currentUser) return;
   savePricingButton.disabled = true;
   try {
     await savePricingPage({
-      price: pricingPriceInput?.value,
-      headline: pricingHeadlineInput?.value,
-      description: pricingDescriptionInput?.value,
-      benefits: pricingBenefitsInput?.value,
-      ctaText: pricingCtaInput?.value,
-      facebookUrl: pricingFacebookInput?.value,
+      price: pricingPriceInput.value,
+      headline: pricingHeadlineInput.value,
+      description: pricingDescriptionInput.value,
+      benefits: pricingBenefitsInput.value,
+      ctaText: pricingCtaInput.value,
+      facebookUrl: pricingFacebookInput.value,
       adminEmail: currentUser.email,
     });
     showToast("บันทึกหน้า Pricing แล้ว");
@@ -602,11 +392,7 @@ saveAnnouncementButton?.addEventListener("click", async () => {
   if (!currentUser) return;
   saveAnnouncementButton.disabled = true;
   try {
-    await saveAnnouncement({
-      enabled: announcementEnabled?.checked,
-      message: announcementMessage?.value,
-      adminEmail: currentUser.email,
-    });
+    await saveAnnouncement({ enabled: announcementEnabled.checked, message: announcementMessage.value, adminEmail: currentUser.email });
     showToast("บันทึกประกาศแล้ว");
   } catch (error) {
     showToast(`บันทึกประกาศไม่สำเร็จ: ${error.message}`);
@@ -618,12 +404,10 @@ saveAnnouncementButton?.addEventListener("click", async () => {
 gptSettingsBody?.addEventListener("click", async (event) => {
   const button = event.target.closest("button[data-action='save-gpt-setting']");
   if (!button || !currentUser) return;
-
   const row = button.closest("tr[data-gpt-id]");
   const orderInput = row?.querySelector("[data-field='order']");
   const visibleInput = row?.querySelector("[data-field='visible']");
   if (!row || !orderInput || !visibleInput) return;
-
   button.disabled = true;
   try {
     await saveGptSetting(row.dataset.gptId, {
@@ -640,57 +424,33 @@ gptSettingsBody?.addEventListener("click", async (event) => {
 });
 
 if (!isFirebaseConfigured()) {
-  loginButton?.setAttribute("disabled", "true");
+  loginButtons.forEach((button) => button.setAttribute("disabled", "true"));
   adminPanel.hidden = true;
   setMessage(`ต้องเติมค่า Firebase ใน firebase-config.js ก่อนใช้งาน Admin Panel: ${ADMIN_EMAIL}`, true);
 } else {
   watchAuth(({ user, profile, error }) => {
     currentUser = user;
     updateAuthUi(user, profile);
-
     if (error) {
       adminPanel.hidden = true;
       setMessage(`ตรวจสอบสิทธิ์ไม่สำเร็จ: ${error.message}`, true);
-      stopUsersListener();
-      stopAnalyticsListener();
-      stopVipCodesListener();
-      stopOrdersListener();
-      stopCommunityRequestsListener();
-      stopAdminConfigListeners();
+      stopListeners();
       return;
     }
-
     if (!user) {
       adminPanel.hidden = true;
       setMessage(`กรุณาเข้าสู่ระบบด้วย Gmail admin: ${ADMIN_EMAIL}`);
-      stopUsersListener();
-      stopAnalyticsListener();
-      stopVipCodesListener();
-      stopOrdersListener();
-      stopCommunityRequestsListener();
-      stopAdminConfigListeners();
+      stopListeners();
       return;
     }
-
     if (!isAdminEmail(user.email)) {
       adminPanel.hidden = true;
-      setMessage("บัญชีนี้ไม่ใช่ Admin จึงไม่มีสิทธิ์ดูหรืออนุมัติผู้ใช้", true);
-      stopUsersListener();
-      stopAnalyticsListener();
-      stopVipCodesListener();
-      stopOrdersListener();
-      stopCommunityRequestsListener();
-      stopAdminConfigListeners();
+      setMessage("บัญชีนี้ไม่ใช่ Admin จึงไม่มีสิทธิ์ดูหรือแก้ไขข้อมูลหลังบ้าน", true);
+      stopListeners();
       return;
     }
-
     adminMessage.classList.remove("show");
     adminPanel.hidden = false;
-    startUsersListener();
-    startAnalyticsListener();
-    startVipCodesListener();
-    startOrdersListener();
-    startCommunityRequestsListener();
-    startAdminConfigListeners();
+    startListeners();
   });
 }

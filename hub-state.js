@@ -8,6 +8,21 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getFirebaseServices } from "./auth-shared.js";
 
+export const DEFAULT_PRICING_PAGE = {
+  price: "390",
+  headline: "ปลดล็อก GPT สมาชิก ใช้งานเครื่องมือธุรกิจได้ครบในที่เดียว",
+  description:
+    "สมัครสมาชิกเพื่อใช้ GPT สำหรับงานโฆษณา ภาพโปรโมท วิเคราะห์ครีเอทีฟ และ BOQ พร้อมอัปเดตเครื่องมือและคำแนะนำใหม่ต่อเนื่อง เหมาะกับเจ้าของธุรกิจที่ต้องการทำงานเร็วขึ้นและลดเวลาลองผิดลองถูก",
+  benefits: [
+    "ใช้ GPT สมาชิกหลายตัวในหน้าเดียว ทั้งงาน Ads, Image และ BOQ",
+    "ช่วยคิดงานเร็วขึ้น ลดเวลาลองผิดลองถูก และต่อยอดงานขายได้ทันที",
+    "มีการอัปเดต GPT และคำแนะนำการใช้งานอย่างต่อเนื่อง",
+    "เหมาะกับเจ้าของธุรกิจ คนยิงแอด ครีเอเตอร์ และทีมที่ต้องทำภาพขายบ่อย",
+  ],
+  ctaText: "สมัครผ่าน Inbox Fanpage",
+  facebookUrl: "https://www.facebook.com/AiCreativesN/",
+};
+
 export function watchAnnouncement(callback) {
   const svc = getFirebaseServices();
   if (!svc) {
@@ -56,28 +71,14 @@ export function watchFavorites(uid, callback) {
   );
 }
 
-export const DEFAULT_PRICING_PAGE = {
-  price: "390",
-  headline: "ปลดล็อก GPT สมาชิก ในราคา 390 บาท",
-  description:
-    "สมัครสมาชิกและรับ VIP Code จาก Admin เพื่อปลดล็อก GPT สมาชิกสำหรับงานโฆษณา ภาพโปรโมท วิเคราะห์ครีเอทีฟ และงาน BOQ พร้อมอัปเดตเครื่องมือและคำแนะนำใหม่ต่อเนื่อง คุ้มกว่าการเสียเวลาคิดงานเองหลายชั่วโมง",
-  benefits: [
-    "ใช้ GPT สมาชิกหลายตัวในหน้าเดียว ทั้งงาน Ads, Image และ BOQ",
-    "ช่วยคิดงานเร็วขึ้น ลดเวลาลองผิดลองถูก และต่อยอดงานขายได้ทันที",
-    "มีการอัปเดต GPT และคำแนะนำการใช้งานต่อเนื่อง",
-    "เหมาะกับเจ้าของธุรกิจ คนยิงแอด ครีเอเตอร์ และทีมที่ต้องทำภาพขายบ่อย",
-  ],
-  ctaText: "สมัครผ่าน Inbox Fanpage",
-  facebookUrl: "https://www.facebook.com/AiCreativesN/",
-};
-
 export function normalizePricingPage(data = {}) {
   return {
     ...DEFAULT_PRICING_PAGE,
     ...data,
-    benefits: Array.isArray(data.benefits) && data.benefits.length
-      ? data.benefits
-      : DEFAULT_PRICING_PAGE.benefits,
+    benefits:
+      Array.isArray(data.benefits) && data.benefits.length
+        ? data.benefits
+        : DEFAULT_PRICING_PAGE.benefits,
   };
 }
 

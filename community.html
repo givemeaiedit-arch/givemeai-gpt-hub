@@ -5,575 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>กลุ่มเรียนรู้ | GivemeAI GPT Hub</title>
     <link rel="icon" href="assets/favicon.png" />
-    <link rel="stylesheet" href="styles-auth.css?v=menu-card-1" />
-    <script defer src="browser-check.js?v=chrome-notice-5"></script>
-    <style>
-      :root {
-        color-scheme: dark;
-        --panel: rgba(18, 18, 16, 0.84);
-        --text: #f7f1e7;
-        --muted: #a9a095;
-        --line: rgba(244, 232, 211, 0.13);
-        --gold: #d9b46f;
-        --teal: #77d6c8;
-        --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        color: var(--text);
-        font-family:
-          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          "Noto Sans Thai", Arial, sans-serif;
-      }
-
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-
-      .shell {
-        width: min(1220px, calc(100% - 40px));
-        margin: 0 auto;
-        padding: 24px 0 44px;
-      }
-
-      .topbar {
-        position: sticky;
-        top: 14px;
-        z-index: 20;
-        display: grid;
-        grid-template-columns: minmax(250px, 1fr) auto minmax(260px, 1fr);
-        align-items: center;
-        gap: 18px;
-        min-height: 64px;
-        margin-bottom: 42px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 12px;
-        background: rgba(8, 8, 7, 0.74);
-        backdrop-filter: blur(18px);
-        box-shadow: 0 18px 54px rgba(0, 0, 0, 0.34);
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 0;
-      }
-
-      .brand img {
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 10px 30px rgba(255, 138, 0, 0.2);
-      }
-
-      .brand strong {
-        display: block;
-        font-size: 1rem;
-        line-height: 1.2;
-      }
-
-      .brand span {
-        display: block;
-        color: var(--muted);
-        font-size: 0.86rem;
-        margin-top: 2px;
-      }
-
-      .main-nav {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: clamp(18px, 3vw, 42px);
-      }
-
-      .main-nav a {
-        position: relative;
-        color: #cfc7ba;
-        font-weight: 850;
-        white-space: nowrap;
-      }
-
-      .main-nav a.is-active,
-      .main-nav a:hover {
-        color: #e7c27e;
-      }
-
-      .main-nav a.is-active::after {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: -18px;
-        height: 2px;
-        border-radius: 999px;
-        background: #e7c27e;
-        content: "";
-      }
-
-      .top-actions {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 10px;
-      }
-
-      .hero {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 340px;
-        gap: 22px;
-        align-items: stretch;
-      }
-
-      .hero-card,
-      .community-card {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background:
-          linear-gradient(145deg, rgba(217, 180, 111, 0.08), transparent 52%),
-          var(--panel);
-        box-shadow: var(--shadow);
-      }
-
-      .hero-card {
-        padding: clamp(24px, 4vw, 42px);
-      }
-
-      .eyebrow {
-        margin: 0 0 12px;
-        color: var(--teal);
-        font-size: 0.86rem;
-        font-weight: 900;
-      }
-
-      h1 {
-        margin: 0;
-        font-size: clamp(2.25rem, 6vw, 4.7rem);
-        line-height: 1;
-      }
-
-      .lead {
-        max-width: 660px;
-        margin: 18px 0 0;
-        color: #d8d0c4;
-        font-size: 1.04rem;
-        line-height: 1.7;
-      }
-
-      .side-panel {
-        padding: 22px;
-      }
-
-      .side-panel b {
-        color: var(--gold);
-      }
-
-      .access-actions,
-      .community-form {
-        display: grid;
-        gap: 10px;
-        margin-top: 16px;
-      }
-
-      .community-form input {
-        width: 100%;
-        min-height: 42px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 0 12px;
-        color: var(--text);
-        background: rgba(244, 232, 211, 0.055);
-        font: inherit;
-      }
-
-      .community-form input::placeholder {
-        color: #81796f;
-      }
-
-      .community-note {
-        min-height: 22px;
-        margin: 0;
-        color: #d8d0c4;
-        font-size: 0.92rem;
-        line-height: 1.5;
-      }
-
-      .community-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
-        margin-top: 18px;
-      }
-
-      .section-head {
-        display: flex;
-        align-items: end;
-        justify-content: space-between;
-        gap: 18px;
-        margin-top: 28px;
-      }
-
-      .section-head h2 {
-        margin: 0;
-        font-size: clamp(1.35rem, 3vw, 2rem);
-      }
-
-      .section-head p {
-        margin: 6px 0 0;
-        color: var(--muted);
-      }
-
-      .community-card {
-        display: grid;
-        gap: 12px;
-        padding: 18px;
-      }
-
-      .community-card h2 {
-        margin: 0;
-        font-size: 1.05rem;
-      }
-
-      .community-card p {
-        margin: 0;
-        color: var(--muted);
-        line-height: 1.55;
-      }
-
-      .meta-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .pill {
-        display: inline-flex;
-        align-items: center;
-        min-height: 28px;
-        border: 1px solid rgba(217, 180, 111, 0.22);
-        border-radius: 999px;
-        padding: 0 10px;
-        color: #e7c27e;
-        background: rgba(217, 180, 111, 0.08);
-        font-size: 0.78rem;
-        font-weight: 850;
-      }
-
-      .pill-live {
-        color: #dffff9;
-        border-color: rgba(119, 214, 200, 0.3);
-        background: rgba(19, 91, 83, 0.34);
-      }
-
-      .feed {
-        display: grid;
-        gap: 10px;
-        margin-top: 14px;
-      }
-
-      .feed-item {
-        display: grid;
-        grid-template-columns: 42px minmax(0, 1fr) auto;
-        gap: 12px;
-        align-items: center;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 14px;
-        background: rgba(18, 18, 16, 0.64);
-      }
-
-      .avatar {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        color: #15100a;
-        background: linear-gradient(135deg, #e7c27e, #b97831);
-        font-weight: 950;
-      }
-
-      .feed-item strong,
-      .feed-item span {
-        display: block;
-      }
-
-      .feed-item span {
-        color: var(--muted);
-        margin-top: 3px;
-      }
-
-      .ghost-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 40px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 0 14px;
-        background: rgba(244, 232, 211, 0.055);
-        color: var(--text);
-        font-size: 0.9rem;
-        font-weight: 750;
-      }
-
-      .primary-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 42px;
-        border: 1px solid transparent;
-        border-radius: 8px;
-        padding: 0 14px;
-        color: #15100a;
-        background: linear-gradient(135deg, #e7c27e, #b97831);
-        font-size: 0.92rem;
-        font-weight: 850;
-        cursor: pointer;
-      }
-
-      .primary-button:disabled,
-      .ghost-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.48;
-      }
-
-      .hero-card > .ghost-button {
-        margin-top: 18px;
-      }
-
-      @media (max-width: 1180px) {
-        .topbar {
-          grid-template-columns: 1fr;
-        }
-
-        .main-nav,
-        .top-actions {
-          justify-content: flex-start;
-        }
-      }
-
-      @media (max-width: 900px) {
-        .shell {
-          width: min(100% - 24px, 1220px);
-        }
-
-        .topbar {
-          position: static;
-        }
-
-        .hero {
-          grid-template-columns: 1fr;
-        }
-
-        .main-nav {
-          justify-content: flex-start;
-          overflow-x: auto;
-          padding-bottom: 4px;
-        }
-
-        .main-nav a.is-active::after {
-          bottom: -6px;
-        }
-
-        .top-actions {
-          flex-wrap: wrap;
-        }
-
-        .community-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .section-head,
-        .feed-item {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      .main-nav {
-        gap: 6px;
-      }
-
-      .main-nav a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 38px;
-        border: 1px solid rgba(244, 232, 211, 0.14);
-        border-radius: 8px;
-        padding: 0 10px;
-        background: rgba(244, 232, 211, 0.045);
-      }
-
-      .main-nav a.is-active,
-      .main-nav a:hover {
-        border-color: rgba(231, 194, 126, 0.44);
-        background: rgba(231, 194, 126, 0.11);
-      }
-
-      .main-nav a.is-active::after {
-        display: none;
-      }
-
-      @media (max-width: 720px) {
-        .main-nav {
-          flex-wrap: wrap;
-          overflow: visible;
-          padding-bottom: 0;
-        }
-
-        .main-nav a {
-          flex: 1 1 calc(50% - 8px);
-          min-height: 44px;
-          padding: 8px 10px;
-          text-align: center;
-          white-space: normal;
-          line-height: 1.18;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="aihub.css?v=aihub-1" />
+    <script defer src="browser-check.js?v=chrome-notice-6"></script>
   </head>
   <body>
-    <main class="shell">
-      <header class="topbar" aria-label="หัวเว็บ">
-        <a class="brand" href="index.html">
-          <img src="assets/favicon.png" alt="GivemeAI" />
-          <span>
-            <strong>GivemeAI GPT Hub</strong>
-            <span>รวมเครื่องมือ AI พร้อมใช้</span>
-          </span>
-        </a>
-        <nav class="main-nav" aria-label="เมนูหลัก">
-          <a href="index.html">หน้าแรก</a>
-          <a href="index.html#links">เครื่องมือ GPT</a>
-          <a href="pricing.html">รายละเอียดการสมัคร</a>
-          <a href="lessons.html">บทเรียน</a>
-          <a class="is-active" href="community.html">กลุ่มเรียนรู้</a>
-          <a href="index.html#upcomingTools">อัปเดตข่าวสาร</a>
-        </nav>
-        <div class="top-actions">
-          <div class="auth-panel" aria-label="สถานะสมาชิก">
-            <button class="ghost-button auth-button" id="loginButton" type="button">เข้าสู่ระบบด้วย Google</button>
-            <div class="user-badge" id="userBadge" hidden>
-              <img id="userAvatar" alt="" />
-              <span>
-                <strong id="userName">Guest</strong>
-                <small id="userStatus">ยังไม่ได้เข้าสู่ระบบ</small>
-              </span>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="index.html"><span class="brand-mark">G</span><span><span class="brand-title">AI <span>Hub</span></span><span class="brand-subtitle">By AI ภาพนี้ให้หน่อย</span></span></a>
+        <nav class="side-nav"><a class="nav-link" href="index.html">🏠 หน้าแรก</a><a class="nav-link" href="tools.html">🖼️ เครื่องมือ GPT</a><a class="nav-link" href="prompts.html">🎁 Prompt ยอดนิยม</a><a class="nav-link" href="lessons.html">🎓 บทเรียน</a><a class="nav-link is-active" href="community.html">👥 กลุ่มเรียนรู้</a><a class="nav-link" href="pricing.html">💳 สมัครสมาชิก</a></nav>
+      </aside>
+      <main class="main-area">
+        <header class="mobile-header"><a class="mobile-brand" href="index.html"><span class="brand-mark">G</span><span><span class="brand-title">AI <span>Hub</span></span><span class="brand-subtitle">Community</span></span></a><button class="ghost-button js-login" type="button">Login</button></header>
+        <header class="topbar"><div></div><label class="page-search"><span>⌕</span><input type="search" placeholder="ค้นหาในกลุ่มเรียนรู้..." /></label><div class="auth-panel"><button class="ghost-button auth-button" id="loginButton" type="button">Login Gmail</button><div class="user-badge" id="userBadge" hidden><img id="userAvatar" alt="" /><span><strong id="userName">Guest</strong><small id="userStatus">Free</small></span></div><a class="ghost-button admin-link" id="adminLink" href="admin.html" hidden>Admin</a><button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button></div></header>
+
+        <section class="hero">
+          <article class="hero-card">
+            <p class="eyebrow">COMMUNITY</p>
+            <h1>กลุ่มเรียนรู้ <span class="accent">Ai ภาพนี้ให้หน่อย</span></h1>
+            <p class="lead">กลุ่มสำหรับสมาชิก Member และ Pro เพื่อรับอัปเดต GPT, ตัวอย่าง prompt, วิธีใช้ AI กับงานธุรกิจ และแลกเปลี่ยนไอเดียกับผู้ใช้งานจริง</p>
+            <div class="hero-actions">
+              <button class="primary-button" id="joinGroupButton" type="button">เข้ากลุ่ม Facebook</button>
+              <a class="ghost-button" href="pricing.html">สมัคร Member / Pro</a>
             </div>
-            <a class="ghost-button admin-link" id="adminLink" href="admin.html" hidden>Admin</a>
-            <button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
-          </div>
-        </div>
-      </header>
+            <p class="fineprint" id="communityAccessNote">ต้องเป็น Member 390 บาทขึ้นไปหรือ Pro ก่อน จึงจะกดเข้ากลุ่มได้</p>
+          </article>
+          <aside class="hero-card">
+            <p class="eyebrow">แจ้งชื่อให้ Admin</p>
+            <h2>แจ้งชื่อ Facebook เพื่อให้รับเข้ากลุ่มเร็วขึ้น</h2>
+            <p class="muted">หลังสมัครแล้วให้กรอกชื่อ Facebook ที่ใช้ขอเข้ากลุ่ม ระบบจะส่งข้อมูลไปที่ Admin Panel</p>
+            <div class="action-row" style="align-items: stretch; flex-direction: column">
+              <input class="form-control" id="facebookNameInput" type="text" autocomplete="name" placeholder="ชื่อ Facebook เช่น Notzio CM" />
+              <button class="primary-button" id="notifyAdminButton" type="button">แจ้งชื่อให้ Admin</button>
+              <small class="muted" id="communityRequestNote">เฉพาะสมาชิก Member / Pro เท่านั้น</small>
+            </div>
+          </aside>
+        </section>
 
-      <section class="hero">
-        <article class="hero-card">
-          <p class="eyebrow">COMMUNITY</p>
-          <h1>กลุ่มเรียนรู้ Ai ภาพนี้ให้หน่อย</h1>
-          <p class="lead">กลุ่มสำหรับสมาชิก Member และ Pro เพื่อรับอัปเดตเครื่องมือ GPT, ตัวอย่าง prompt, แนวทางใช้ AI ทำงานจริง และแลกเปลี่ยนไอเดียกับเจ้าของธุรกิจที่ใช้งานเหมือนกัน</p>
-          <div class="access-actions">
-            <button class="primary-button" id="joinGroupButton" type="button">เข้ากลุ่ม Facebook</button>
-            <a class="ghost-button" href="pricing.html">สมัคร Member / Pro</a>
-            <p class="community-note" id="communityAccessNote">เข้าสู่ระบบด้วย Gmail ที่สมัคร Member เพื่อปลดล็อกลิงก์เข้ากลุ่ม</p>
+        <section>
+          <div class="section-head"><div><h2>สิ่งที่จะได้ในกลุ่ม</h2><p class="muted">เนื้อหาสำหรับสมาชิกที่ใช้ AI กับงานจริง</p></div><span class="pill">Member Only</span></div>
+          <div class="lessons-grid">
+            <article class="lesson-card"><span class="icon">🆕</span><h3>อัปเดต GPT และวิธีใช้</h3><p class="muted">แจ้งเครื่องมือใหม่ วิธีใช้ และ prompt ตัวอย่างสำหรับงานโฆษณา ภาพโปรโมท BOQ และงานขาย</p></article>
+            <article class="lesson-card"><span class="icon">📌</span><h3>Case Study จากธุรกิจจริง</h3><p class="muted">ตัวอย่างการทำภาพ วิเคราะห์ครีเอทีฟ และจัดระบบข้อมูลสินค้าเพื่อนำไปใช้ได้ทันที</p></article>
+            <article class="lesson-card"><span class="icon">💬</span><h3>ถามตอบและแจ้งปัญหา</h3><p class="muted">พื้นที่รวมคำถาม วิธีแก้ปัญหา และข้อแนะนำในการใช้ GPT ให้ได้ผลลัพธ์ดีขึ้น</p></article>
           </div>
-        </article>
-        <aside class="hero-card side-panel">
-          <p><b>แจ้งชื่อ Facebook ให้ Admin</b></p>
-          <p class="lead">หลังสมัคร Member 390 บาทขึ้นไป ให้กรอกชื่อ Facebook ที่ใช้ขอเข้ากลุ่ม เพื่อให้ Admin เห็นใน Admin Panel และตรวจรับเข้ากลุ่มได้เร็วขึ้น</p>
-          <div class="community-form">
-            <input id="facebookNameInput" type="text" autocomplete="name" placeholder="ชื่อ Facebook เช่น Notzio CM" />
-            <button class="primary-button" id="notifyAdminButton" type="button">แจ้งชื่อให้ Admin</button>
-            <p class="community-note" id="communityRequestNote">เฉพาะสมาชิก Member / Pro เท่านั้น</p>
-          </div>
-          <div class="meta-row">
-            <span class="pill pill-live">Facebook Group</span>
-            <span class="pill">Member 390+</span>
-          </div>
-        </aside>
-      </section>
+        </section>
 
-      <div class="section-head">
-        <div>
-          <h2>สิ่งที่จะได้ในกลุ่ม</h2>
-          <p>เนื้อหาสำหรับสมาชิกที่ต้องการใช้ AI กับงานธุรกิจแบบลงมือทำจริง</p>
-        </div>
-        <span class="pill">Member Only</span>
-      </div>
-
-      <section class="community-grid" aria-label="สิ่งที่จะมีในกลุ่มเรียนรู้">
-        <article class="community-card">
-          <div class="meta-row">
-            <span class="pill pill-live">รายสัปดาห์</span>
+        <section>
+          <div class="section-head"><div><h2>ตัวอย่างโพสต์ในกลุ่ม</h2><p class="muted">ตัวอย่างเนื้อหาที่สมาชิกจะได้ติดตาม</p></div></div>
+          <div class="panel-grid">
+            <article class="panel"><span class="pill">วันนี้</span><h3>แนวทางใช้ Andromeda Score ก่อนยิง Ads</h3><p class="muted">สรุป checklist 5 ข้อก่อนเพิ่มงบโฆษณา</p></article>
+            <article class="panel"><span class="pill">เมื่อวาน</span><h3>Prompt ตัวอย่าง: โปรโมทร้านอาหารช่วงเย็น</h3><p class="muted">สมาชิกนำ prompt ไปใช้ทำภาพและแคปชันโปรโมทได้ทันที</p></article>
+            <article class="panel"><span class="pill">2 วันก่อน</span><h3>ถามตอบ: BOQ ใช้กับงานต่อเติมเล็กได้ไหม</h3><p class="muted">รวมคำตอบและข้อมูลที่ควรเตรียมก่อนให้ GPT คำนวณ</p></article>
           </div>
-          <h2>อัปเดต GPT และวิธีใช้</h2>
-          <p>แจ้งเครื่องมือใหม่ วิธีใช้งาน และ prompt ตัวอย่างสำหรับงานโฆษณา ภาพโปรโมท BOQ และงานขาย</p>
-        </article>
-        <article class="community-card">
-          <div class="meta-row">
-            <span class="pill">Case Study</span>
-          </div>
-          <h2>ตัวอย่างงานจากธุรกิจจริง</h2>
-          <p>รวมแนวทางทำภาพ คิดแคปชัน วิเคราะห์ครีเอทีฟ และจัดระบบข้อมูลสินค้าให้นำไปใช้ได้ทันที</p>
-        </article>
-        <article class="community-card">
-          <div class="meta-row">
-            <span class="pill">Q&A</span>
-          </div>
-          <h2>ถามตอบและแจ้งปัญหา</h2>
-          <p>พื้นที่รวมคำถามจากสมาชิก วิธีแก้ปัญหา และข้อแนะนำในการใช้ GPT ให้ได้ผลลัพธ์ดีขึ้น</p>
-        </article>
-      </section>
-
-      <div class="section-head">
-        <div>
-          <h2>ตัวอย่างโพสต์ในกลุ่ม</h2>
-          <p>หัวข้อที่สมาชิกจะได้ติดตามหลังเข้ากลุ่ม</p>
-        </div>
-      </div>
-      <section class="feed" aria-label="โพสต์ล่าสุดในกลุ่ม">
-        <article class="feed-item">
-          <span class="avatar">A</span>
-          <div><strong>Admin: แนวทางใช้ Andromeda Score ก่อนยิง Ads</strong><span>สรุป checklist 5 ข้อก่อนเพิ่มงบโฆษณา</span></div>
-          <span class="pill pill-live">วันนี้</span>
-        </article>
-        <article class="feed-item">
-          <span class="avatar">P</span>
-          <div><strong>Prompt ตัวอย่าง: โปรโมทร้านอาหารช่วงเย็น</strong><span>สมาชิกแชร์ prompt สำหรับทำภาพและแคปชันโปรโมท</span></div>
-          <span class="pill">เมื่อวาน</span>
-        </article>
-        <article class="feed-item">
-          <span class="avatar">B</span>
-          <div><strong>ถามตอบ: BOQ ใช้กับงานต่อเติมเล็กได้ไหม</strong><span>รวมคำตอบและข้อมูลที่ควรเตรียมก่อนให้ GPT คำนวณ</span></div>
-          <span class="pill">2 วันก่อน</span>
-        </article>
-      </section>
-    </main>
+        </section>
+      </main>
+    </div>
+    <nav class="bottom-nav"><a href="index.html">🏠<span>ภาพรวม</span></a><a href="pricing.html">💳<span>ค่าใช้จ่าย</span></a><a href="account.html">♡<span>สมาชิก</span></a><a href="tools.html">⇄<span>เครื่องมือ</span></a><a class="is-active" href="community.html">👥<span>กลุ่ม</span></a></nav>
     <script type="module">
-      import {
-        doc,
-        getDoc,
-        serverTimestamp,
-        setDoc,
-      } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-      import {
-        getFirebaseServices,
-        isAdminEmail,
-        isFirebaseConfigured,
-        signInWithGoogle,
-        signOutUser,
-        watchAuth,
-      } from "./auth-shared.js";
+      import { doc, getDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+      import { getFirebaseServices, isAdminEmail, isFirebaseConfigured, signInWithGoogle, signOutUser, watchAuth } from "./auth-shared.js";
 
-      const loginButton = document.querySelector("#loginButton");
+      const loginButtons = [...document.querySelectorAll("#loginButton, .js-login")];
       const logoutButton = document.querySelector("#logoutButton");
       const userBadge = document.querySelector("#userBadge");
       const userAvatar = document.querySelector("#userAvatar");
@@ -591,9 +83,9 @@
 
       function getStatusText(profile) {
         if (isAdminEmail(profile?.email)) return "Admin";
-        if (profile?.status === "approved") return "VIP Member";
+        if (profile?.status === "approved") return "Member";
         if (profile?.status === "revoked") return "ถูกปิดสิทธิ์";
-        return "รอใส่ VIP Code";
+        return "Free";
       }
 
       function isMember(user, profile) {
@@ -602,36 +94,19 @@
 
       function updateCommunityUi() {
         const member = isMember(currentUser, currentProfile);
-        if (joinGroupButton) {
-          joinGroupButton.disabled = !member;
-          joinGroupButton.textContent = member ? "เข้ากลุ่ม Facebook" : "สมัคร Member ก่อนเข้ากลุ่ม";
-        }
-        if (notifyAdminButton) {
-          notifyAdminButton.disabled = !member;
-        }
-        if (facebookNameInput) {
-          facebookNameInput.disabled = !member;
-        }
-        if (communityAccessNote) {
-          communityAccessNote.textContent = member
-            ? "คุณเป็นสมาชิกแล้ว กดเข้ากลุ่ม Facebook ได้ และอย่าลืมแจ้งชื่อ Facebook ให้ Admin"
-            : "ต้องเป็น Member 390 บาทขึ้นไป หรือ Pro ก่อน จึงจะกดเข้ากลุ่มได้";
-        }
-        if (communityRequestNote) {
-          communityRequestNote.textContent = member
-            ? "กรอกชื่อ Facebook แล้วกดแจ้งชื่อให้ Admin"
-            : "เฉพาะสมาชิก Member / Pro เท่านั้น";
-        }
+        joinGroupButton.disabled = !member;
+        joinGroupButton.textContent = member ? "เข้ากลุ่ม Facebook" : "สมัคร Member ก่อนเข้ากลุ่ม";
+        notifyAdminButton.disabled = !member;
+        facebookNameInput.disabled = !member;
+        communityAccessNote.textContent = member
+          ? "คุณเป็นสมาชิกแล้ว กดเข้ากลุ่ม Facebook ได้ และอย่าลืมแจ้งชื่อ Facebook ให้ Admin"
+          : "ต้องเป็น Member 390 บาทขึ้นไป หรือ Pro ก่อน จึงจะกดเข้ากลุ่มได้";
+        communityRequestNote.textContent = member
+          ? "กรอกชื่อ Facebook แล้วกดแจ้งชื่อให้ Admin"
+          : "เฉพาะสมาชิก Member / Pro เท่านั้น";
       }
 
-      loginButton?.addEventListener("click", async () => {
-        try {
-          await signInWithGoogle();
-        } catch (error) {
-          alert(`Login ไม่สำเร็จ: ${error.message}`);
-        }
-      });
-
+      loginButtons.forEach((button) => button.addEventListener("click", () => signInWithGoogle()));
       logoutButton?.addEventListener("click", () => signOutUser());
 
       joinGroupButton?.addEventListener("click", () => {
@@ -647,75 +122,44 @@
           window.location.href = "pricing.html";
           return;
         }
-
-        const facebookName = facebookNameInput?.value.trim();
+        const facebookName = facebookNameInput.value.trim();
         if (!facebookName) {
-          if (communityRequestNote) communityRequestNote.textContent = "กรุณากรอกชื่อ Facebook ก่อนแจ้ง Admin";
-          facebookNameInput?.focus();
+          communityRequestNote.textContent = "กรุณากรอกชื่อ Facebook ก่อนแจ้ง Admin";
+          facebookNameInput.focus();
           return;
         }
-
         const svc = getFirebaseServices();
         if (!svc) return;
-
         notifyAdminButton.disabled = true;
         try {
           const requestRef = doc(svc.db, "communityRequests", currentUser.uid);
           const requestSnap = await getDoc(requestRef);
           const payload = requestSnap.exists()
-            ? {
-                displayName: currentUser.displayName || "",
-                facebookName,
-                updatedAt: serverTimestamp(),
-              }
-            : {
-                uid: currentUser.uid,
-                email: currentUser.email || "",
-                displayName: currentUser.displayName || "",
-                facebookName,
-                status: "pending",
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-              };
+            ? { displayName: currentUser.displayName || "", facebookName, updatedAt: serverTimestamp() }
+            : { uid: currentUser.uid, email: currentUser.email || "", displayName: currentUser.displayName || "", facebookName, status: "pending", createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
           await setDoc(requestRef, payload, { merge: requestSnap.exists() });
-          if (communityRequestNote) communityRequestNote.textContent = "แจ้งชื่อให้ Admin แล้ว รอ Admin ตรวจรับเข้ากลุ่ม";
+          communityRequestNote.textContent = "แจ้งชื่อให้ Admin แล้ว รอ Admin ตรวจรับเข้ากลุ่ม";
         } catch (error) {
-          if (communityRequestNote) communityRequestNote.textContent = `แจ้งชื่อไม่สำเร็จ: ${error.message}`;
+          communityRequestNote.textContent = `แจ้งชื่อไม่สำเร็จ: ${error.message}`;
         } finally {
           notifyAdminButton.disabled = false;
         }
       });
 
-      if (!isFirebaseConfigured()) {
-        loginButton?.setAttribute("disabled", "true");
-      }
+      if (!isFirebaseConfigured()) loginButtons.forEach((button) => button.setAttribute("disabled", "true"));
 
       watchAuth(({ user, profile }) => {
         currentUser = user;
         currentProfile = profile;
-        if (!user) {
-          if (loginButton) loginButton.hidden = false;
-          if (logoutButton) logoutButton.hidden = true;
-          if (userBadge) userBadge.hidden = true;
-          if (adminLink) adminLink.hidden = true;
-          updateCommunityUi();
-          return;
-        }
-
-        const memberProfile = profile || { email: user.email };
-        if (loginButton) loginButton.hidden = true;
-        if (logoutButton) logoutButton.hidden = false;
-        if (userBadge) userBadge.hidden = false;
-        if (adminLink) adminLink.hidden = !isAdminEmail(memberProfile.email || user.email);
-        if (userAvatar) {
-          userAvatar.src = user.photoURL || "assets/favicon.png";
-          userAvatar.alt = user.displayName || user.email || "";
-        }
-        if (userName) userName.textContent = user.displayName || user.email || "Member";
-        if (userStatus) userStatus.textContent = getStatusText(memberProfile);
+        loginButtons.forEach((button) => (button.hidden = Boolean(user)));
+        if (logoutButton) logoutButton.hidden = !user;
+        if (userBadge) userBadge.hidden = !user;
+        if (adminLink) adminLink.hidden = !(user && isAdminEmail(user.email));
+        if (userAvatar) userAvatar.src = user?.photoURL || "assets/favicon.png";
+        if (userName) userName.textContent = user?.displayName || user?.email || "Member";
+        if (userStatus) userStatus.textContent = getStatusText(profile || { email: user?.email });
         updateCommunityUi();
       });
-
       updateCommunityUi();
     </script>
   </body>

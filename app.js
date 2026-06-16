@@ -35,6 +35,10 @@ const toast = document.querySelector("#toast");
 const cardsGrid = document.querySelector("#cards");
 const allCards = [...document.querySelectorAll(".card")];
 const protectedCards = [...document.querySelectorAll(".card[data-protected='true']")];
+const searchInputs = [...document.querySelectorAll("#search, #globalSearch")];
+const filterButtons = [...document.querySelectorAll("[data-filter]")];
+const viewButtons = [...document.querySelectorAll("[data-view]")];
+const visibleCount = document.querySelector("#visibleCount");
 const defaultOrder = new Map(GPTS.map((gpt, index) => [gpt.id, index + 1]));
 
 let currentUser = null;
@@ -42,6 +46,7 @@ let currentProfile = null;
 let currentIsAdmin = false;
 let gptSettings = {};
 let favoriteIds = new Set();
+let activeFilter = "all";
 let unsubscribeFavorites = null;
 
 function showToast(message) {
@@ -49,6 +54,10 @@ function showToast(message) {
   toast.textContent = message;
   toast.classList.add("show");
   window.setTimeout(() => toast.classList.remove("show"), 2200);
+}
+
+function getSearchValue() {
+  return searchInputs.find((input) => input?.value.trim())?.value.trim().toLowerCase() || "";
 }
 
 function getStatusLabel(profile) {
@@ -75,12 +84,12 @@ function updateMemberDashboard(user, profile, approved) {
 
   if (admin) {
     if (memberDashboardLevel) memberDashboardLevel.textContent = "Admin";
-    if (memberDashboardAccess) memberDashboardAccess.textContent = "ปลดล็อกทุก GPT";
+    if (memberDashboardAccess) memberDashboardAccess.textContent = "ปลดล็อกทุก GPT และ Admin Panel";
     if (memberDashboardUpdate) memberDashboardUpdate.textContent = "จัดการระบบได้";
     if (memberDashboardStatus) memberDashboardStatus.textContent = "สถานะ: Admin ใช้งานได้ทุกระบบ";
     setDashboardLink(memberDashboardPrimary, "admin.html", "เปิด Admin Panel");
     setDashboardLink(memberUpgradeButton, "pricing.html", "ดูแพ็กสมาชิก");
-    if (memberDashboardHelp) memberDashboardHelp.innerHTML = 'สิทธิ์ Admin สามารถจัดการสมาชิกและระบบหลังบ้านได้';
+    if (memberDashboardHelp) memberDashboardHelp.textContent = "บัญชี Admin สามารถจัดการสมาชิก, VIP Code, Orders และเนื้อหาหน้าเว็บได้";
     return;
   }
 
@@ -91,7 +100,7 @@ function updateMemberDashboard(user, profile, approved) {
     if (memberDashboardStatus) memberDashboardStatus.textContent = "สถานะ: จ่ายแล้ว ใช้งาน GPT สมาชิกได้";
     setDashboardLink(memberDashboardPrimary, "#links", "เปิดเครื่องมือ GPT");
     setDashboardLink(memberUpgradeButton, "pricing.html", "อัปเกรดระดับสมาชิก");
-    if (memberDashboardHelp) memberDashboardHelp.innerHTML = 'ต้องการเพิ่มบทเรียนเสริม? กดอัปเกรดเป็น Pro ได้จากหน้าสมัครสมาชิก';
+    if (memberDashboardHelp) memberDashboardHelp.textContent = "ต้องการบทเรียนเสริมเพิ่มเติม? อัปเกรดเป็น Pro ได้จากหน้าสมัครสมาชิก";
     return;
   }
 
@@ -102,112 +111,72 @@ function updateMemberDashboard(user, profile, approved) {
     if (memberDashboardStatus) memberDashboardStatus.textContent = "สถานะ: ถูกปิดสิทธิ์";
     setDashboardLink(memberDashboardPrimary, "pricing.html", "ดูรายละเอียดสมาชิก");
     setDashboardLink(memberUpgradeButton, "https://www.facebook.com/AiCreativesN/", "ติดต่อ Admin");
-    if (memberDashboardHelp) memberDashboardHelp.innerHTML = 'บัญชีนี้ถูกปิดสิทธิ์ กรุณาติดต่อแอดมินเพื่อเปิดใช้งานอีกครั้ง';
+    if (memberDashboardHelp) memberDashboardHelp.textContent = "บัญชีนี้ถูกปิดสิทธิ์ กรุณาติดต่อแอดมินเพื่อเปิดใช้งานอีกครั้ง";
     return;
   }
 
   if (memberDashboardLevel) memberDashboardLevel.textContent = user ? "Free" : "Guest";
   if (memberDashboardAccess) memberDashboardAccess.textContent = "Free 2 GPT";
-  if (memberDashboardUpdate) memberDashboardUpdate.textContent = "ต้องสมัครเพื่อปลดล็อก";
+  if (memberDashboardUpdate) memberDashboardUpdate.textContent = "สมัครเพื่อปลดล็อก";
   if (memberDashboardStatus) memberDashboardStatus.textContent = user ? "สถานะ: ยังไม่ได้ชำระ Member" : "สถานะ: ยังไม่ได้เข้าสู่ระบบ";
   setDashboardLink(memberDashboardPrimary, "pricing.html", user ? "สมัคร Member" : "เข้าสู่ระบบ / สมัครสมาชิก");
   setDashboardLink(memberUpgradeButton, "pricing.html", "อัปเกรดระดับสมาชิก");
-  if (memberDashboardHelp) memberDashboardHelp.innerHTML = 'Member 390 บาทขึ้นไปจะปลดล็อก GPT สมาชิกและกดเข้ากลุ่มเรียนรู้ได้';
-}
-
-function ensureSystemNote() {
-  let note = document.querySelector("#systemNote");
-  if (note) return note;
-
-  note = document.createElement("div");
-  note.id = "systemNote";
-  note.className = "system-note";
-  const toolbar = document.querySelector(".toolbar");
-  toolbar?.insertAdjacentElement("beforebegin", note);
-  return note;
+  if (memberDashboardHelp) memberDashboardHelp.textContent = "Member 390 บาทขึ้นไปจะปลดล็อก GPT สมาชิกและกดเข้ากลุ่มเรียนรู้ได้";
 }
 
 function setSystemNote(message) {
-  const note = ensureSystemNote();
+  const note = document.querySelector("#systemNote");
   if (!note) return;
   note.textContent = message || "";
   note.classList.toggle("show", Boolean(message));
 }
 
-function ensureMemberStatus() {
-  let status = document.querySelector("#memberStatus");
-  if (status) return status;
-
-  status = document.createElement("div");
-  status.id = "memberStatus";
-  status.className = "member-status";
-  const vipPanel = document.querySelector(".vip-actions-card");
-  if (vipPanel) {
-    vipPanel.insertAdjacentElement("afterbegin", status);
-    return status;
-  }
-  const topbar = document.querySelector(".topbar");
-  topbar?.insertAdjacentElement("afterend", status);
-  return status;
-}
-
 function setMemberStatus(user, profile, approved) {
-  const status = ensureMemberStatus();
+  const status = document.querySelector("#memberStatus");
   if (!status) return;
 
   status.hidden = !user;
+  status.className = "member-status";
+
   if (!user) {
     status.textContent = "";
-    status.className = "member-status";
     return;
   }
 
   if (isAdminEmail(user.email)) {
-    status.className = "member-status approved";
+    status.classList.add("approved", "show");
     status.textContent = "ระดับสมาชิก: Admin - ปลดล็อกทุก GPT แล้ว";
     return;
   }
 
   if (approved) {
-    status.className = "member-status approved";
+    status.classList.add("approved", "show");
     status.textContent = "ระดับสมาชิก: Member - ใช้งาน GPT สมาชิกได้";
     return;
   }
 
   if (profile?.status === "revoked") {
-    status.className = "member-status revoked";
-    status.innerHTML = `ถูกปิดสิทธิ์ - ติดต่อ Admin <a href="mailto:${ADMIN_EMAIL}">${ADMIN_EMAIL}</a>`;
+    status.classList.add("revoked", "show");
+    status.innerHTML = `ถูกปิดสิทธิ์ - ติดต่อ Admin <a href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">Fanpage</a>`;
     return;
   }
 
-  status.className = "member-status pending";
+  status.classList.add("pending", "show");
   status.innerHTML = `
     <strong>ยังไม่เป็น Member</strong>
-    <span>กรอกรหัสสมาชิก 5 ตัวที่ได้รับจาก Admin เพื่อปลดล็อก GPT สมาชิก</span>
+    <span>กรอก VIP Code 5 หลักที่ได้รับจาก Admin เพื่อปลดล็อก GPT สมาชิก</span>
     <div class="vip-redeem">
       <input id="vipCodeInput" type="text" inputmode="text" autocomplete="one-time-code" maxlength="5" pattern="[A-Za-z0-9]{5}" placeholder="เช่น A7K2Q" />
       <button class="primary-button" id="redeemCodeButton" type="button">ปลดล็อก Member</button>
       <a class="ghost-button vip-signup-button" href="pricing.html">สมัครสมาชิก</a>
     </div>
-    <small>หลังกรอกสำเร็จ Code จะผูกกับ Gmail นี้อัตโนมัติ และใช้ซ้ำไม่ได้</small>
+    <small>1 Code ใช้ได้กับ 1 Gmail เท่านั้น</small>
   `;
 }
 
-function ensureAnnouncementBanner() {
-  let banner = document.querySelector("#announcementBanner");
-  if (banner) return banner;
-
-  banner = document.createElement("div");
-  banner.id = "announcementBanner";
-  banner.className = "announcement-banner";
-  banner.setAttribute("role", "status");
-  const linksSection = document.querySelector("#links");
-  linksSection?.insertAdjacentElement("afterbegin", banner);
-  return banner;
-}
-
 function setAnnouncement(announcement) {
-  const banner = ensureAnnouncementBanner();
+  const banner = document.querySelector("#announcementBanner");
+  if (!banner) return;
   const message = String(announcement?.message || "").trim();
   const show = Boolean(announcement?.enabled && message);
   banner.textContent = show ? message : "";
@@ -224,19 +193,6 @@ function ensureFavoriteButtons() {
     button.setAttribute("aria-label", "ปักหมุด GPT");
     button.textContent = "☆";
     card.appendChild(button);
-  });
-}
-
-function ensureMembershipRibbons() {
-  allCards.forEach((card) => {
-    if (card.dataset.upcoming === "true") return;
-    if (card.querySelector(".member-ribbon")) return;
-
-    const ribbon = document.createElement("div");
-    const vip = card.dataset.protected === "true";
-    ribbon.className = `member-ribbon ${vip ? "vip" : "free"}`;
-    ribbon.textContent = vip ? "VIP Member" : "Free Member";
-    card.appendChild(ribbon);
   });
 }
 
@@ -263,6 +219,28 @@ function getCardOrder(card) {
   return defaultOrder.get(card.dataset.gptId) || 999;
 }
 
+function applyCardSearch() {
+  const value = getSearchValue();
+  let total = 0;
+
+  allCards.forEach((card) => {
+    const text = `${card.textContent || ""} ${card.dataset.search || ""}`.toLowerCase();
+    const hiddenByAdmin = card.dataset.hiddenByAdmin === "true";
+    const isVip = card.dataset.protected === "true";
+    const isUpcoming = card.dataset.upcoming === "true";
+    const matchesFilter =
+      activeFilter === "all" ||
+      (activeFilter === "free" && !isVip && !isUpcoming) ||
+      (activeFilter === "vip" && isVip && !isUpcoming) ||
+      (activeFilter === "latest" && isUpcoming);
+    const show = !hiddenByAdmin && matchesFilter && (!value || text.includes(value));
+    card.hidden = !show;
+    if (show) total += 1;
+  });
+
+  if (visibleCount) visibleCount.textContent = String(total);
+}
+
 function renderCardSettings() {
   if (!cardsGrid) return;
 
@@ -279,7 +257,7 @@ function renderCardSettings() {
     cardsGrid.appendChild(card);
   });
 
-  window.applyCardSearch?.();
+  applyCardSearch();
   setFavoriteUi();
 }
 
@@ -302,12 +280,8 @@ function prepareProtectedCards() {
   protectedCards.forEach((card) => {
     const link = card.querySelector(".primary-button");
     const copy = card.querySelector(".copy-button");
-    if (link && !link.dataset.gptUrl) {
-      link.dataset.gptUrl = link.href;
-    }
-    if (copy && !copy.dataset.copyOriginal) {
-      copy.dataset.copyOriginal = copy.dataset.copy || "";
-    }
+    if (link && !link.dataset.gptUrl) link.dataset.gptUrl = link.href;
+    if (copy && !copy.dataset.copyOriginal) copy.dataset.copyOriginal = copy.dataset.copy || "";
     ensureLockOverlay(card);
   });
 }
@@ -345,17 +319,10 @@ function updateAuthUi(user, profile) {
   if (loginButton) loginButton.hidden = Boolean(user);
   if (logoutButton) logoutButton.hidden = !user;
   if (adminLink) adminLink.hidden = !(user && isAdminEmail(user.email));
-
   if (userBadge) userBadge.hidden = !user;
-  if (userAvatar) {
-    userAvatar.src = user?.photoURL || "assets/favicon.png";
-  }
-  if (userName) {
-    userName.textContent = user?.displayName || user?.email || "Guest";
-  }
-  if (userStatus) {
-    userStatus.textContent = getStatusLabel(profile);
-  }
+  if (userAvatar) userAvatar.src = user?.photoURL || "assets/favicon.png";
+  if (userName) userName.textContent = user?.displayName || user?.email || "Guest";
+  if (userStatus) userStatus.textContent = getStatusLabel(profile);
 
   setProtectedAccess(approved);
   updateMemberDashboard(user, profile, approved);
@@ -364,11 +331,57 @@ function updateAuthUi(user, profile) {
   renderCardSettings();
 }
 
+function attachCopyButtons() {
+  document.querySelectorAll("[data-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const link = button.dataset.copy;
+      if (!link) return;
+      try {
+        await navigator.clipboard.writeText(link);
+      } catch {
+        const temp = document.createElement("textarea");
+        temp.value = link;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        temp.remove();
+      }
+      const card = button.closest(".card");
+      if (card) trackEvent("copy_link", card.dataset.gptId || "");
+      showToast("คัดลอกลิงก์แล้ว");
+    });
+  });
+}
+
 ensureFavoriteButtons();
-ensureMembershipRibbons();
 prepareProtectedCards();
+attachCopyButtons();
 setProtectedAccess(false);
 renderCardSettings();
+
+searchInputs.forEach((input) => {
+  input?.addEventListener("input", () => {
+    searchInputs.forEach((other) => {
+      if (other !== input) other.value = input.value;
+    });
+    applyCardSearch();
+  });
+});
+
+filterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    activeFilter = button.dataset.filter || "all";
+    filterButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+    applyCardSearch();
+  });
+});
+
+viewButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    viewButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+    cardsGrid?.classList.toggle("is-list-view", button.dataset.view === "list");
+  });
+});
 
 watchAnnouncement(setAnnouncement);
 watchGptSettings((settings) => {
@@ -416,14 +429,6 @@ document.querySelectorAll(".card .primary-button").forEach((link) => {
   });
 });
 
-document.querySelectorAll(".card .copy-button").forEach((button) => {
-  button.addEventListener("click", () => {
-    if (!button.dataset.copy) return;
-    const card = button.closest(".card");
-    trackEvent("copy_link", card?.dataset.gptId || "");
-  });
-});
-
 loginButton?.addEventListener("click", async () => {
   try {
     await signInWithGoogle();
@@ -453,7 +458,7 @@ document.addEventListener("click", async (event) => {
       approvedBy: "VIP_CODE",
     };
     updateAuthUi(currentUser, currentProfile);
-    showToast("ปลดล็อก VIP สำเร็จแล้ว");
+    showToast("ปลดล็อก Member สำเร็จแล้ว");
   } catch (error) {
     showToast(`ปลดล็อกไม่สำเร็จ: ${error.message}`);
   } finally {
@@ -476,12 +481,7 @@ if (!isFirebaseConfigured()) {
       return;
     }
 
-    if (error) {
-      setSystemNote("เชื่อมต่อ Firebase ได้ แต่ตรวจสอบสิทธิ์ผู้ใช้ไม่สำเร็จ กรุณาตรวจ Firestore rules และ config");
-    } else {
-      setSystemNote("");
-    }
-
+    setSystemNote(error ? "เชื่อมต่อ Firebase ได้ แต่ตรวจสอบสิทธิ์ผู้ใช้ไม่สำเร็จ กรุณาตรวจ Firestore rules และ config" : "");
     updateAuthUi(user, profile);
 
     if (unsubscribeFavorites) {

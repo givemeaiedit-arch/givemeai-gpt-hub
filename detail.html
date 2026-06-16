@@ -5,429 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>รายละเอียด GPT | GivemeAI GPT Hub</title>
     <link rel="icon" href="assets/favicon.png" />
-    <link rel="stylesheet" href="styles-auth.css?v=menu-card-1" />
-    <script defer src="browser-check.js?v=chrome-notice-5"></script>
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #090d12;
-        --panel: rgba(18, 23, 31, 0.86);
-        --text: #f7fafc;
-        --muted: #a8b3c2;
-        --line: rgba(255, 255, 255, 0.12);
-        --orange: #ff8a00;
-        --gold: #ffd166;
-        --teal: #38d6c7;
-        --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        background:
-          radial-gradient(circle at 18% 14%, rgba(16, 185, 129, 0.1), transparent 24rem),
-          radial-gradient(circle at 82% 18%, rgba(34, 211, 238, 0.08), transparent 26rem),
-          linear-gradient(135deg, #05070a 0%, #071110 48%, #05070a 100%);
-        color: var(--text);
-        font-family:
-          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          "Noto Sans Thai", Arial, sans-serif;
-        letter-spacing: 0;
-      }
-
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-
-      .shell {
-        width: min(1080px, calc(100% - 32px));
-        margin: 0 auto;
-        padding: 28px 0 48px;
-      }
-
-      .topbar,
-      .top-actions,
-      .actions {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .topbar {
-        justify-content: space-between;
-        margin-bottom: 34px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .brand img {
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-      }
-
-      .ghost-button,
-      .primary-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 42px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 0 14px;
-        font-weight: 800;
-      }
-
-      .ghost-button {
-        background: rgba(255, 255, 255, 0.06);
-      }
-
-      .primary-button {
-        border-color: transparent;
-        background: linear-gradient(135deg, var(--orange), #ffb020);
-        color: #160c00;
-      }
-
-      .layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 360px;
-        gap: 24px;
-        align-items: start;
-      }
-
-      .hero-image,
-      .panel {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--panel);
-        box-shadow: var(--shadow);
-      }
-
-      .hero-image {
-        overflow: hidden;
-      }
-
-      .hero-image img {
-        display: block;
-        width: 100%;
-        aspect-ratio: 1 / 1;
-        object-fit: cover;
-      }
-
-      .panel {
-        padding: 22px;
-      }
-
-      .tag {
-        display: inline-flex;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 999px;
-        color: var(--gold);
-        font-weight: 850;
-        font-size: 0.78rem;
-        padding: 6px 10px;
-        margin-bottom: 14px;
-      }
-
-      h1 {
-        margin: 0;
-        font-size: clamp(2.2rem, 6vw, 4.8rem);
-        line-height: 1;
-      }
-
-      h2 {
-        margin: 0 0 12px;
-        font-size: 1.05rem;
-      }
-
-      .lead,
-      li {
-        color: #d5dde7;
-        line-height: 1.65;
-      }
-
-      .lead {
-        margin: 18px 0 0;
-        font-size: 1.04rem;
-      }
-
-      .sections {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-        margin-top: 22px;
-      }
-
-      .sections .panel:last-child {
-        grid-column: 1 / -1;
-      }
-
-      ul,
-      ol {
-        margin: 0;
-        padding-left: 20px;
-      }
-
-      .actions {
-        flex-wrap: wrap;
-        margin-top: 24px;
-      }
-
-      .locked-note {
-        margin-top: 14px;
-        color: #ffe5ba;
-        line-height: 1.55;
-      }
-
-      .detail-favorite.is-active {
-        border-color: rgba(255, 209, 102, 0.62);
-        color: #160c00;
-        background: linear-gradient(135deg, var(--gold), #ffb020);
-      }
-
-      .not-found {
-        text-align: center;
-        padding: 80px 0;
-      }
-
-      @media (max-width: 780px) {
-        .topbar,
-        .layout {
-          grid-template-columns: 1fr;
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        .top-actions,
-        .actions {
-          width: 100%;
-        }
-
-        .ghost-button,
-        .primary-button {
-          width: 100%;
-        }
-
-        .sections {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      /* Mockup matched detail page */
-      :root {
-        --bg: #050505;
-        --panel: rgba(18, 18, 16, 0.84);
-        --text: #f7f1e7;
-        --muted: #b7afa2;
-        --line: rgba(244, 232, 211, 0.13);
-        --orange: #c8893d;
-        --gold: #d9b46f;
-        --teal: #77d6c8;
-        --shadow: 0 28px 70px rgba(0, 0, 0, 0.5);
-      }
-
-      body {
-        background:
-          radial-gradient(circle at 84% 18%, rgba(217, 180, 111, 0.13), transparent 26rem),
-          radial-gradient(circle at 14% 28%, rgba(119, 214, 200, 0.08), transparent 26rem),
-          linear-gradient(135deg, #030303 0%, #0d0d0b 48%, #050505 100%);
-      }
-
-      .shell {
-        width: min(1180px, calc(100% - 40px));
-      }
-
-      .topbar {
-        position: sticky;
-        top: 14px;
-        z-index: 20;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 12px;
-        background: rgba(8, 8, 7, 0.74);
-        backdrop-filter: blur(18px);
-        box-shadow: 0 18px 54px rgba(0, 0, 0, 0.34);
-      }
-
-      .layout {
-        grid-template-columns: minmax(0, 1fr) 430px;
-      }
-
-      #detailView > article,
-      .hero-image,
-      .panel {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background:
-          linear-gradient(145deg, rgba(244, 232, 211, 0.055), transparent 54%),
-          rgba(18, 18, 16, 0.78);
-        box-shadow: var(--shadow);
-      }
-
-      #detailView > article {
-        padding: clamp(22px, 4vw, 38px);
-      }
-
-      .hero-image img {
-        aspect-ratio: 1 / 1.05;
-      }
-
-      h1 {
-        color: #fff8ee;
-      }
-
-      .tag {
-        color: #e7c27e;
-        border-color: rgba(217, 180, 111, 0.35);
-        background: rgba(217, 180, 111, 0.08);
-      }
-
-      .primary-button {
-        background: linear-gradient(135deg, #e7c27e, #b97831);
-        color: #15100a;
-      }
-
-      .ghost-button {
-        background: rgba(244, 232, 211, 0.055);
-      }
-
-      .lead,
-      li {
-        color: #d8d0c4;
-      }
-
-      h2 {
-        color: #e7c27e;
-      }
-
-      @media (max-width: 780px) {
-        .shell {
-          width: min(100% - 24px, 1180px);
-        }
-
-        .layout {
-          grid-template-columns: 1fr;
-          gap: 14px;
-        }
-
-        .hero-image {
-          order: -1;
-        }
-
-        .hero-image img {
-          aspect-ratio: 16 / 10;
-          max-height: 260px;
-        }
-
-        #detailView > article,
-        .panel {
-          padding: 18px;
-        }
-
-        h1 {
-          font-size: clamp(2rem, 10vw, 2.85rem);
-          line-height: 1.08;
-        }
-
-        .lead {
-          font-size: 1rem;
-          line-height: 1.75;
-        }
-
-        .topbar {
-          position: static;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="aihub.css?v=aihub-1" />
+    <script defer src="browser-check.js?v=chrome-notice-6"></script>
   </head>
   <body>
-    <main class="shell">
-      <header class="topbar">
-        <a class="brand" href="index.html">
-          <img src="assets/favicon.png" alt="GivemeAI" />
-          <strong>GivemeAI GPT Hub</strong>
-        </a>
-        <nav class="main-nav" aria-label="เมนูหลัก">
-          <a href="index.html">หน้าแรก</a>
-          <a class="is-active" href="index.html#links">เครื่องมือ GPT</a>
-          <a href="pricing.html">รายละเอียดการสมัคร</a>
-          <a href="lessons.html">บทเรียน</a>
-          <a href="community.html">กลุ่มเรียนรู้</a>
-          <a href="index.html#upcomingTools">อัปเดตข่าวสาร</a>
-        </nav>
-        <div class="top-actions">
-          <a class="ghost-button" href="index.html#links">กลับหน้า GPT Hub</a>
-          <a class="ghost-button" href="pricing.html">รายละเอียดการสมัคร</a>
-        </div>
-      </header>
-
-      <section id="notFound" class="not-found" hidden>
-        <p class="tag">NOT FOUND</p>
-        <h1>ไม่พบ GPT นี้</h1>
-        <p class="lead">ลิงก์รายละเอียดนี้อาจพิมพ์ผิด หรือ GPT ถูกย้ายออกจากระบบ</p>
-        <div class="actions" style="justify-content: center">
-          <a class="primary-button" href="index.html#links">กลับไปหน้าแรก</a>
-        </div>
-      </section>
-
-      <section id="detailView" class="layout" hidden>
-        <article>
-          <span class="tag" id="gptTag"></span>
-          <h1 id="gptTitle"></h1>
-          <p class="lead" id="gptDescription"></p>
-          <div class="actions">
-            <a class="primary-button" id="openGptButton" href="#" target="_blank" rel="noopener">เปิด GPT</a>
-            <button class="ghost-button detail-favorite" id="favoriteButton" type="button" hidden>☆ ปักหมุด</button>
-            <a class="ghost-button" href="index.html#links">ดู GPT ทั้งหมด</a>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="index.html"><span class="brand-mark">G</span><span><span class="brand-title">AI <span>Hub</span></span><span class="brand-subtitle">By AI ภาพนี้ให้หน่อย</span></span></a>
+        <nav class="side-nav"><a class="nav-link" href="index.html">🏠 หน้าแรก</a><a class="nav-link is-active" href="tools.html">🖼️ เครื่องมือ GPT</a><a class="nav-link" href="pricing.html">💳 สมัครสมาชิก</a><a class="nav-link" href="lessons.html">🎓 บทเรียน</a><a class="nav-link" href="community.html">👥 กลุ่มเรียนรู้</a></nav>
+      </aside>
+      <main class="main-area">
+        <header class="mobile-header"><a class="mobile-brand" href="index.html"><span class="brand-mark">G</span><span><span class="brand-title">AI <span>Hub</span></span><span class="brand-subtitle">GPT Detail</span></span></a><button class="ghost-button js-login" type="button">Login</button></header>
+        <header class="topbar">
+          <div></div>
+          <label class="page-search"><span>⌕</span><input type="search" placeholder="กลับไปค้นหา GPT ได้จากหน้าแรก" /></label>
+          <div class="auth-panel">
+            <button class="ghost-button auth-button" id="loginButton" type="button">Login Gmail</button>
+            <div class="user-badge" id="userBadge" hidden><img id="userAvatar" alt="" /><span><strong id="userName">Guest</strong><small id="userStatus">Free</small></span></div>
+            <a class="ghost-button admin-link" id="adminLink" href="admin.html" hidden>Admin</a>
+            <button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
           </div>
-          <p class="locked-note" id="lockedNote" hidden>
-            GPT นี้สำหรับสมาชิก VIP กรุณาเข้าสู่ระบบด้วย Gmail และกรอก VIP Code ในหน้า GPT Hub เพื่อปลดล็อก
-          </p>
+        </header>
 
-          <div class="sections">
-            <section class="panel">
-              <h2>ประโยชน์หลัก</h2>
-              <ul id="benefitsList"></ul>
-            </section>
-            <section class="panel">
-              <h2>เหมาะกับใคร</h2>
-              <ul id="audienceList"></ul>
-            </section>
-            <section class="panel">
-              <h2>วิธีใช้ 3 ขั้น</h2>
-              <ol id="stepsList"></ol>
-            </section>
-            <section class="panel">
-              <h2>ตัวอย่างข้อมูลที่ควรใส่</h2>
-              <ul id="examplesList"></ul>
-            </section>
-          </div>
-        </article>
-        <aside class="hero-image">
-          <img id="gptImage" alt="" />
-        </aside>
-      </section>
-    </main>
+        <section id="notFound" class="hero-card" hidden>
+          <p class="eyebrow">NOT FOUND</p>
+          <h2>ไม่พบ GPT นี้</h2>
+          <p class="lead">ลิงก์นี้อาจพิมพ์ผิด หรือ GPT ถูกซ่อนจากระบบ</p>
+          <a class="primary-button" href="index.html#links">กลับหน้าแรก</a>
+        </section>
 
+        <section id="detailView" class="detail-layout" hidden>
+          <article class="hero-card">
+            <span class="tag" id="gptTag"></span>
+            <h1 id="gptTitle"></h1>
+            <p class="lead" id="gptDescription"></p>
+            <div class="hero-actions">
+              <a class="primary-button" id="openGptButton" href="#" target="_blank" rel="noopener">เปิด GPT</a>
+              <button class="ghost-button detail-favorite" id="favoriteButton" type="button" hidden>☆ ปักหมุด</button>
+              <a class="ghost-button" href="index.html#links">ดู GPT ทั้งหมด</a>
+            </div>
+            <p class="member-status show" id="lockedNote" hidden>GPT นี้สำหรับสมาชิก Member ขึ้นไป กรุณาสมัครหรือกรอก VIP Code เพื่อปลดล็อก</p>
+          </article>
+          <aside class="detail-image panel"><img id="gptImage" alt="" /></aside>
+        </section>
+
+        <section class="panel-grid" id="detailSections" hidden>
+          <article class="panel"><h2>ประโยชน์หลัก</h2><ul id="benefitsList"></ul></article>
+          <article class="panel"><h2>เหมาะกับใคร</h2><ul id="audienceList"></ul></article>
+          <article class="panel"><h2>วิธีใช้ 3 ขั้น</h2><ol id="stepsList"></ol></article>
+          <article class="panel"><h2>ข้อมูลที่ควรใส่</h2><ul id="examplesList"></ul></article>
+        </section>
+      </main>
+    </div>
+    <nav class="bottom-nav"><a href="index.html">🏠<span>ภาพรวม</span></a><a href="pricing.html">💳<span>ค่าใช้จ่าย</span></a><a href="account.html">♡<span>สมาชิก</span></a><a class="is-active" href="tools.html">⇄<span>เครื่องมือ</span></a><a href="updates.html">☰<span>อัปเดต</span></a></nav>
     <script type="module">
       import { getGptById } from "./gpt-data.js";
       import { trackEvent } from "./analytics.js";
       import { isAdminEmail, watchAuth } from "./auth-shared.js";
       import { setFavorite, watchFavorites, watchGptSettings } from "./hub-state.js";
 
-      const params = new URLSearchParams(window.location.search);
-      const gpt = getGptById(params.get("id"));
+      const gpt = getGptById(new URLSearchParams(window.location.search).get("id"));
       const notFound = document.querySelector("#notFound");
       const detailView = document.querySelector("#detailView");
+      const detailSections = document.querySelector("#detailSections");
       const openButton = document.querySelector("#openGptButton");
       const favoriteButton = document.querySelector("#favoriteButton");
       const lockedNote = document.querySelector("#lockedNote");
@@ -447,7 +87,6 @@
         favoriteButton.hidden = !currentUser;
         favoriteButton.classList.toggle("is-active", active);
         favoriteButton.textContent = active ? "★ ปักหมุดแล้ว" : "☆ ปักหมุด";
-        favoriteButton.setAttribute("aria-pressed", active ? "true" : "false");
       }
 
       function syncVisibility() {
@@ -455,6 +94,7 @@
         const hiddenForUsers = gptSettings[gpt.id]?.visible === false && !currentIsAdmin;
         notFound.hidden = !hiddenForUsers;
         detailView.hidden = hiddenForUsers;
+        detailSections.hidden = hiddenForUsers;
       }
 
       function setAccess(user, profile) {
@@ -485,6 +125,7 @@
         fillList("#stepsList", gpt.details.steps);
         fillList("#examplesList", gpt.details.examples);
         detailView.hidden = false;
+        detailSections.hidden = false;
         setAccess(null, null);
         trackEvent("detail_view", gpt.id);
 
@@ -493,12 +134,8 @@
           syncVisibility();
         });
 
-        openButton.addEventListener("click", (event) => {
-          if (openButton.href.endsWith("pricing.html")) {
-            trackEvent("locked_click", gpt.id);
-            return;
-          }
-          trackEvent("gpt_open", gpt.id);
+        openButton.addEventListener("click", () => {
+          trackEvent(openButton.href.endsWith("pricing.html") ? "locked_click" : "gpt_open", gpt.id);
         });
 
         favoriteButton.addEventListener("click", async () => {
@@ -508,10 +145,7 @@
 
         watchAuth(({ user, profile }) => {
           setAccess(user, profile);
-          if (unsubscribeFavorites) {
-            unsubscribeFavorites();
-            unsubscribeFavorites = null;
-          }
+          if (unsubscribeFavorites) unsubscribeFavorites();
           if (user) {
             unsubscribeFavorites = watchFavorites(user.uid, (favorites) => {
               favoriteIds = favorites;
@@ -524,5 +158,6 @@
         });
       }
     </script>
+    <script type="module" src="page-auth.js"></script>
   </body>
 </html>

@@ -5,585 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>สมัครสมาชิก | GivemeAI GPT Hub</title>
     <link rel="icon" href="assets/favicon.png" />
-    <link rel="stylesheet" href="styles-auth.css?v=menu-card-1" />
-    <script defer src="browser-check.js?v=chrome-notice-5"></script>
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #090d12;
-        --panel: rgba(18, 23, 31, 0.86);
-        --text: #f7fafc;
-        --muted: #a8b3c2;
-        --line: rgba(255, 255, 255, 0.12);
-        --orange: #ff8a00;
-        --gold: #ffd166;
-        --teal: #38d6c7;
-        --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        background:
-          radial-gradient(circle at 16% 14%, rgba(16, 185, 129, 0.1), transparent 24rem),
-          radial-gradient(circle at 84% 18%, rgba(34, 211, 238, 0.08), transparent 26rem),
-          linear-gradient(135deg, #05070a 0%, #071110 48%, #05070a 100%);
-        color: var(--text);
-        font-family:
-          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          "Noto Sans Thai", Arial, sans-serif;
-      }
-
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-
-      .shell {
-        width: min(1080px, calc(100% - 32px));
-        margin: 0 auto;
-        padding: 28px 0 48px;
-      }
-
-      .topbar,
-      .actions {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .brand img {
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-      }
-
-      .ghost-button,
-      .primary-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 42px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 0 14px;
-        font-weight: 850;
-        cursor: pointer;
-      }
-
-      .ghost-button {
-        background: rgba(255, 255, 255, 0.06);
-      }
-
-      .primary-button {
-        border-color: transparent;
-        background: linear-gradient(135deg, var(--orange), #ffb020);
-        color: #160c00;
-      }
-
-      .hero {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 360px;
-        gap: 28px;
-        align-items: stretch;
-        margin-top: 42px;
-      }
-
-      .eyebrow {
-        color: var(--teal);
-        font-weight: 900;
-        margin: 0 0 12px;
-      }
-
-      h1 {
-        margin: 0;
-        font-size: clamp(2.3rem, 6vw, 5rem);
-        line-height: 1;
-      }
-
-      .lead {
-        color: #d5dde7;
-        font-size: 1.08rem;
-        line-height: 1.75;
-        margin: 18px 0 0;
-      }
-
-      .price-card,
-      .panel,
-      .step {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--panel);
-        box-shadow: var(--shadow);
-      }
-
-      .price-card {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 22px;
-      }
-
-      .price-label {
-        color: var(--muted);
-        font-size: 0.9rem;
-        font-weight: 850;
-      }
-
-      .price {
-        margin: 10px 0;
-        color: var(--gold);
-        font-size: clamp(3.4rem, 10vw, 5.5rem);
-        font-weight: 950;
-        line-height: 0.9;
-      }
-
-      .price small {
-        color: var(--muted);
-        font-size: 1rem;
-      }
-
-      .actions {
-        justify-content: flex-start;
-        flex-wrap: wrap;
-        margin-top: 24px;
-      }
-
-      .benefits {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-        margin-top: 30px;
-      }
-
-      .panel {
-        padding: 18px;
-      }
-
-      .panel h2,
-      .step b {
-        margin: 0 0 10px;
-        color: var(--gold);
-      }
-
-      .panel ul,
-      .panel ol {
-        margin: 0;
-        padding-left: 20px;
-      }
-
-      .panel li,
-      .step p,
-      .fineprint {
-        color: #d5dde7;
-        line-height: 1.65;
-      }
-
-      .steps {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
-        margin-top: 14px;
-      }
-
-      .step {
-        padding: 16px;
-      }
-
-      .checkout-card {
-        margin-top: 18px;
-        padding: 16px;
-        border: 1px solid rgba(255, 138, 0, 0.28);
-        border-radius: 8px;
-        background: rgba(255, 138, 0, 0.08);
-      }
-
-      .checkout-card h2 {
-        margin: 0 0 8px;
-        color: var(--gold);
-        font-size: 1.05rem;
-      }
-
-      .checkout-card p {
-        margin: 0 0 12px;
-      }
-
-      .checkout-status {
-        display: block;
-        min-height: 20px;
-        color: #d5dde7;
-        font-size: 0.9rem;
-        line-height: 1.5;
-      }
-
-      .checkout-actions {
-        display: grid;
-        gap: 10px;
-      }
-
-      .membership-plans {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-        margin-top: 18px;
-      }
-
-      .plan-card {
-        position: relative;
-        display: grid;
-        gap: 14px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 22px;
-        background:
-          linear-gradient(145deg, rgba(244, 232, 211, 0.06), transparent 48%),
-          rgba(18, 18, 16, 0.78);
-        box-shadow: var(--shadow);
-      }
-
-      .plan-card.is-featured {
-        border-color: rgba(231, 194, 126, 0.46);
-        background:
-          radial-gradient(circle at 88% 0%, rgba(217, 180, 111, 0.18), transparent 14rem),
-          rgba(18, 18, 16, 0.86);
-      }
-
-      .plan-card h2 {
-        margin: 0;
-        color: #fff8ee;
-        font-size: clamp(1.45rem, 3vw, 2rem);
-      }
-
-      .plan-price {
-        color: #e7c27e;
-        font-size: clamp(2.2rem, 5vw, 3.6rem);
-        font-weight: 950;
-        line-height: 1;
-      }
-
-      .plan-price small {
-        color: var(--muted);
-        font-size: 1rem;
-      }
-
-      .plan-card ul {
-        display: grid;
-        gap: 9px;
-        margin: 0;
-        padding-left: 20px;
-        color: #d8d0c4;
-        line-height: 1.55;
-      }
-
-      @media (max-width: 780px) {
-        .topbar,
-        .hero {
-          grid-template-columns: 1fr;
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        .benefits,
-        .steps,
-        .membership-plans {
-          grid-template-columns: 1fr;
-        }
-
-        .auth-panel,
-        .actions,
-        .ghost-button,
-        .primary-button {
-          width: 100%;
-        }
-      }
-
-      /* Luxury Minimal checkout refresh */
-      :root {
-        --bg: #050505;
-        --panel: rgba(18, 18, 16, 0.84);
-        --text: #f7f1e7;
-        --muted: #b7afa2;
-        --line: rgba(244, 232, 211, 0.13);
-        --orange: #c8893d;
-        --gold: #d9b46f;
-        --teal: #77d6c8;
-        --shadow: 0 28px 70px rgba(0, 0, 0, 0.5);
-      }
-
-      body {
-        background:
-          radial-gradient(circle at 84% 18%, rgba(217, 180, 111, 0.13), transparent 26rem),
-          radial-gradient(circle at 14% 28%, rgba(119, 214, 200, 0.08), transparent 26rem),
-          linear-gradient(135deg, #030303 0%, #0d0d0b 48%, #050505 100%);
-        overflow-x: hidden;
-      }
-
-      .shell {
-        width: min(1160px, calc(100% - 40px));
-      }
-
-      .topbar {
-        position: sticky;
-        top: 14px;
-        z-index: 20;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 12px;
-        background: rgba(8, 8, 7, 0.74);
-        backdrop-filter: blur(18px);
-        box-shadow: 0 18px 54px rgba(0, 0, 0, 0.34);
-      }
-
-      .hero {
-        grid-template-columns: minmax(0, 1fr) minmax(360px, 420px);
-        gap: 18px;
-        margin-top: 34px;
-      }
-
-      .hero > div:first-child,
-      .price-card,
-      .panel,
-      .step {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background:
-          linear-gradient(145deg, rgba(244, 232, 211, 0.06), transparent 48%),
-          rgba(18, 18, 16, 0.78);
-        box-shadow: var(--shadow);
-      }
-
-      .hero > div:first-child {
-        padding: clamp(24px, 4vw, 44px);
-      }
-
-      h1 {
-        max-width: 760px;
-        color: #fff8ee;
-        font-size: clamp(2.4rem, 5vw, 4.6rem);
-      }
-
-      .lead,
-      .fineprint,
-      .panel li,
-      .step p {
-        color: #d8d0c4;
-      }
-
-      .eyebrow,
-      .panel h2,
-      .step b {
-        color: var(--gold);
-      }
-
-      .price-card {
-        padding: 18px;
-      }
-
-      .price {
-        color: #e7c27e;
-      }
-
-      .price-card img {
-        border: 1px solid rgba(244, 232, 211, 0.12);
-      }
-
-      .checkout-card {
-        border-color: rgba(217, 180, 111, 0.34);
-        background:
-          linear-gradient(135deg, rgba(217, 180, 111, 0.14), rgba(119, 214, 200, 0.04)),
-          rgba(10, 10, 9, 0.68);
-      }
-
-      .primary-button {
-        background: linear-gradient(135deg, #e7c27e, #b97831);
-        color: #15100a;
-      }
-
-      .ghost-button {
-        background: rgba(244, 232, 211, 0.055);
-      }
-
-      .benefits,
-      .steps {
-        gap: 16px;
-      }
-
-      .panel,
-      .step {
-        padding: 18px;
-      }
-
-      @media (max-width: 780px) {
-        .shell {
-          width: min(100% - 24px, 1160px);
-        }
-
-        .hero {
-          grid-template-columns: 1fr;
-        }
-
-        .topbar {
-          position: static;
-        }
-
-        .brand,
-        .auth-panel,
-        .actions,
-        .checkout-actions {
-          min-width: 0;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="aihub.css?v=aihub-1" />
+    <script defer src="browser-check.js?v=chrome-notice-6"></script>
   </head>
   <body>
-    <main class="shell">
-      <header class="topbar">
-        <a class="brand" href="index.html">
-          <img src="assets/favicon.png" alt="GivemeAI" />
-          <strong>GivemeAI GPT Hub</strong>
-        </a>
-        <nav class="main-nav" aria-label="เมนูหลัก">
-          <a href="index.html">หน้าแรก</a>
-          <a href="index.html#links">เครื่องมือ GPT</a>
-          <a class="is-active" href="pricing.html">รายละเอียดการสมัคร</a>
-          <a href="lessons.html">บทเรียน</a>
-          <a href="community.html">กลุ่มเรียนรู้</a>
-          <a href="index.html#upcomingTools">อัปเดตข่าวสาร</a>
-        </nav>
-        <div class="auth-panel">
-          <button class="ghost-button auth-button" id="loginButton" type="button">เข้าสู่ระบบด้วย Google</button>
-          <div class="user-badge" id="userBadge" hidden>
-            <img id="userAvatar" alt="" />
-            <span>
-              <strong id="userName">Guest</strong>
-              <small id="userStatus">ยังไม่ได้เข้าสู่ระบบ</small>
-            </span>
-          </div>
-          <a class="ghost-button admin-link" id="adminLink" href="admin.html" hidden>Admin</a>
-          <button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
-        </div>
-      </header>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="index.html"><span class="brand-mark">G</span><span><span class="brand-title">AI <span>Hub</span></span><span class="brand-subtitle">By AI ภาพนี้ให้หน่อย</span></span></a>
+        <nav class="side-nav"><a class="nav-link" href="index.html">🏠 หน้าแรก</a><a class="nav-link" href="tools.html">🖼️ เครื่องมือ GPT</a><a class="nav-link is-active" href="pricing.html">💳 รายละเอียดการสมัคร</a><a class="nav-link" href="lessons.html">🎓 บทเรียน</a><a class="nav-link" href="community.html">👥 กลุ่มเรียนรู้</a><a class="nav-link" href="account.html">♡ สมาชิก</a></nav>
+      </aside>
+      <main class="main-area">
+        <header class="mobile-header"><a class="mobile-brand" href="index.html"><span class="brand-mark">G</span><span><span class="brand-title">AI <span>Hub</span></span><span class="brand-subtitle">Member</span></span></a><button class="ghost-button js-login" type="button">Login</button></header>
+        <header class="topbar">
+          <div></div>
+          <label class="page-search"><span>⌕</span><input type="search" placeholder="สมัคร Member หรือ Pro..." /></label>
+          <div class="auth-panel"><button class="ghost-button auth-button" id="loginButton" type="button">Login Gmail</button><div class="user-badge" id="userBadge" hidden><img id="userAvatar" alt="" /><span><strong id="userName">Guest</strong><small id="userStatus">Free</small></span></div><a class="ghost-button admin-link" id="adminLink" href="admin.html" hidden>Admin</a><button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button></div>
+        </header>
 
-      <section class="hero">
-        <div>
-          <p class="eyebrow">MEMBER ACCESS</p>
-          <h1 id="pricingHeadline">เลือกแพ็กสมาชิก GivemeAI GPT Hub</h1>
-          <p class="lead" id="pricingDescription">
-            จ่ายครั้งเดียว/แพ็กสมาชิกตามที่ Admin อนุมัติ ได้เข้าถึง GPT สมาชิกสำหรับงานโฆษณา ภาพโปรโมท วิเคราะห์ครีเอทีฟ และงาน BOQ พร้อมอัปเดตเครื่องมือและคำแนะนำใหม่ต่อเนื่อง คุ้มกว่าการเสียเวลาคิดงานเองหลายชั่วโมง
-          </p>
-          <div class="actions">
-            <a class="primary-button" id="facebookCta" href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">สมัครผ่าน Inbox Fanpage</a>
-            <button class="ghost-button" id="pricingLoginButton" type="button">Login Gmail เพื่อกรอก VIP Code</button>
-            <a class="ghost-button" href="index.html#links">กลับหน้า GPT Hub</a>
-          </div>
-          <p class="fineprint">สมัครผ่าน Inbox Fanpage “Ai ภาพนี้ให้หน่อย” แล้วแจ้ง Gmail ที่ใช้ login เพื่อรับ VIP Code สำหรับปลดล็อกสมาชิก</p>
-        </div>
-
-        <aside class="price-card">
-          <div>
-            <div class="price-label">แพ็กเริ่มต้น</div>
-            <div class="price"><span id="pricingPrice">390</span><small> บาท</small></div>
-            <p class="fineprint">เหมาะสำหรับคนที่ต้องใช้ GPT ช่วยทำงานจริง ลดเวลาคิดงานซ้ำ และได้ใช้เครื่องมือที่มีอัปเดตต่อเนื่อง</p>
-          </div>
-          <img src="assets/hero-gpt-hub.jpg" alt="GivemeAI GPT Hub" style="width: 100%; border-radius: 8px; margin-top: 18px" />
-          <div class="checkout-card" id="vipCheckoutCard">
-            <h2>ซื้อ Member อัตโนมัติ 390 บาท</h2>
-            <p class="fineprint">เวอร์ชันทดสอบ: กดสร้าง order แล้วกดจำลองชำระเงิน ระบบจะปลดล็อกสิทธิ์ Member ให้อัตโนมัติทันที</p>
-            <div class="checkout-actions">
+        <section class="hero">
+          <article class="hero-card">
+            <p class="eyebrow">MEMBER ACCESS</p>
+            <h1 id="pricingHeadline">ปลดล็อก GPT สมาชิก ใช้งานเครื่องมือธุรกิจได้ครบ</h1>
+            <p class="lead" id="pricingDescription">สมัครสมาชิกเพื่อใช้ GPT สำหรับงานโฆษณา ภาพโปรโมท วิเคราะห์ครีเอทีฟ และ BOQ พร้อมอัปเดตเครื่องมือใหม่ต่อเนื่อง</p>
+            <div class="hero-actions">
+              <a class="primary-button" id="facebookCta" href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">สมัครผ่าน Inbox Fanpage</a>
+              <button class="ghost-button" id="pricingLoginButton" type="button">Login Gmail เพื่อซื้อ Member</button>
+            </div>
+            <p class="fineprint">สมัครผ่าน Inbox Fanpage “Ai ภาพนี้ให้หน่อย” แล้วแจ้ง Gmail ที่ใช้ login เพื่อให้ Admin ตรวจสอบหรือส่ง VIP Code</p>
+          </article>
+          <aside class="hero-card">
+            <p class="eyebrow">CHECKOUT TEST</p>
+            <h2>ซื้อ Member อัตโนมัติ <span id="pricingPrice">390</span> บาท</h2>
+            <p class="muted">เวอร์ชันทดสอบ: กดสร้าง order แล้วกดจำลองชำระเงิน ระบบจะปลดล็อกสิทธิ์ Member ให้ทันที</p>
+            <div class="action-row" style="align-items: stretch; flex-direction: column">
               <button class="primary-button" id="createOrderButton" type="button">สร้าง Order Member</button>
               <button class="ghost-button" id="mockPayButton" type="button" disabled>จำลองว่าชำระเงินแล้ว</button>
-              <small class="checkout-status" id="checkoutStatus">Login Gmail ก่อนซื้อ Member</small>
+              <small class="checkout-status muted" id="checkoutStatus">Login Gmail ก่อนซื้อ Member</small>
             </div>
-          </div>
-        </aside>
-      </section>
+          </aside>
+        </section>
 
-      <section class="membership-plans" aria-label="แพ็กสมาชิก">
-        <article class="plan-card is-featured">
-          <div>
-            <p class="eyebrow">MEMBER</p>
-            <h2>Member</h2>
-            <div class="plan-price">390<small> บาท</small></div>
+        <section>
+          <div class="section-head"><div><h2>เลือกแพ็กสมาชิก</h2><p class="muted">หน้าแรกไม่โชว์ราคา รายละเอียดทั้งหมดอยู่ในหน้านี้</p></div></div>
+          <div class="plan-grid">
+            <article class="price-plan"><p class="eyebrow">MEMBER</p><h3>Member</h3><div class="price-value">390<small> บาท</small></div><ul><li>ใช้ GPT ได้ทุกตัว</li><li>มีอัปเดตเครื่องมือใหม่ต่อเนื่อง</li><li>เข้ากลุ่มเรียนรู้สำหรับสมาชิก</li></ul><a class="primary-button" href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">สมัคร Member</a></article>
+            <article class="price-plan"><p class="eyebrow">PRO</p><h3>Pro</h3><div class="price-value">590<small> บาท</small></div><ul><li>สิทธิ์ Member ทั้งหมด</li><li>เข้าบทเรียนเสริมสำหรับธุรกิจ</li><li>อัปเดตบทเรียนและเครื่องมือต่อเนื่อง</li></ul><a class="ghost-button" href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">สมัคร Pro</a></article>
           </div>
-          <ul>
-            <li>ใช้ GPT ได้ทุกตัวในระบบ</li>
-            <li>เหมาะกับเจ้าของธุรกิจที่ต้องการเครื่องมือช่วยงานจริง</li>
-            <li>มีอัปเดต GPT และเครื่องมือใหม่ต่อเนื่อง</li>
-          </ul>
-          <a class="primary-button" href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">สมัคร Member</a>
-        </article>
+        </section>
 
-        <article class="plan-card">
-          <div>
-            <p class="eyebrow">PRO</p>
-            <h2>Pro</h2>
-            <div class="plan-price">590<small> บาท</small></div>
-          </div>
-          <ul>
-            <li>ใช้ GPT ได้ทุกตัวเหมือนแพ็ก Member</li>
-            <li>เข้าบทเรียนเสริมสำหรับนำไปใช้งานจริงในธุรกิจ</li>
-            <li>มีอัปเดตบทเรียน เครื่องมือ และคำแนะนำใหม่ต่อเนื่อง</li>
-          </ul>
-          <a class="ghost-button" href="https://www.facebook.com/AiCreativesN/" target="_blank" rel="noopener">สมัคร Pro</a>
-        </article>
-      </section>
-
-      <section class="benefits">
-        <div class="panel">
+        <section class="panel">
           <h2>ได้อะไรบ้าง</h2>
           <ul id="pricingBenefits"></ul>
-        </div>
-        <div class="panel">
-          <h2>เหมาะกับใคร</h2>
-          <ul>
-            <li>เจ้าของธุรกิจที่ต้องทำภาพขายและคอนเทนต์เอง</li>
-            <li>คนยิงแอดที่ต้องการไอเดียและ creative signal เร็วขึ้น</li>
-            <li>ครีเอเตอร์หรือทีมงานที่ต้องผลิตภาพโปรโมทบ่อย</li>
-            <li>คนทำงาน BOQ ที่อยากให้ AI ช่วยจัดข้อมูลเบื้องต้น</li>
-          </ul>
-        </div>
-      </section>
+        </section>
 
-      <section class="steps" aria-label="ขั้นตอนสมัคร">
-        <div class="step">
-          <b>1. Inbox Fanpage</b>
-          <p>กดปุ่มสมัครผ่าน Inbox Fanpage “Ai ภาพนี้ให้หน่อย” แล้วแจ้งว่าต้องการสมัคร GivemeAI GPT Hub</p>
-        </div>
-        <div class="step">
-          <b>2. Login Gmail</b>
-          <p>เข้าสู่ระบบด้วย Gmail ที่ต้องการใช้ แล้วนำ VIP Code ที่ได้รับมากรอกในหน้า GPT Hub</p>
-        </div>
-        <div class="step">
-          <b>3. ปลดล็อก GPT</b>
-          <p>หลังกรอก VIP Code สำเร็จ การ์ด GPT สมาชิกจะปลดล็อก และใช้งานลิงก์ GPT ได้ทันที</p>
-        </div>
-      </section>
-    </main>
+        <section>
+          <div class="section-head"><div><h2>ขั้นตอนสมัคร</h2><p class="muted">เรียบง่ายและตรวจสอบโดย Admin</p></div></div>
+          <div class="metrics-grid">
+            <article class="panel"><span class="pill">1</span><h3>Inbox Fanpage</h3><p class="muted">กดสมัครผ่าน Fanpage แล้วแจ้งแพ็กที่ต้องการ</p></article>
+            <article class="panel"><span class="pill">2</span><h3>Login Gmail</h3><p class="muted">ใช้ Gmail เดียวกับที่ต้องการปลดล็อก GPT</p></article>
+            <article class="panel"><span class="pill">3</span><h3>Admin ตรวจสอบ</h3><p class="muted">Admin ส่ง VIP Code หรืออนุมัติสิทธิ์ให้บัญชี</p></article>
+            <article class="panel"><span class="pill">4</span><h3>เริ่มใช้งาน</h3><p class="muted">กลับหน้าแรกแล้วเปิด GPT สมาชิกได้ทันที</p></article>
+          </div>
+        </section>
+      </main>
+    </div>
+    <nav class="bottom-nav"><a href="index.html">🏠<span>ภาพรวม</span></a><a class="is-active" href="pricing.html">💳<span>ค่าใช้จ่าย</span></a><a href="account.html">♡<span>สมาชิก</span></a><a href="tools.html">⇄<span>เครื่องมือ</span></a><a href="updates.html">☰<span>อัปเดต</span></a></nav>
     <div class="toast" id="toast" role="status" aria-live="polite">บันทึกแล้ว</div>
-    <script type="module" src="app.js"></script>
     <script type="module">
       import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
       import {
         createVipOrder,
         getFirebaseServices,
+        isAdminEmail,
         mockConfirmPayment,
         signInWithGoogle,
+        signOutUser,
         watchAuth,
       } from "./auth-shared.js";
       import { trackEvent } from "./analytics.js";
       import { watchPricingPage } from "./hub-state.js";
 
+      const loginButtons = [...document.querySelectorAll("#loginButton, .js-login")];
+      const logoutButton = document.querySelector("#logoutButton");
+      const userBadge = document.querySelector("#userBadge");
+      const userAvatar = document.querySelector("#userAvatar");
+      const userName = document.querySelector("#userName");
+      const userStatus = document.querySelector("#userStatus");
+      const adminLink = document.querySelector("#adminLink");
       const headline = document.querySelector("#pricingHeadline");
       const description = document.querySelector("#pricingDescription");
       const price = document.querySelector("#pricingPrice");
@@ -607,10 +115,16 @@
         benefits.innerHTML = page.benefits.map((item) => `<li>${item}</li>`).join("");
       }
 
-      watchPricingPage(renderPricing);
+      function statusText(user, profile) {
+        if (!user) return "ยังไม่ได้เข้าสู่ระบบ";
+        if (isAdminEmail(user.email)) return "Admin";
+        if (profile?.status === "approved") return "Member";
+        if (profile?.status === "revoked") return "ถูกปิดสิทธิ์";
+        return "Free";
+      }
 
       function setCheckoutStatus(message) {
-        if (checkoutStatus) checkoutStatus.textContent = message;
+        checkoutStatus.textContent = message;
       }
 
       function formatCheckoutError(error) {
@@ -621,88 +135,59 @@
       }
 
       function setCheckoutUi() {
-        const approved = currentProfile?.status === "approved";
+        const approved = currentProfile?.status === "approved" || isAdminEmail(currentUser?.email);
         if (!currentUser) {
-          if (createOrderButton) {
-            createOrderButton.disabled = false;
-            createOrderButton.textContent = "Login Gmail เพื่อซื้อ Member";
-          }
-          if (mockPayButton) mockPayButton.disabled = true;
+          createOrderButton.disabled = false;
+          createOrderButton.textContent = "Login Gmail เพื่อซื้อ Member";
+          mockPayButton.disabled = true;
           setCheckoutStatus("Login Gmail ก่อนซื้อ Member");
           return;
         }
-
         if (approved) {
-          if (createOrderButton) {
-            createOrderButton.disabled = true;
-            createOrderButton.textContent = "คุณเป็น Member แล้ว";
-          }
-          if (mockPayButton) mockPayButton.disabled = true;
+          createOrderButton.disabled = true;
+          createOrderButton.textContent = "คุณเป็น Member แล้ว";
+          mockPayButton.disabled = true;
           setCheckoutStatus("ปลดล็อก Member แล้ว ใช้งาน GPT สมาชิกได้ทันที");
           return;
         }
-
-        if (createOrderButton) {
-          createOrderButton.disabled = false;
-          createOrderButton.textContent = currentOrderId ? "สร้าง Order ใหม่" : "สร้าง Order Member";
-        }
-        if (mockPayButton) mockPayButton.disabled = !currentOrderId;
+        createOrderButton.disabled = false;
+        createOrderButton.textContent = currentOrderId ? "สร้าง Order ใหม่" : "สร้าง Order Member";
+        mockPayButton.disabled = !currentOrderId;
         setCheckoutStatus(currentOrderId ? `Order: ${currentOrderId} รอจำลองชำระเงิน` : "พร้อมสร้าง Order Member ราคา 390 บาท");
       }
 
       function watchOrder(orderId) {
-        if (unsubscribeOrder) {
-          unsubscribeOrder();
-          unsubscribeOrder = null;
-        }
+        if (unsubscribeOrder) unsubscribeOrder();
         if (!orderId) return;
-
         const svc = getFirebaseServices();
         if (!svc) return;
-
-        unsubscribeOrder = onSnapshot(
-          doc(svc.db, "orders", orderId),
-          (snapshot) => {
-            if (!snapshot.exists()) return;
-            const order = snapshot.data();
-            if (order.status === "paid") {
-              setCheckoutStatus("ชำระเงินสำเร็จแล้ว ระบบปลดล็อก Member ให้แล้ว");
-              if (mockPayButton) mockPayButton.disabled = true;
-              window.localStorage.removeItem(orderStorageKey);
-              return;
-            }
-            setCheckoutStatus(`Order: ${orderId} สถานะ ${order.status || "pending"} ราคา ${order.amount || 390} บาท`);
-          },
-          () => setCheckoutStatus("ยังอ่านสถานะ Order ไม่ได้"),
-        );
+        unsubscribeOrder = onSnapshot(doc(svc.db, "orders", orderId), (snapshot) => {
+          if (!snapshot.exists()) return;
+          const order = snapshot.data();
+          if (order.status === "paid") {
+            setCheckoutStatus("ชำระเงินสำเร็จแล้ว ระบบปลดล็อก Member ให้แล้ว");
+            mockPayButton.disabled = true;
+            window.localStorage.removeItem(orderStorageKey);
+            return;
+          }
+          setCheckoutStatus(`Order: ${orderId} สถานะ ${order.status || "pending"} ราคา ${order.amount || 390} บาท`);
+        });
       }
 
-      watchAuth(({ user, profile }) => {
-        currentUser = user;
-        currentProfile = profile;
-        setCheckoutUi();
-        if (currentOrderId && user) watchOrder(currentOrderId);
-      });
-
+      watchPricingPage(renderPricing);
+      loginButtons.forEach((button) => button.addEventListener("click", () => signInWithGoogle()));
+      logoutButton?.addEventListener("click", () => signOutUser());
       document.querySelector("#pricingLoginButton")?.addEventListener("click", async () => {
         trackEvent("signup_cta", "");
-        try {
-          await signInWithGoogle();
-        } catch {
-          document.querySelector("#loginButton")?.click();
-        }
+        await signInWithGoogle();
       });
-
-      facebookCta?.addEventListener("click", () => {
-        trackEvent("signup_cta", "");
-      });
+      facebookCta?.addEventListener("click", () => trackEvent("signup_cta", ""));
 
       createOrderButton?.addEventListener("click", async () => {
         if (!currentUser) {
           await signInWithGoogle();
           return;
         }
-
         createOrderButton.disabled = true;
         setCheckoutStatus("กำลังสร้าง Order Member...");
         try {
@@ -731,6 +216,20 @@
           setCheckoutStatus(`ยืนยันชำระเงินไม่สำเร็จ: ${formatCheckoutError(error)}`);
           mockPayButton.disabled = false;
         }
+      });
+
+      watchAuth(({ user, profile }) => {
+        currentUser = user;
+        currentProfile = profile;
+        loginButtons.forEach((button) => (button.hidden = Boolean(user)));
+        if (logoutButton) logoutButton.hidden = !user;
+        if (userBadge) userBadge.hidden = !user;
+        if (adminLink) adminLink.hidden = !(user && isAdminEmail(user.email));
+        if (userAvatar) userAvatar.src = user?.photoURL || "assets/favicon.png";
+        if (userName) userName.textContent = user?.displayName || user?.email || "Guest";
+        if (userStatus) userStatus.textContent = statusText(user, profile);
+        setCheckoutUi();
+        if (currentOrderId && user) watchOrder(currentOrderId);
       });
     </script>
   </body>
