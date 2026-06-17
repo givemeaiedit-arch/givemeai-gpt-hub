@@ -1,68 +1,34 @@
-# Deploy to GitHub Pages
+# GivemeAI GPT Hub
 
-This folder is ready to become a GitHub repository that Codex can keep editing.
+เว็บถูกเคลียร์ให้เหลือหน้าเริ่มต้นว่างสำหรับสร้างใหม่ โดยยังเก็บไว้เฉพาะ:
 
-## First-time GitHub setup
+- Google Login ผ่าน Firebase Authentication
+- Popup แจ้งเตือนเมื่อเปิดเว็บนอก Google Chrome
+- Deploy ผ่าน GitHub Pages
 
-1. Create a new GitHub repository, for example:
+## Files
 
-```text
-givemeai-gpt-hub
-```
+- `index.html` หน้าเว็บหลัก
+- `app.js` ผูกปุ่ม login/logout
+- `auth-shared.js` Firebase Auth helper
+- `browser-check.js` popup แนะนำให้เปิดใน Chrome
+- `firebase-config.js` ค่า Firebase web app
+- `aihub.css` style หน้าเริ่มต้น
 
-2. Copy the repository HTTPS URL.
+## Deploy
 
-3. From this folder, connect and push:
-
-```powershell
-git remote add origin https://github.com/YOUR_USERNAME/givemeai-gpt-hub.git
-git push -u origin main
-```
-
-4. In GitHub, open the repository:
-
-```text
-Settings > Pages > Build and deployment > Source > GitHub Actions
-```
-
-5. GitHub Actions will deploy the site from `.github/workflows/pages.yml`.
-
-## Firebase Auth requirement
-
-After GitHub Pages gives you a URL such as:
-
-```text
-https://YOUR_USERNAME.github.io/givemeai-gpt-hub/
-```
-
-add this domain in Firebase:
-
-```text
-Firebase Console > Authentication > Settings > Authorized domains
-```
-
-Add:
-
-```text
-YOUR_USERNAME.github.io
-```
-
-Also fill the real Firebase web config in:
-
-```text
-firebase-config.js
-```
-
-Until that file is configured, Google login stays disabled and member cards stay locked.
-
-## Normal Codex edit flow
-
-After this is pushed once, Codex can continue editing this local folder. To publish changes:
+Push เข้า branch `main` แล้ว GitHub Actions จะ deploy ขึ้น GitHub Pages อัตโนมัติ
 
 ```powershell
 git add .
-git commit -m "Update GPT hub"
+git commit -m "Update blank hub"
 git push
 ```
 
-GitHub Pages deploys automatically after each push to `main`.
+## Firebase Auth
+
+ต้องเปิด Google provider ใน Firebase Authentication และเพิ่มโดเมน GitHub Pages ใน Authorized domains:
+
+```text
+givemeaiedit-arch.github.io
+```

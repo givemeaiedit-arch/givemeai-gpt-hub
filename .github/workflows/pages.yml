@@ -28,7 +28,7 @@ jobs:
         run: |
           mkdir -p dist
           cp -r assets dist/assets
-          cp *.html *.js *.css dist/
+          cp index.html app.js auth-shared.js browser-check.js firebase-config.js aihub.css dist/
           touch dist/.nojekyll
 
       - name: Setup Pages

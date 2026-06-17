@@ -3,300 +3,42 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AI Hub | GivemeAI GPT Hub</title>
+    <title>GivemeAI GPT Hub</title>
     <link rel="icon" href="assets/favicon.png" />
-    <link rel="stylesheet" href="aihub.css?v=aihub-1" />
-    <script defer src="browser-check.js?v=chrome-notice-6"></script>
+    <link rel="stylesheet" href="aihub.css" />
+    <script defer src="browser-check.js"></script>
   </head>
   <body>
-    <div class="app-shell">
-      <aside class="sidebar" aria-label="เมนูหลัก">
-        <a class="brand" href="index.html" aria-label="AI Hub">
-          <span class="brand-mark">G</span>
-          <span>
-            <span class="brand-title">AI <span>Hub</span></span>
-            <span class="brand-subtitle">By AI ภาพนี้ให้หน่อย</span>
-          </span>
-        </a>
-        <nav class="side-nav">
-          <a class="nav-link is-active" href="index.html">🏠 หน้าแรก</a>
-          <p class="nav-section">เครื่องมือ AI</p>
-          <a class="nav-link" href="tools.html">🖼️ สร้างภาพ AI</a>
-          <a class="nav-link" href="tools.html#video">▶️ สร้างวิดีโอ AI</a>
-          <a class="nav-link" href="tools.html#ads">📈 วิเคราะห์ Ads</a>
-          <a class="nav-link" href="tools.html#agent">🤖 AI Agent</a>
-          <p class="nav-section">บทเรียนและ Prompt</p>
-          <a class="nav-link" href="lessons.html">🎓 บทเรียน AI</a>
-          <a class="nav-link" href="prompts.html">🎁 Prompt ยอดนิยม</a>
-          <a class="nav-link" href="ai-tools.html">🔥 AI ยอดนิยม</a>
-          <a class="nav-link" href="community.html">👥 กลุ่มเรียนรู้</a>
-          <a class="nav-link" href="updates.html">🆕 อัปเดตข่าวสาร</a>
-          <a class="nav-link" href="account.html">♡ สมาชิก</a>
-        </nav>
-        <div class="upgrade-box">
-          <strong>อัปเกรดเป็น Pro</strong>
-          <span>ปลดล็อก GPT และบทเรียนเสริมสำหรับธุรกิจ</span>
-          <a class="primary-button" href="pricing.html">ดูแพ็กสมาชิก</a>
-        </div>
-      </aside>
-
-      <main class="main-area">
-        <header class="mobile-header">
-          <button class="mobile-icon-button" type="button" aria-label="เมนู">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          </button>
-          <a class="mobile-brand" href="index.html">
-            <span class="brand-mark">G</span>
-            <span><span class="brand-title">AI <span>Hub</span></span><span class="brand-subtitle">By AI ภาพนี้ให้หน่อย</span></span>
-          </a>
-          <a class="mobile-icon-button" href="updates.html" aria-label="อัปเดต">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-        </header>
-
-        <header class="topbar">
-          <div></div>
-          <label class="page-search">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            <input id="globalSearch" type="search" placeholder="ค้นหา AI Tools, บทเรียน, Prompt..." />
-          </label>
-          <div class="auth-panel">
-            <button class="ghost-button auth-button" id="loginButton" type="button">Login Gmail</button>
-            <div class="user-badge" id="userBadge" hidden>
-              <img id="userAvatar" alt="" />
-              <span>
-                <strong id="userName">Guest</strong>
-                <small id="userStatus">ยังไม่ได้เข้าสู่ระบบ</small>
-              </span>
-            </div>
-            <a class="ghost-button admin-link" id="adminLink" href="admin.html" hidden>Admin</a>
-            <button class="ghost-button auth-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
-          </div>
-        </header>
-
-        <section class="hero">
-          <article class="hero-card">
-            <p class="eyebrow">One Stop AI Platform</p>
-            <h1>AI ทุกตัวที่คุณต้องใช้ <span class="accent">อยู่ในเว็บเดียว</span></h1>
-            <p class="lead">รวมเครื่องมือ AI สำหรับเจ้าของธุรกิจ การตลาด งานโฆษณา ภาพโปรโมท วิเคราะห์ครีเอทีฟ และงาน BOQ ให้เปิดใช้งานได้เร็วขึ้นในที่เดียว</p>
-            <div class="hero-actions">
-              <a class="primary-button" href="#links">ค้นหา AI ทั้งหมด</a>
-              <a class="ghost-button" href="tools.html">ดูหมวดหมู่</a>
-            </div>
-            <div class="feature-row">
-              <div><span class="icon">⚡</span><span>ใช้งานง่าย<br />ได้ผลลัพธ์จริง</span></div>
-              <div><span class="icon">◇</span><span>ปลอดภัย<br />ข้อมูลไม่รั่วไหล</span></div>
-              <div><span class="icon">↻</span><span>อัปเดตเครื่องมือ<br />ใหม่ทุกสัปดาห์</span></div>
-            </div>
-          </article>
-          <aside class="hero-card hero-visual" aria-label="AI Hub visual">
-            <div class="ai-cube">AI<br /><small style="font-size: .34em">Hub</small></div>
-          </aside>
-        </section>
-
-        <section aria-label="หมวดหมู่ AI">
-          <div class="section-head">
-            <div>
-              <h2>หมวดหมู่เครื่องมือ</h2>
-              <p class="muted">เลือกจากงานที่ต้องทำจริงในธุรกิจ</p>
-            </div>
-            <a class="ghost-button" href="tools.html">ดูทั้งหมด</a>
-          </div>
-          <div class="category-grid">
-            <a class="category-card" href="tools.html#image"><span class="icon">🖼️</span><strong>สร้างภาพ AI</strong></a>
-            <a class="category-card" href="tools.html#video"><span class="icon">▶️</span><strong>สร้างวิดีโอ AI</strong></a>
-            <a class="category-card" href="prompts.html"><span class="icon">✎</span><strong>เขียนคอนเทนต์</strong></a>
-            <a class="category-card" href="tools.html#ads"><span class="icon">📊</span><strong>วิเคราะห์ Ads</strong></a>
-            <a class="category-card" href="tools.html#agent"><span class="icon">🤖</span><strong>AI Agent</strong></a>
-            <a class="category-card" href="tools.html#product"><span class="icon">🛍️</span><strong>ปรับภาพสินค้า</strong></a>
-          </div>
-        </section>
-
-        <section class="content-layout" id="links">
+    <main class="blank-shell">
+      <section class="blank-card" aria-labelledby="pageTitle">
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true">G</span>
           <div>
-            <div id="announcementBanner" class="announcement-banner" role="status"></div>
-            <div id="systemNote" class="system-note"></div>
-            <div id="memberStatus" class="member-status" hidden></div>
-
-            <div class="toolbar">
-              <label class="search">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                <input id="search" type="search" placeholder="ค้นหา เช่น Andromeda, BOQ, รูปโปรโมท" />
-              </label>
-              <button class="ghost-button filter-button is-active" type="button" data-filter="all">ทั้งหมด</button>
-              <button class="ghost-button filter-button" type="button" data-filter="free">Free Member</button>
-              <button class="ghost-button filter-button" type="button" data-filter="vip">VIP Member</button>
-              <button class="ghost-button filter-button" type="button" data-filter="latest">ล่าสุด</button>
-              <button class="ghost-button view-button is-active" type="button" data-view="grid">▦</button>
-              <button class="ghost-button view-button" type="button" data-view="list">☰</button>
-            </div>
-
-            <div class="grid" id="cards">
-              <article class="card" data-gpt-id="promo-builder" data-protected="false" data-search="promo builder สร้างรูปโปรโมท ภาพขายสินค้า โฆษณา">
-                <span class="card-number">01</span>
-                <div class="member-ribbon free">Free Member</div>
-                <div class="card-media"><img src="assets/promo-builder.webp" alt="สร้างรูปโปรโมท" /></div>
-                <div class="card-body">
-                  <span class="tag">Promo Builder</span>
-                  <h3>สร้างรูปโปรโมท</h3>
-                  <p class="description">สร้างภาพโปรโมทสินค้าและบริการ พร้อมแคปชันสำหรับโพสต์ขาย</p>
-                  <div class="card-actions">
-                    <a class="primary-button" href="https://chatgpt.com/g/g-69fc59f80d088191b76b9b7ee01feb59-sraangruupopromth-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT</a>
-                    <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-69fc59f80d088191b76b9b7ee01feb59-sraangruupopromth-by-ai-phaaphniiaihhn-y">⧉</button>
-                    <a class="detail-link" href="detail.html?id=promo-builder">รายละเอียด</a>
-                  </div>
-                </div>
-              </article>
-
-              <article class="card" data-gpt-id="andromeda-score" data-protected="false" data-search="andromeda score audit วิเคราะห์ ads meta creative">
-                <span class="card-number">02</span>
-                <div class="member-ribbon free">Free Member</div>
-                <div class="card-media"><img src="assets/andromeda-score.webp" alt="Andromeda Score" /></div>
-                <div class="card-body">
-                  <span class="tag">Audit Score</span>
-                  <h3>Andromeda Score</h3>
-                  <p class="description">วิเคราะห์ภาพ/วิดีโอ Meta Ads ให้คะแนน จุดแข็ง และจุดที่ควรปรับ</p>
-                  <div class="card-actions">
-                    <a class="primary-button" href="https://chatgpt.com/g/g-6a291dd04c448191a633b6691e9be820-andromeda-score-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT</a>
-                    <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a291dd04c448191a633b6691e9be820-andromeda-score-by-ai-phaaphniiaihhn-y">⧉</button>
-                    <a class="detail-link" href="detail.html?id=andromeda-score">รายละเอียด</a>
-                  </div>
-                </div>
-              </article>
-
-              <article class="card" data-gpt-id="ads-andromeda-image" data-protected="true" data-search="ads andromeda image สร้างรูปโฆษณา facebook ig ads">
-                <span class="card-number">03</span>
-                <div class="member-ribbon vip">VIP Member</div>
-                <div class="card-media"><img src="assets/ads-andromeda-image.webp" alt="Ads Andromeda Image" /></div>
-                <div class="card-body">
-                  <span class="tag">Ads Creative</span>
-                  <h3>Ads Andromeda Image</h3>
-                  <p class="description">สร้างภาพโฆษณา Facebook/IG Ads พร้อมมุมขายและข้อความบนภาพ</p>
-                  <div class="card-actions">
-                    <a class="primary-button" href="https://chatgpt.com/g/g-6a293fa148fc8191a1c66a1da8b2de48-ads-andromeda-image-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT</a>
-                    <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a293fa148fc8191a1c66a1da8b2de48-ads-andromeda-image-by-ai-phaaphniiaihhn-y">⧉</button>
-                    <a class="detail-link" href="detail.html?id=ads-andromeda-image">รายละเอียด</a>
-                  </div>
-                </div>
-              </article>
-
-              <article class="card" data-gpt-id="boq-calculator" data-protected="true" data-search="boq คำนวณ ถอดปริมาณวัสดุ ประมาณราคา บ้าน อาคาร">
-                <span class="card-number">04</span>
-                <div class="member-ribbon vip">VIP Member</div>
-                <div class="card-media"><img src="assets/boq-calculator.webp" alt="คำนวณ BOQ" /></div>
-                <div class="card-body">
-                  <span class="tag">BOQ</span>
-                  <h3>คำนวณ BOQ</h3>
-                  <p class="description">ช่วยคำนวณ BOQ งานก่อสร้าง รวดเร็ว แม่นยำ ใช้งานง่าย</p>
-                  <div class="card-actions">
-                    <a class="primary-button" href="https://chatgpt.com/g/g-6a2789efcb0081919216a422cf8c9611-khmaanwn-boq-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT</a>
-                    <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a2789efcb0081919216a422cf8c9611-khmaanwn-boq-by-ai-phaaphniiaihhn-y">⧉</button>
-                    <a class="detail-link" href="detail.html?id=boq-calculator">รายละเอียด</a>
-                  </div>
-                </div>
-              </article>
-
-              <article class="card" data-gpt-id="ai-image-pro" data-protected="true" data-search="ai image pro ปรับภาพสินค้า ภาพโปรไฟล์ ภาพโฆษณา">
-                <span class="card-number">05</span>
-                <div class="member-ribbon vip">VIP Member</div>
-                <div class="card-media"><img src="assets/ai-image-pro.webp" alt="AI Image Pro" /></div>
-                <div class="card-body">
-                  <span class="tag">Product Edit</span>
-                  <h3>AI Image Pro</h3>
-                  <p class="description">สร้าง/แก้ไขภาพด้วย AI ระดับมืออาชีพ คมชัด สวยงาม ทุกสไตล์</p>
-                  <div class="card-actions">
-                    <a class="primary-button" href="https://chatgpt.com/g/g-6a250d11a4548191bbbd4b05882273a7-ai-image-pro-by-ai-phaaphniiaihhn-y" target="_blank" rel="noopener">เปิด GPT</a>
-                    <button class="copy-button" type="button" data-copy="https://chatgpt.com/g/g-6a250d11a4548191bbbd4b05882273a7-ai-image-pro-by-ai-phaaphniiaihhn-y">⧉</button>
-                    <a class="detail-link" href="detail.html?id=ai-image-pro">รายละเอียด</a>
-                  </div>
-                </div>
-              </article>
-
-              <article id="upcomingTools" class="card coming-card is-locked" data-upcoming="true" data-order="1" data-search="coming soon 20/6/68 ai sales assistant">
-                <span class="card-number">06</span>
-                <div class="card-media" aria-hidden="true"></div>
-                <div class="card-body"><span class="tag">Coming Soon</span><h3>AI Sales Assistant</h3><p class="description">ช่วยตอบแชทและสรุปลูกค้าก่อนปิดการขาย</p><strong class="muted">20/6/68</strong></div>
-              </article>
-              <article class="card coming-card is-locked" data-upcoming="true" data-order="2" data-search="coming soon 27/6/68 content calendar">
-                <span class="card-number">07</span><div class="card-media" aria-hidden="true"></div><div class="card-body"><span class="tag">Coming Soon</span><h3>Content Calendar</h3><p class="description">วางแผนโพสต์รายสัปดาห์จากสินค้าและแคมเปญ</p><strong class="muted">27/6/68</strong></div>
-              </article>
-              <article class="card coming-card is-locked" data-upcoming="true" data-order="3" data-search="coming soon 4/7/68 review analyzer">
-                <span class="card-number">08</span><div class="card-media" aria-hidden="true"></div><div class="card-body"><span class="tag">Coming Soon</span><h3>Review Analyzer</h3><p class="description">สรุปรีวิวลูกค้าเป็น pain point และโอกาสขาย</p><strong class="muted">4/7/68</strong></div>
-              </article>
-              <article class="card coming-card is-locked" data-upcoming="true" data-order="4" data-search="coming soon 11/7/68 offer builder">
-                <span class="card-number">09</span><div class="card-media" aria-hidden="true"></div><div class="card-body"><span class="tag">Coming Soon</span><h3>Offer Builder</h3><p class="description">ช่วยคิดโปรโมชัน bundle และข้อเสนอที่น่าสนใจ</p><strong class="muted">11/7/68</strong></div>
-              </article>
-              <article class="card coming-card is-locked" data-upcoming="true" data-order="5" data-search="coming soon 18/7/68 line oa script">
-                <span class="card-number">10</span><div class="card-media" aria-hidden="true"></div><div class="card-body"><span class="tag">Coming Soon</span><h3>Line OA Script</h3><p class="description">สร้างข้อความบรอดแคสต์และติดตามลูกค้า</p><strong class="muted">18/7/68</strong></div>
-              </article>
-            </div>
+            <p class="eyebrow">GivemeAI GPT Hub</p>
+            <h1 id="pageTitle">พื้นที่ว่างสำหรับสร้างเว็บใหม่</h1>
           </div>
+        </div>
 
-          <aside class="usage-sidebar">
-            <section class="panel">
-              <div class="section-head" style="margin-top: 0">
-                <h2>ภาพรวมการใช้งาน</h2>
-                <span class="muted">ตัวอย่าง 7 วันล่าสุด</span>
-              </div>
-              <div class="usage-list">
-                <div><span>เปิดใช้งาน GPT</span><b>162 ครั้ง</b></div>
-                <div><span>คัดลอกลิงก์</span><b>48 ครั้ง</b></div>
-                <div><span>เข้าดูรายละเอียด</span><b>73 ครั้ง</b></div>
-                <div><span>คลิกการ์ดล็อก</span><b>25 ครั้ง</b></div>
-              </div>
-            </section>
-            <section class="panel">
-              <h2>Dashboard สมาชิก</h2>
-              <ul>
-                <li>ระดับสมาชิก: <strong id="memberDashboardLevel">Free</strong></li>
-                <li>สิทธิ์ใช้งาน: <strong id="memberDashboardAccess">Free 2 GPT</strong></li>
-                <li>อัปเดต: <strong id="memberDashboardUpdate">รายสัปดาห์</strong></li>
-                <li>บัญชี: <strong id="memberDashboardAccount">เข้าสู่ระบบด้วย Gmail</strong></li>
-              </ul>
-              <p class="pill" id="memberDashboardStatus">สถานะ: ยังไม่ได้เข้าสู่ระบบ</p>
-              <div class="action-row" style="margin-top: 12px">
-                <a class="primary-button" id="memberDashboardPrimary" href="pricing.html">สมัครสมาชิก</a>
-                <a class="ghost-button" id="memberUpgradeButton" href="pricing.html">อัปเกรดระดับสมาชิก</a>
-              </div>
-              <p class="fineprint" id="memberDashboardHelp">Member 390 บาทขึ้นไปจะปลดล็อก GPT สมาชิก</p>
-            </section>
-          </aside>
-        </section>
+        <p class="lead">
+          เว็บนี้ถูกเคลียร์ระบบเดิมแล้ว เหลือเฉพาะ Google Login และระบบแจ้งเตือนให้เปิดด้วย Google Chrome
+        </p>
 
-        <section>
-          <div class="section-head">
-            <div><h2>บทเรียน AI แนะนำ</h2><p class="muted">ตัวอย่างบทเรียนสำหรับเจ้าของธุรกิจ</p></div>
-            <a class="ghost-button" href="lessons.html">ดูทั้งหมด</a>
+        <div class="auth-panel" aria-live="polite">
+          <button class="primary-button" id="loginButton" type="button">Login Gmail</button>
+          <div class="user-badge" id="userBadge" hidden>
+            <img id="userAvatar" alt="" />
+            <span>
+              <strong id="userName">Guest</strong>
+              <small id="userStatus">เข้าสู่ระบบแล้ว</small>
+            </span>
           </div>
-          <div class="lessons-grid">
-            <article class="lesson-card"><img class="lesson-cover" src="assets/andromeda-score.webp" alt="" /><span class="tag">AI</span><h3>เริ่มต้นใช้งาน AI สำหรับมือใหม่</h3><p class="muted">12 บทเรียน • ความคืบหน้า 80%</p></article>
-            <article class="lesson-card"><img class="lesson-cover" src="assets/promo-builder.webp" alt="" /><span class="tag">AI</span><h3>สร้างภาพโปรโมทด้วย Midjourney</h3><p class="muted">18 บทเรียน • ความคืบหน้า 65%</p></article>
-            <article class="lesson-card"><img class="lesson-cover" src="assets/ads-andromeda-image.webp" alt="" /><span class="tag">AI</span><h3>สร้างวิดีโอ AI ให้ไวรัล</h3><p class="muted">15 บทเรียน • ความคืบหน้า 40%</p></article>
-          </div>
-        </section>
+          <button class="ghost-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
+        </div>
 
-        <section>
-          <div class="section-head">
-            <div><h2>Prompt ยอดนิยม</h2><p class="muted">ใช้เป็นตัวอย่างก่อนส่งงานให้ GPT</p></div>
-            <a class="ghost-button" href="prompts.html">ดูทั้งหมด</a>
-          </div>
-          <div class="panel-grid">
-            <article class="prompt-row"><img src="assets/promo-builder.webp" alt="" /><div><h3>Prompt โปรโมทร้านอาหาร</h3><p class="muted">⭐ 4.9 (1.2K)</p></div><button class="copy-button" type="button" data-copy="ช่วยสร้างภาพโปรโมทร้านอาหาร โดยเน้นเมนูขายดี โปรโมชัน ราคา และ CTA ให้ลูกค้าทักแชท">คัดลอก</button></article>
-            <article class="prompt-row"><img src="assets/ai-image-pro.webp" alt="" /><div><h3>Prompt ภาพสินค้า Luxury</h3><p class="muted">⭐ 4.8 (892)</p></div><button class="copy-button" type="button" data-copy="ปรับภาพสินค้าให้ดู Luxury พรีเมียม แสงสวย ฉากสะอาด เหมาะกับโพสต์ขายออนไลน์">คัดลอก</button></article>
-            <article class="prompt-row"><img src="assets/ads-andromeda-image.webp" alt="" /><div><h3>Prompt โฆษณา Facebook Ads</h3><p class="muted">⭐ 4.9 (1.5K)</p></div><button class="copy-button" type="button" data-copy="วิเคราะห์สินค้า กลุ่มเป้าหมาย pain point และสร้างภาพโฆษณา Facebook Ads พร้อม hook offer proof CTA">คัดลอก</button></article>
-          </div>
-        </section>
-      </main>
-    </div>
+        <p class="helper-text" id="systemMessage">พร้อมเริ่มออกแบบเว็บใหม่จากหน้านี้</p>
+      </section>
+    </main>
 
-    <nav class="bottom-nav" aria-label="เมนูมือถือ">
-      <a class="is-active" href="index.html">🏠<span>ภาพรวม</span></a>
-      <a href="pricing.html">💳<span>ค่าใช้จ่าย</span></a>
-      <a href="account.html">♡<span>สมาชิก</span></a>
-      <a href="tools.html">⇄<span>เครื่องมือ</span></a>
-      <a href="updates.html">☰<span>อัปเดต</span></a>
-    </nav>
-    <div class="toast" id="toast" role="status" aria-live="polite">คัดลอกแล้ว</div>
-    <script type="module" src="app.js?v=aihub-1"></script>
+    <script type="module" src="app.js"></script>
   </body>
 </html>
