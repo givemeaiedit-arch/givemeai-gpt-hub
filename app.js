@@ -79,9 +79,12 @@ function initHeroCarousel() {
   let timerId;
 
   function renderSlide(index) {
+    const previousIndex = activeIndex;
     activeIndex = (index + heroSlides.length) % heroSlides.length;
     const slide = heroSlides[activeIndex];
     carousel.dataset.slide = String(activeIndex + 1);
+    carousel.classList.remove("is-sliding", "slide-next", "slide-prev");
+    carousel.classList.add(index < previousIndex ? "slide-prev" : "slide-next");
     if (title) title.innerHTML = slide.title;
     if (text) text.textContent = slide.text;
     if (primary) primary.textContent = slide.primary;
@@ -90,6 +93,8 @@ function initHeroCarousel() {
     if (tileTwo) tileTwo.innerHTML = `${slide.tileTwo}<i></i><i></i><i></i>`;
     if (cube) cube.textContent = slide.cube;
     dots.forEach((dot, dotIndex) => dot.setAttribute("aria-current", String(dotIndex === activeIndex)));
+    void carousel.offsetWidth;
+    window.requestAnimationFrame(() => carousel.classList.add("is-sliding"));
   }
 
   function restartTimer() {
