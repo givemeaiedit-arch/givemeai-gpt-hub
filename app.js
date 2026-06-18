@@ -21,6 +21,8 @@ const heroSlides = [
     text: "คอร์สคุณภาพ เครื่องมือครบ พร้อม Prompt ใช้งานจริง สำหรับทุกสายอาชีพ",
     primary: "▶ เริ่มเรียนเลย",
     secondary: "▱ ดูคลัง Prompt",
+    primaryHref: "courses.html",
+    secondaryHref: "index.html#prompts",
     tileOne: "AI Course",
     tileTwo: "Prompt",
     cube: "AI",
@@ -30,6 +32,8 @@ const heroSlides = [
     text: "หยิบสูตร Prompt ไปใช้กับงานขาย คอนเทนต์ โฆษณา วิเคราะห์ข้อมูล และวางแผนงานได้เร็วขึ้น",
     primary: "▣ ดู Prompt",
     secondary: "⌕ ค้นหาหมวดหมู่",
+    primaryHref: "index.html#prompts",
+    secondaryHref: "index.html#categories",
     tileOne: "Prompt Pack",
     tileTwo: "Content",
     cube: "P",
@@ -39,6 +43,8 @@ const heroSlides = [
     text: "เริ่มจาก AI สร้างภาพโปรโมท และ AI Check Ads สำหรับเจ้าของธุรกิจที่ต้องการผลลัพธ์ใช้งานได้จริง",
     primary: "◇ เปิดเครื่องมือ",
     secondary: "▤ อ่านเทคนิค",
+    primaryHref: "tools.html",
+    secondaryHref: "articles.html",
     tileOne: "AI Tools",
     tileTwo: "Ads Check",
     cube: "AI",
@@ -78,6 +84,11 @@ function initHeroCarousel() {
   let activeIndex = 0;
   let timerId;
 
+  function openHeroLink(kind) {
+    const href = heroSlides[activeIndex]?.[kind];
+    if (href) window.location.href = href;
+  }
+
   function renderSlide(index) {
     activeIndex = (index + heroSlides.length) % heroSlides.length;
     const slide = heroSlides[activeIndex];
@@ -108,6 +119,9 @@ function initHeroCarousel() {
     renderSlide(activeIndex - 1);
     restartTimer();
   });
+
+  primary?.addEventListener("click", () => openHeroLink("primaryHref"));
+  secondary?.addEventListener("click", () => openHeroLink("secondaryHref"));
 
   next?.addEventListener("click", () => {
     renderSlide(activeIndex + 1);

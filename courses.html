@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>คอร์สเรียนทั้งหมด | GivemeAI</title>
+    <link rel="icon" href="assets/Icon/asset_1x1_cropfix/asset_1-01-growth-arrow.png" />
+    <link rel="stylesheet" href="aihub.css" />
+    <script defer src="browser-check.js"></script>
+  </head>
+  <body>
+    <div class="app-shell courses-shell">
+      <aside class="sidebar" aria-label="เมนูหลัก">
+        <a class="brand" href="index.html" aria-label="GivemeAI">
+          <strong>Giveme<span>AI</span></strong>
+          <small>Learn • Prompt • Create</small>
+        </a>
+
+        <nav class="side-nav">
+          <a class="nav-item" href="index.html"><span class="nav-icon">⌂</span>หน้าหลัก</a>
+
+          <p class="nav-group">เรียนรู้ AI</p>
+          <a class="nav-item active" href="courses.html"><span class="nav-icon">▱</span>คอร์สเรียนทั้งหมด</a>
+          <a class="nav-item" href="articles.html"><span class="nav-icon">▤</span>บทความ & เทคนิค</a>
+
+          <p class="nav-group">คลัง Prompt</p>
+          <a class="nav-item" href="#"><span class="nav-icon">▣</span>Prompt ยอดนิยม</a>
+          <a class="nav-item" href="#"><span class="nav-icon">⌘</span>หมวดหมู่ Prompt</a>
+
+          <p class="nav-group">เครื่องมือ AI</p>
+          <a class="nav-item" href="tools.html"><span class="nav-icon">◌</span>เครื่องมือทั้งหมด</a>
+        </nav>
+
+        <section class="upgrade-card" aria-label="อัปเกรดเป็น Pro">
+          <div class="upgrade-title">♛ อัปเกรดเป็น Pro</div>
+          <p>ปลดล็อกคอร์สพิเศษ Prompt และเครื่องมือ AI สำหรับทำงานจริง</p>
+          <button class="orange-button" type="button">อัปเกรดเลย <span>→</span></button>
+        </section>
+      </aside>
+
+      <main class="main-content courses-main">
+        <header class="mobile-header">
+          <div class="brand mobile-brand">
+            <strong>Giveme<span>AI</span></strong>
+            <small>Learn • Prompt • Create</small>
+          </div>
+          <div class="mobile-actions">
+            <button class="icon-button notification" type="button" aria-label="แจ้งเตือน">
+              <img src="assets/Icon/asset_1x1_cropfix/asset_6-02-bell-silver.png" alt="" />
+              <span>3</span>
+            </button>
+            <div class="mini-avatar" aria-hidden="true">
+              <img src="assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png" alt="" />
+            </div>
+          </div>
+        </header>
+
+        <header class="topbar">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input type="search" placeholder="ค้นหาคอร์สวิดีโอที่ต้องการดู..." aria-label="ค้นหาคอร์สวิดีโอ" />
+            <kbd>⌘ K</kbd>
+          </label>
+
+          <div class="top-actions">
+            <button class="icon-button desktop-only" type="button" aria-label="โหมดกลางคืน">◐</button>
+            <button class="icon-button notification desktop-only" type="button" aria-label="แจ้งเตือน">
+              <img src="assets/Icon/asset_1x1_cropfix/asset_6-02-bell-silver.png" alt="" />
+              <span>3</span>
+            </button>
+
+            <button class="login-chip" id="loginButton" type="button">
+              <span>Login Gmail</span>
+            </button>
+
+            <div class="user-badge" id="userBadge" hidden>
+              <img id="userAvatar" alt="" />
+              <span>
+                <strong id="userName">ผู้ใช้ Gmail</strong>
+                <small id="userStatus">เข้าสู่ระบบแล้ว</small>
+              </span>
+            </div>
+
+            <button class="logout-chip" id="logoutButton" type="button" hidden>ออก</button>
+          </div>
+        </header>
+
+        <p class="system-message" id="systemMessage">รวมคอร์สวิดีโอที่สามารถเปิดดูได้ภายในหน้าเว็บ</p>
+
+        <section class="courses-hero" aria-labelledby="coursesTitle">
+          <div>
+            <p class="tools-kicker">VIDEO COURSE HUB</p>
+            <h1 id="coursesTitle">คอร์สเรียนทั้งหมด</h1>
+            <p>หน้านี้รวมคอร์สวิดีโอสำหรับดูในเว็บโดยตรง ตอนนี้เปิดไว้ 3 บท โดยบทที่ 1 ยังเว้นไว้ก่อน และบทที่ 2-3 สามารถกดดูวิดีโอได้ทันทีในหน้าเดียว</p>
+            <div class="hero-actions">
+              <a class="orange-button" href="#course-2"><span>▶</span> เริ่มดูบทที่ 2</a>
+              <a class="dark-button" href="#course-3"><span>▶</span> เปิดบทที่ 3</a>
+            </div>
+          </div>
+
+          <div class="courses-hero-stats" aria-label="ภาพรวมคอร์ส">
+            <article><strong>3</strong><span>บทเรียนในชุดนี้</span></article>
+            <article><strong>2</strong><span>วิดีโอพร้อมดูตอนนี้</span></article>
+            <article><strong>1</strong><span>บทเรียนที่กำลังเตรียมเพิ่ม</span></article>
+          </div>
+        </section>
+
+        <section class="content-section">
+          <div class="section-heading">
+            <h2>วิดีโอคอร์สในหน้าเว็บ</h2>
+            <a href="#course-2">เริ่มจากบทที่ 2 →</a>
+          </div>
+
+          <div class="course-video-grid">
+            <article class="video-course-card is-placeholder" id="course-1">
+              <div class="video-placeholder" aria-hidden="true">
+                <span>บทที่ 1</span>
+                <strong>กำลังจัดเตรียม</strong>
+              </div>
+              <div class="video-course-body">
+                <span class="tool-status">เร็ว ๆ นี้</span>
+                <h3>บทที่ 1</h3>
+                <p>เว้นบทแรกไว้ก่อนตามที่กำหนด ตอนนี้พื้นที่นี้ถูกกันไว้สำหรับใส่วิดีโอเริ่มต้นของคอร์สในรอบถัดไป</p>
+                <ul class="course-outline">
+                  <li>ใช้เป็นจุดเริ่มต้นของเส้นทางเรียน</li>
+                  <li>เตรียมไว้สำหรับบทนำหรือภาพรวมคอร์ส</li>
+                  <li>สามารถแทนที่ด้วยวิดีโอจริงได้ภายหลังทันที</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="video-course-card" id="course-2">
+              <div class="video-frame">
+                <iframe
+                  src="https://www.youtube.com/embed/AXYMdUUdn0Q?rel=0"
+                  title="บทที่ 2"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                ></iframe>
+              </div>
+              <div class="video-course-body">
+                <span class="tool-status">พร้อมดู</span>
+                <h3>บทที่ 2</h3>
+                <p>วิดีโอสำหรับเรียนต่อจากบทนำ ใช้เปิดดูได้ทันทีในหน้าเว็บโดยไม่ต้องออกไปหน้าอื่นก่อน</p>
+                <ul class="course-outline">
+                  <li>เปิดดูแบบฝังในหน้าเว็บได้ทันที</li>
+                  <li>เหมาะสำหรับเรียนต่อเนื่องจากบทที่ 1</li>
+                  <li>รองรับทั้งมือถือและเดสก์ท็อป</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="video-course-card" id="course-3">
+              <div class="video-frame">
+                <iframe
+                  src="https://www.youtube.com/embed/N-3oqzTD0sA?rel=0"
+                  title="บทที่ 3"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                ></iframe>
+              </div>
+              <div class="video-course-body">
+                <span class="tool-status">พร้อมดู</span>
+                <h3>บทที่ 3</h3>
+                <p>บทถัดไปในชุดเดียวกัน วางต่อจากบทที่ 2 เพื่อให้ผู้ใช้เปิดดูในหน้าเดียวได้ต่อเนื่องแบบไม่สะดุด</p>
+                <ul class="course-outline">
+                  <li>ฝังวิดีโอไว้ในหน้าเดียวกับบทอื่น</li>
+                  <li>โครงสร้างพร้อมเพิ่มบทถัดไปภายหลัง</li>
+                  <li>รองรับการดูซ้ำและขยายเต็มจอจากตัวเล่น</li>
+                </ul>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <aside class="right-panel course-panel" aria-label="แผงข้อมูลคอร์ส">
+        <section class="side-card">
+          <div class="panel-heading">
+            <h2>ลำดับการดู</h2>
+          </div>
+          <ol class="lesson-list">
+            <li><span>1</span>บทที่ 1 <em>รอเพิ่ม</em></li>
+            <li><span>2</span>บทที่ 2 <b>พร้อมดู</b></li>
+            <li><span>3</span>บทที่ 3 <b>พร้อมดู</b></li>
+          </ol>
+        </section>
+
+        <section class="side-card prompt-list">
+          <div class="panel-heading">
+            <h2>วิธีใช้งานหน้านี้</h2>
+          </div>
+          <article>
+            <img src="assets/Icon/Asset_4/03.png" alt="" />
+            <div><strong>เลือกบทที่ต้องการ</strong><small>เปิดดูวิดีโอได้จากหน้าเดียว</small></div>
+          </article>
+          <article>
+            <img src="assets/Icon/asset_1x1_cropfix/asset_6-02-bell-silver.png" alt="" />
+            <div><strong>ดูต่อเนื่องได้</strong><small>เลื่อนจากบท 2 ไปบท 3 ได้ทันที</small></div>
+          </article>
+        </section>
+      </aside>
+    </div>
+
+    <nav class="bottom-nav" aria-label="เมนูมือถือ">
+      <a href="index.html"><span>⌂</span>หน้าหลัก</a>
+      <a class="active" href="courses.html"><span>▱</span>คอร์ส</a>
+      <a href="articles.html"><span>▤</span>บทความ</a>
+      <a href="tools.html"><span>◇</span>เครื่องมือ</a>
+      <a href="#"><span>♙</span>โปรไฟล์</a>
+    </nav>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
