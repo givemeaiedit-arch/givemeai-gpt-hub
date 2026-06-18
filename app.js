@@ -79,12 +79,10 @@ function initHeroCarousel() {
   let timerId;
 
   function renderSlide(index) {
-    const previousIndex = activeIndex;
     activeIndex = (index + heroSlides.length) % heroSlides.length;
     const slide = heroSlides[activeIndex];
     carousel.dataset.slide = String(activeIndex + 1);
-    carousel.classList.remove("is-sliding", "slide-next", "slide-prev");
-    carousel.classList.add(index < previousIndex ? "slide-prev" : "slide-next");
+    carousel.classList.remove("is-sliding");
     if (title) title.innerHTML = slide.title;
     if (text) text.textContent = slide.text;
     if (primary) primary.textContent = slide.primary;
