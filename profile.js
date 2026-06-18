@@ -15,8 +15,10 @@ const profileResetButton = document.querySelector("#profileResetButton");
 const profileStatus = document.querySelector("#profileStatus");
 const learningHistoryList = document.querySelector("#learningHistoryList");
 const toolUsageList = document.querySelector("#toolUsageList");
+const lessonScoreList = document.querySelector("#lessonScoreList");
 const learningCount = document.querySelector("#learningCount");
 const toolCount = document.querySelector("#toolCount");
+const scoreTotal = document.querySelector("#scoreTotal");
 
 let currentUser = null;
 let pendingPhotoDataUrl = "";
@@ -67,6 +69,38 @@ function renderHistoryList(container, items, type) {
     .join("");
 }
 
+function renderScoreList(container, items) {
+  if (!container) return;
+
+  if (!items.length) {
+    container.innerHTML = `
+      <li class="history-empty">
+        <strong>ยังไม่มีคะแนนสะสม</strong>
+        <p>เข้าไปเรียนแต่ละบทแล้วกดรับคะแนนหลังเรียนจบ ระบบจะบันทึก 50 คะแนนต่อบทให้ทันที</p>
+      </li>
+    `;
+    return;
+  }
+
+  container.innerHTML = items
+    .map(
+      (item) => `
+        <li class="history-item">
+          <div class="history-copy">
+            <strong>${item.title}</strong>
+            <p>รับคะแนนจากบทเรียน</p>
+            <small>ล่าสุด: ${formatDate(item.createdAt)}</small>
+          </div>
+          <div class="history-meta">
+            <b>+${item.points}</b>
+            <span><a href="${item.page}">เปิดบทเรียนอีกครั้ง</a></span>
+          </div>
+        </li>
+      `,
+    )
+    .join("");
+}
+
 async function renderProfile(user) {
   currentUser = user;
 
@@ -83,7 +117,9 @@ async function renderProfile(user) {
     if (profileResetButton) profileResetButton.disabled = true;
     if (learningCount) learningCount.textContent = "0";
     if (toolCount) toolCount.textContent = "0";
+    if (scoreTotal) scoreTotal.textContent = "0";
     renderHistoryList(learningHistoryList, [], "learning");
+    renderScoreList(lessonScoreList, []);
     renderHistoryList(toolUsageList, [], "tool");
     return;
   }
@@ -99,8 +135,10 @@ async function renderProfile(user) {
   if (profileResetButton) profileResetButton.disabled = false;
   if (learningCount) learningCount.textContent = String(dashboard.learningHistory.length);
   if (toolCount) toolCount.textContent = String(dashboard.toolUsage.length);
+  if (scoreTotal) scoreTotal.textContent = String(dashboard.totalPoints || 0);
 
   renderHistoryList(learningHistoryList, dashboard.learningHistory, "learning");
+  renderScoreList(lessonScoreList, dashboard.lessonScores || []);
   renderHistoryList(toolUsageList, dashboard.toolUsage, "tool");
   setStatus("พร้อมแก้ไขชื่อและรูปโปรไฟล์", "success");
 }

@@ -20,24 +20,25 @@
           <a class="nav-item" href="index.html"><span class="nav-icon">⌂</span>หน้าหลัก</a>
 
           <p class="nav-group">เรียนรู้ AI</p>
-          <a class="nav-item active" href="courses.html"><span class="nav-icon">▱</span>คอร์สเรียนทั้งหมด</a>
+          <a class="nav-item active" href="courses.html"><span class="nav-icon">▣</span>คอร์สเรียนทั้งหมด</a>
           <a class="nav-item" href="articles.html"><span class="nav-icon">▤</span>บทความ & เทคนิค</a>
 
           <p class="nav-group">คลัง Prompt</p>
-          <a class="nav-item" href="#"><span class="nav-icon">▣</span>Prompt ยอดนิยม</a>
-          <a class="nav-item" href="#"><span class="nav-icon">⌘</span>หมวดหมู่ Prompt</a>
+          <a class="nav-item" href="index.html#prompts"><span class="nav-icon">▣</span>Prompt ยอดนิยม</a>
+          <a class="nav-item" href="index.html#categories"><span class="nav-icon">⌘</span>หมวดหมู่ Prompt</a>
 
           <p class="nav-group">เครื่องมือ AI</p>
-          <a class="nav-item" href="tools.html"><span class="nav-icon">◌</span>เครื่องมือทั้งหมด</a>
+          <a class="nav-item" href="tools.html"><span class="nav-icon">✌</span>เครื่องมือทั้งหมด</a>
 
           <p class="nav-group">บัญชี</p>
-          <a class="nav-item" href="profile.html"><span class="nav-icon">♙</span>โปรไฟล์ของฉัน</a>
+          <a class="nav-item" href="profile.html"><span class="nav-icon">☻</span>โปรไฟล์ของฉัน</a>
+          <a class="nav-item" href="leaderboard.html"><span class="nav-icon">★</span>Leaderboard</a>
         </nav>
 
-        <section class="upgrade-card" aria-label="อัปเกรดเป็น Pro">
-          <div class="upgrade-title">♛ อัปเกรดเป็น Pro</div>
-          <p>ปลดล็อกคอร์สพิเศษ Prompt และเครื่องมือ AI สำหรับทำงานจริง</p>
-          <button class="orange-button" type="button">อัปเกรดเลย <span>→</span></button>
+        <section class="upgrade-card" aria-label="ปลดล็อกคอร์สเพิ่ม">
+          <div class="upgrade-title">★ เรียนให้ครบ เก็บให้ครบ</div>
+          <p>แต่ละบทมีปุ่มรับคะแนนหลังเรียนจบ เพื่อสะสมแต้มของบัญชีคุณและดูอันดับบนตารางรวมได้ทันที</p>
+          <a class="orange-button" href="leaderboard.html">ดูตารางคะแนน <span>→</span></a>
         </section>
       </aside>
 
@@ -61,7 +62,7 @@
         <header class="topbar">
           <label class="search-box">
             <span aria-hidden="true">⌕</span>
-            <input type="search" placeholder="ค้นหาคอร์สวิดีโอที่ต้องการดู..." aria-label="ค้นหาคอร์สวิดีโอ" />
+            <input type="search" placeholder="ค้นหาบทเรียนที่ต้องการ..." aria-label="ค้นหาคอร์ส" />
             <kbd>⌘ K</kbd>
           </label>
 
@@ -88,120 +89,117 @@
           </div>
         </header>
 
-        <p class="system-message" id="systemMessage">รวมคอร์สวิดีโอที่สามารถเปิดดูได้ภายในหน้าเว็บ</p>
+        <p class="system-message" id="systemMessage">แยกบทเรียนชัดเจน รับคะแนนบทละ 50 คะแนน และบันทึกคะแนนสะสมต่อผู้ใช้</p>
 
         <section class="courses-hero" aria-labelledby="coursesTitle">
           <div>
-            <p class="tools-kicker">VIDEO COURSE HUB</p>
+            <p class="tools-kicker">COURSE HUB</p>
             <h1 id="coursesTitle">คอร์สเรียนทั้งหมด</h1>
-            <p>หน้านี้รวมคอร์สวิดีโอสำหรับดูในเว็บโดยตรง ตอนนี้เปิดไว้ 3 บท โดยบทที่ 1 ยังเว้นไว้ก่อน และบทที่ 2-3 สามารถกดดูวิดีโอได้ทันทีในหน้าเดียว</p>
+            <p>หน้านี้แยกบทเรียนออกเป็นหน้าของแต่ละบทชัดเจน เพื่อรองรับปุ่มเรียนแล้ว รับคะแนน 50 คะแนนต่อบท และเก็บคะแนนสะสมของแต่ละบัญชีไว้ใน Firebase</p>
             <div class="hero-actions">
-              <a class="orange-button" href="#course-2"><span>▶</span> เริ่มดูบทที่ 2</a>
-              <a class="dark-button" href="#course-3"><span>▶</span> เปิดบทที่ 3</a>
+              <a class="orange-button" href="lesson-2.html"><span>▶</span> เริ่มบทที่ 2</a>
+              <a class="dark-button" href="leaderboard.html"><span>★</span> ดู Leaderboard</a>
             </div>
           </div>
 
-          <div class="courses-hero-stats" aria-label="ภาพรวมคอร์ส">
+          <div class="courses-hero-stats" aria-label="สรุปคะแนนบทเรียน">
             <article><strong>3</strong><span>บทเรียนในชุดนี้</span></article>
-            <article><strong>2</strong><span>วิดีโอพร้อมดูตอนนี้</span></article>
-            <article><strong>1</strong><span>บทเรียนที่กำลังเตรียมเพิ่ม</span></article>
+            <article><strong>50</strong><span>คะแนนที่ได้รับต่อบท</span></article>
+            <article><strong>150</strong><span>คะแนนรวมเมื่อเรียนครบทุกบท</span></article>
           </div>
         </section>
 
         <section class="content-section">
           <div class="section-heading">
-            <h2>วิดีโอคอร์สในหน้าเว็บ</h2>
-            <a href="#course-2">เริ่มจากบทที่ 2 →</a>
+            <h2>เลือกบทเรียน</h2>
+            <a href="leaderboard.html">ดูตารางคะแนน →</a>
           </div>
 
-          <div class="course-video-grid">
-            <article class="video-course-card is-placeholder" id="course-1" data-course-id="course-1" data-course-title="บทที่ 1" data-course-subtitle="กำลังจัดเตรียม" data-course-progress="0" data-course-status="รออัปเดต">
-              <div class="video-placeholder" aria-hidden="true">
-                <span>บทที่ 1</span>
-                <strong>กำลังจัดเตรียม</strong>
-              </div>
-              <div class="video-course-body">
-                <span class="tool-status">เร็ว ๆ นี้</span>
+          <div class="lesson-hub-grid">
+            <article class="lesson-hub-card" id="course-1" data-course-id="lesson-1" data-course-title="บทที่ 1" data-course-subtitle="กำลังจัดเตรียมเนื้อหา" data-course-progress="0" data-course-status="ยังไม่เปิดคะแนน">
+              <figure class="lesson-hub-visual">
+                <img src="assets/banners/เริ่มต้นใช้งาน.png" alt="" />
+              </figure>
+              <div class="lesson-hub-copy">
+                <span class="tool-status">กำลังจัดเตรียม</span>
                 <h3>บทที่ 1</h3>
-                <p>เว้นบทแรกไว้ก่อนตามที่กำหนด ตอนนี้พื้นที่นี้ถูกกันไว้สำหรับใส่วิดีโอเริ่มต้นของคอร์สในรอบถัดไป</p>
-                <ul class="course-outline">
-                  <li>ใช้เป็นจุดเริ่มต้นของเส้นทางเรียน</li>
-                  <li>เตรียมไว้สำหรับบทนำหรือภาพรวมคอร์ส</li>
-                  <li>สามารถแทนที่ด้วยวิดีโอจริงได้ภายหลังทันที</li>
-                </ul>
+                <p>บทเริ่มต้นถูกกันไว้สำหรับบทนำและภาพรวมคอร์ส เมื่อพร้อมแล้วจะสามารถกดเข้าไปเรียนและรับคะแนนได้เหมือนบทอื่นทันที</p>
+                <div class="lesson-hub-meta">
+                  <span>คะแนน: 50</span>
+                  <span>สถานะ: รออัปเดต</span>
+                </div>
+                <div class="tool-actions">
+                  <a class="orange-button" href="lesson-1.html">เปิดบทเรียน</a>
+                </div>
               </div>
             </article>
 
-            <article class="video-course-card" id="course-2" data-course-id="course-2" data-course-title="บทที่ 2" data-course-subtitle="วิดีโอพร้อมดู" data-course-progress="55" data-course-status="พร้อมดู">
-              <div class="video-frame">
-                <iframe
-                  src="https://www.youtube.com/embed/AXYMdUUdn0Q?rel=0"
-                  title="บทที่ 2"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowfullscreen
-                ></iframe>
-              </div>
-              <div class="video-course-body">
+            <article class="lesson-hub-card" id="course-2" data-course-id="lesson-2" data-course-title="บทที่ 2" data-course-subtitle="วิดีโอพร้อมดู" data-course-progress="55" data-course-status="รับคะแนนได้">
+              <figure class="lesson-hub-visual">
+                <img src="assets/banners/สร้างภาพโปรโมท.png" alt="" />
+              </figure>
+              <div class="lesson-hub-copy">
                 <span class="tool-status">พร้อมดู</span>
                 <h3>บทที่ 2</h3>
-                <p>วิดีโอสำหรับเรียนต่อจากบทนำ ใช้เปิดดูได้ทันทีในหน้าเว็บโดยไม่ต้องออกไปหน้าอื่นก่อน</p>
-                <ul class="course-outline">
-                  <li>เปิดดูแบบฝังในหน้าเว็บได้ทันที</li>
-                  <li>เหมาะสำหรับเรียนต่อเนื่องจากบทที่ 1</li>
-                  <li>รองรับทั้งมือถือและเดสก์ท็อป</li>
-                </ul>
+                <p>ดูวิดีโอภายในหน้าเว็บ แล้วกดเรียนแล้วเมื่อจบบท เพื่อรับ 50 คะแนนเข้าบัญชีของตัวเองทันที</p>
+                <div class="lesson-hub-meta">
+                  <span>คะแนน: 50</span>
+                  <span>สถานะ: เปิดรับคะแนน</span>
+                </div>
+                <div class="tool-actions">
+                  <a class="orange-button" href="lesson-2.html">เปิดบทเรียน</a>
+                </div>
               </div>
             </article>
 
-            <article class="video-course-card" id="course-3" data-course-id="course-3" data-course-title="บทที่ 3" data-course-subtitle="วิดีโอพร้อมดู" data-course-progress="85" data-course-status="พร้อมดู">
-              <div class="video-frame">
-                <iframe
-                  src="https://www.youtube.com/embed/N-3oqzTD0sA?rel=0"
-                  title="บทที่ 3"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowfullscreen
-                ></iframe>
-              </div>
-              <div class="video-course-body">
+            <article class="lesson-hub-card" id="course-3" data-course-id="lesson-3" data-course-title="บทที่ 3" data-course-subtitle="วิดีโอพร้อมดู" data-course-progress="85" data-course-status="รับคะแนนได้">
+              <figure class="lesson-hub-visual">
+                <img src="assets/banners/สร้างวิดีโอ.png" alt="" />
+              </figure>
+              <div class="lesson-hub-copy">
                 <span class="tool-status">พร้อมดู</span>
                 <h3>บทที่ 3</h3>
-                <p>บทถัดไปในชุดเดียวกัน วางต่อจากบทที่ 2 เพื่อให้ผู้ใช้เปิดดูในหน้าเดียวได้ต่อเนื่องแบบไม่สะดุด</p>
-                <ul class="course-outline">
-                  <li>ฝังวิดีโอไว้ในหน้าเดียวกับบทอื่น</li>
-                  <li>โครงสร้างพร้อมเพิ่มบทถัดไปภายหลัง</li>
-                  <li>รองรับการดูซ้ำและขยายเต็มจอจากตัวเล่น</li>
-                </ul>
+                <p>บทต่อเนื่องสำหรับเรียนหลังบทที่ 2 เมื่อดูจบแล้วกดรับคะแนนเพื่อสะสมแต้มและขยับอันดับใน Leaderboard ได้ทันที</p>
+                <div class="lesson-hub-meta">
+                  <span>คะแนน: 50</span>
+                  <span>สถานะ: เปิดรับคะแนน</span>
+                </div>
+                <div class="tool-actions">
+                  <a class="orange-button" href="lesson-3.html">เปิดบทเรียน</a>
+                </div>
               </div>
             </article>
           </div>
         </section>
       </main>
 
-      <aside class="right-panel course-panel" aria-label="แผงข้อมูลคอร์ส">
+      <aside class="right-panel course-panel" aria-label="ข้อมูลเสริมคอร์ส">
         <section class="side-card">
           <div class="panel-heading">
-            <h2>ลำดับการดู</h2>
+            <h2>ลำดับการเรียน</h2>
           </div>
           <ol class="lesson-list">
-            <li><span>1</span>บทที่ 1 <em>รอเพิ่ม</em></li>
-            <li><span>2</span>บทที่ 2 <b>พร้อมดู</b></li>
-            <li><span>3</span>บทที่ 3 <b>พร้อมดู</b></li>
+            <li><span>1</span>บทที่ 1 <em>รออัปเดต</em></li>
+            <li><span>2</span>บทที่ 2 <b>รับ 50 คะแนน</b></li>
+            <li><span>3</span>บทที่ 3 <b>รับ 50 คะแนน</b></li>
           </ol>
         </section>
 
         <section class="side-card prompt-list">
           <div class="panel-heading">
-            <h2>วิธีใช้งานหน้านี้</h2>
+            <h2>วิธีเก็บคะแนน</h2>
           </div>
           <article>
             <img src="assets/Icon/Asset_4/03.png" alt="" />
-            <div><strong>เลือกบทที่ต้องการ</strong><small>เปิดดูวิดีโอได้จากหน้าเดียว</small></div>
+            <div><strong>เข้าเรียนเป็นรายบท</strong><small>แต่ละบทมีหน้าของตัวเองชัดเจน</small></div>
           </article>
           <article>
             <img src="assets/Icon/asset_1x1_cropfix/asset_6-02-bell-silver.png" alt="" />
-            <div><strong>ดูต่อเนื่องได้</strong><small>เลื่อนจากบท 2 ไปบท 3 ได้ทันที</small></div>
+            <div><strong>กดเรียนแล้วหลังดูจบ</strong><small>รับ 50 คะแนนต่อบทและบันทึกลงบัญชีทันที</small></div>
+          </article>
+          <article>
+            <img src="assets/Icon/asset_1x1_cropfix/asset_1-11-trophy-cup.png" alt="" />
+            <div><strong>เช็กอันดับจาก Leaderboard</strong><small>ดูคะแนนรวมและอันดับของผู้เรียนทุกคน</small></div>
           </article>
         </section>
       </aside>
@@ -209,10 +207,10 @@
 
     <nav class="bottom-nav" aria-label="เมนูมือถือ">
       <a href="index.html"><span>⌂</span>หน้าหลัก</a>
-      <a class="active" href="courses.html"><span>▱</span>คอร์ส</a>
+      <a class="active" href="courses.html"><span>▣</span>คอร์ส</a>
       <a href="articles.html"><span>▤</span>บทความ</a>
-      <a href="tools.html"><span>◇</span>เครื่องมือ</a>
-      <a href="profile.html"><span>♙</span>โปรไฟล์</a>
+      <a href="tools.html"><span>✇</span>เครื่องมือ</a>
+      <a href="profile.html"><span>☻</span>โปรไฟล์</a>
     </nav>
 
     <script type="module" src="app.js"></script>

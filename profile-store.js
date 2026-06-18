@@ -8,8 +8,10 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  where,
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getFirebaseServices, isFirebaseConfigured } from "./auth-shared.js";
+import { LESSON_POINTS, LESSONS, getLessonById } from "./lesson-data.js";
 
 const fallbackAvatar = "assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png";
 
@@ -28,6 +30,19 @@ function getHistoryCollection(user, name) {
   const userRef = getUserDocRef(user);
   if (!userRef) return null;
   return collection(userRef, name);
+}
+
+function getLessonScoresCollection() {
+  const services = getFirebaseServices();
+  if (!services?.db) return null;
+  return collection(services.db, "lessonScores");
+}
+
+function getLessonScoreDoc(user, lessonId) {
+  const scoresRef = getLessonScoresCollection();
+  const uid = getUserKey(user);
+  if (!scoresRef || !uid || !lessonId) return null;
+  return doc(scoresRef, `${uid}_${lessonId}`);
 }
 
 function toIsoString(value) {
@@ -206,6 +221,122 @@ export async function recordToolUsage(user, item) {
   }
 }
 
+export async function hasClaimedLesson(user, lessonId) {
+  if (!user || !lessonId || !isFirebaseConfigured()) return false;
+
+  try {
+    const snapshot = await getDoc(getLessonScoreDoc(user, lessonId));
+    return snapshot.exists();
+  } catch {
+    return false;
+  }
+}
+
+export async function claimLessonScore(user, lesson) {
+  if (!user || !lesson?.id || !isFirebaseConfigured()) {
+    return { ok: false, reason: "not-ready" };
+  }
+
+  try {
+    const lessonDoc = getLessonScoreDoc(user, lesson.id);
+    const existing = await getDoc(lessonDoc);
+    if (existing.exists()) {
+      return { ok: true, alreadyClaimed: true };
+    }
+
+    const profile = await getResolvedProfile(user);
+    await setDoc(lessonDoc, {
+      uid: user.uid,
+      displayName: profile.displayName,
+      photoURL: profile.photoURL,
+      lessonId: lesson.id,
+      lessonTitle: lesson.title,
+      points: LESSON_POINTS,
+      createdAt: serverTimestamp(),
+    });
+
+    await recordLearning(user, {
+      id: lesson.id,
+      title: lesson.title,
+      subtitle: lesson.subtitle,
+      url: lesson.page,
+      progress: 100,
+      status: `รับ ${LESSON_POINTS} คะแนนแล้ว`,
+    });
+
+    return { ok: true, alreadyClaimed: false };
+  } catch {
+    return { ok: false, reason: "write-failed" };
+  }
+}
+
+export async function getUserLessonScores(user) {
+  if (!user || !isFirebaseConfigured()) return [];
+
+  try {
+    const scoresRef = getLessonScoresCollection();
+    const snapshot = await getDocs(query(scoresRef, where("uid", "==", user.uid)));
+    return snapshot.docs
+      .map((entry) => {
+        const data = entry.data();
+        return {
+          id: data.lessonId,
+          title: data.lessonTitle,
+          points: Number(data.points || 0),
+          createdAt: toIsoString(data.createdAt),
+          page: getLessonById(data.lessonId)?.page || "#",
+        };
+      })
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  } catch {
+    return [];
+  }
+}
+
+export async function getLeaderboard() {
+  if (!isFirebaseConfigured()) return [];
+
+  try {
+    const scoresRef = getLessonScoresCollection();
+    const snapshot = await getDocs(scoresRef);
+    const scoreMap = new Map();
+
+    snapshot.forEach((entry) => {
+      const data = entry.data();
+      const current = scoreMap.get(data.uid) || {
+        uid: data.uid,
+        displayName: data.displayName || "ผู้ใช้ AI Hub",
+        photoURL: sanitizePhotoURL(data.photoURL) || fallbackAvatar,
+        totalPoints: 0,
+        lessonsCompleted: 0,
+        lastScoredAt: "",
+        latestLesson: "",
+      };
+
+      current.totalPoints += Number(data.points || 0);
+      current.lessonsCompleted += 1;
+
+      const createdAt = toIsoString(data.createdAt);
+      if (!current.lastScoredAt || new Date(createdAt) > new Date(current.lastScoredAt)) {
+        current.lastScoredAt = createdAt;
+        current.latestLesson = data.lessonTitle || "";
+        current.displayName = data.displayName || current.displayName;
+        current.photoURL = sanitizePhotoURL(data.photoURL) || current.photoURL;
+      }
+
+      scoreMap.set(data.uid, current);
+    });
+
+    return [...scoreMap.values()].sort((a, b) => {
+      if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+      if (b.lessonsCompleted !== a.lessonsCompleted) return b.lessonsCompleted - a.lessonsCompleted;
+      return new Date(b.lastScoredAt || 0) - new Date(a.lastScoredAt || 0);
+    });
+  } catch {
+    return [];
+  }
+}
+
 export async function getProfileDashboard(user) {
   const profile = await getResolvedProfile(user);
 
@@ -214,25 +345,37 @@ export async function getProfileDashboard(user) {
       profile,
       learningHistory: [],
       toolUsage: [],
+      lessonScores: [],
+      totalPoints: 0,
+      completedLessons: 0,
     };
   }
 
   try {
-    const [learningHistory, toolUsage] = await Promise.all([
+    const [learningHistory, toolUsage, lessonScores] = await Promise.all([
       fetchHistory(user, "learningHistory", "views"),
       fetchHistory(user, "toolUsage", "uses"),
+      getUserLessonScores(user),
     ]);
 
     return {
       profile,
       learningHistory,
       toolUsage,
+      lessonScores,
+      totalPoints: lessonScores.reduce((sum, item) => sum + Number(item.points || 0), 0),
+      completedLessons: lessonScores.length,
     };
   } catch {
     return {
       profile,
       learningHistory: [],
       toolUsage: [],
+      lessonScores: [],
+      totalPoints: 0,
+      completedLessons: 0,
     };
   }
 }
+
+export { LESSON_POINTS, LESSONS };

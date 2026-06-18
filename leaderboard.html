@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Leaderboard | GivemeAI</title>
+    <link rel="icon" href="assets/Icon/asset_1x1_cropfix/asset_1-01-growth-arrow.png" />
+    <link rel="stylesheet" href="aihub.css" />
+    <script defer src="browser-check.js"></script>
+  </head>
+  <body>
+    <div class="app-shell leaderboard-shell">
+      <aside class="sidebar" aria-label="เมนูหลัก">
+        <a class="brand" href="index.html" aria-label="GivemeAI">
+          <strong>Giveme<span>AI</span></strong>
+          <small>Learn • Prompt • Create</small>
+        </a>
+        <nav class="side-nav">
+          <a class="nav-item" href="index.html"><span class="nav-icon">⌂</span>หน้าหลัก</a>
+          <p class="nav-group">เรียนรู้ AI</p>
+          <a class="nav-item" href="courses.html"><span class="nav-icon">▱</span>คอร์สเรียนทั้งหมด</a>
+          <a class="nav-item" href="articles.html"><span class="nav-icon">▤</span>บทความ & เทคนิค</a>
+          <p class="nav-group">เครื่องมือ AI</p>
+          <a class="nav-item" href="tools.html"><span class="nav-icon">◌</span>เครื่องมือทั้งหมด</a>
+          <p class="nav-group">บัญชี</p>
+          <a class="nav-item" href="profile.html"><span class="nav-icon">♙</span>โปรไฟล์ของฉัน</a>
+          <a class="nav-item active" href="leaderboard.html"><span class="nav-icon">★</span>Leaderboard</a>
+        </nav>
+      </aside>
+
+      <main class="main-content leaderboard-main">
+        <header class="topbar">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input type="search" placeholder="ดูอันดับผู้เรียน..." aria-label="ดูอันดับผู้เรียน" />
+            <kbd>⌘ K</kbd>
+          </label>
+          <div class="top-actions">
+            <button class="icon-button desktop-only" type="button" aria-label="โหมดกลางคืน">◐</button>
+            <button class="login-chip" id="loginButton" type="button"><span>Login Gmail</span></button>
+            <div class="user-badge" id="userBadge" hidden>
+              <img id="userAvatar" alt="" />
+              <span><strong id="userName">ผู้ใช้ Gmail</strong><a id="userStatus" class="user-status-link" href="profile.html">เข้าสู่ระบบแล้ว</a></span>
+            </div>
+            <button class="logout-chip" id="logoutButton" type="button" hidden>ออก</button>
+          </div>
+        </header>
+
+        <p class="system-message" id="systemMessage">ตารางคะแนนรวมจากการกดเรียนแล้วในแต่ละบท</p>
+
+        <section class="leaderboard-hero">
+          <div>
+            <p class="tools-kicker">POINTS RANKING</p>
+            <h1>Leaderboard</h1>
+            <p>รวมคะแนนจากทุกบทเรียน บทละ 50 คะแนน ผู้ใช้ที่เรียนครบและกดรับคะแนนก่อนจะขึ้นอันดับสูงกว่า</p>
+          </div>
+          <div class="leaderboard-status-card">
+            <strong id="leaderboardStatus">กำลังโหลดตารางคะแนน...</strong>
+            <span>อัปเดตตามข้อมูลจริงใน Firestore</span>
+          </div>
+        </section>
+
+        <section class="leaderboard-podium" id="leaderboardPodium"></section>
+
+        <section class="leaderboard-table-card">
+          <div class="panel-heading">
+            <h2>ตารางคะแนนรวม</h2>
+            <a href="courses.html">ไปหน้าคอร์ส</a>
+          </div>
+
+          <div class="leaderboard-empty" id="leaderboardEmpty" hidden>
+            <strong>ยังไม่มีคะแนนในระบบ</strong>
+            <p>เริ่มจากเข้าหน้าบทเรียน แล้วกดปุ่มเรียนแล้วเพื่อรับคะแนน 50 คะแนนต่อบท</p>
+          </div>
+
+          <div class="leaderboard-table-wrap">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>อันดับ</th>
+                  <th>ผู้ใช้</th>
+                  <th>บทที่จบ</th>
+                  <th>คะแนนรวม</th>
+                  <th>ล่าสุด</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <nav class="bottom-nav" aria-label="เมนูมือถือ">
+      <a href="index.html"><span>⌂</span>หน้าหลัก</a>
+      <a href="courses.html"><span>▱</span>คอร์ส</a>
+      <a href="articles.html"><span>▤</span>บทความ</a>
+      <a href="tools.html"><span>◇</span>เครื่องมือ</a>
+      <a href="profile.html"><span>♙</span>โปรไฟล์</a>
+    </nav>
+
+    <script type="module" src="app.js"></script>
+    <script type="module" src="leaderboard.js"></script>
+  </body>
+</html>
