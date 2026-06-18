@@ -87,24 +87,32 @@
 
         <p class="system-message" id="systemMessage">พร้อมเริ่มเรียนรู้และใช้งาน AI ในเว็บเดียว</p>
 
-        <section class="hero-card">
+        <section class="hero-card" id="heroCarousel" aria-roledescription="carousel" aria-label="ไฮไลต์หน้าแรก">
           <div class="hero-copy">
-            <h1>เรียน AI อย่างเป็นระบบ<br />ใช้ <span>Prompt อย่างชาญฉลาด</span></h1>
-            <p>คอร์สคุณภาพ เครื่องมือครบ พร้อม Prompt ใช้งานจริง สำหรับทุกสายอาชีพ</p>
+            <h1 id="heroTitle">เรียน AI อย่างเป็นระบบ<br />ใช้ <span>Prompt อย่างชาญฉลาด</span></h1>
+            <p id="heroText">คอร์สคุณภาพ เครื่องมือครบ พร้อม Prompt ใช้งานจริง สำหรับทุกสายอาชีพ</p>
             <div class="hero-actions">
-              <button class="orange-button" type="button"><span>▶</span> เริ่มเรียนเลย</button>
-              <button class="dark-button" type="button"><span>▱</span> ดูคลัง Prompt</button>
+              <button class="orange-button" id="heroPrimaryButton" type="button"><span>▶</span> เริ่มเรียนเลย</button>
+              <button class="dark-button" id="heroSecondaryButton" type="button"><span>▱</span> ดูคลัง Prompt</button>
             </div>
           </div>
 
           <div class="hero-art" aria-hidden="true">
             <div class="orbit orbit-one"></div>
             <div class="orbit orbit-two"></div>
-            <div class="hero-tile video-tile">AI Course<span>▶</span></div>
-            <div class="hero-tile prompt-tile">Prompt<i></i><i></i><i></i></div>
-            <div class="ai-cube">AI</div>
+            <div class="hero-tile video-tile" id="heroTileOne">AI Course<span>▶</span></div>
+            <div class="hero-tile prompt-tile" id="heroTileTwo">Prompt<i></i><i></i><i></i></div>
+            <div class="ai-cube" id="heroCube">AI</div>
           </div>
-          <div class="mobile-dots" aria-hidden="true"><b></b><i></i><i></i><i></i></div>
+          <div class="hero-slider-controls" aria-label="ควบคุมสไลด์ Hero">
+            <button class="hero-nav" id="heroPrev" type="button" aria-label="สไลด์ก่อนหน้า">‹</button>
+            <div class="mobile-dots hero-dots" id="heroDots" role="tablist" aria-label="เลือกสไลด์">
+              <button type="button" aria-label="สไลด์ 1" aria-current="true"></button>
+              <button type="button" aria-label="สไลด์ 2"></button>
+              <button type="button" aria-label="สไลด์ 3"></button>
+            </div>
+            <button class="hero-nav" id="heroNext" type="button" aria-label="สไลด์ถัดไป">›</button>
+          </div>
         </section>
 
         <section class="quick-grid" aria-label="หมวดหมู่ด่วน">

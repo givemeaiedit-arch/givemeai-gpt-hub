@@ -15,6 +15,36 @@ const systemMessage = document.querySelector("#systemMessage");
 
 const fallbackAvatar = "assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png";
 
+const heroSlides = [
+  {
+    title: 'เรียน AI อย่างเป็นระบบ<br />ใช้ <span>Prompt อย่างชาญฉลาด</span>',
+    text: "คอร์สคุณภาพ เครื่องมือครบ พร้อม Prompt ใช้งานจริง สำหรับทุกสายอาชีพ",
+    primary: "▶ เริ่มเรียนเลย",
+    secondary: "▱ ดูคลัง Prompt",
+    tileOne: "AI Course",
+    tileTwo: "Prompt",
+    cube: "AI",
+  },
+  {
+    title: 'รวม Prompt พร้อมใช้<br />สำหรับ <span>งานธุรกิจจริง</span>',
+    text: "หยิบสูตร Prompt ไปใช้กับงานขาย คอนเทนต์ โฆษณา วิเคราะห์ข้อมูล และวางแผนงานได้เร็วขึ้น",
+    primary: "▣ ดู Prompt",
+    secondary: "⌕ ค้นหาหมวดหมู่",
+    tileOne: "Prompt Pack",
+    tileTwo: "Content",
+    cube: "P",
+  },
+  {
+    title: 'เครื่องมือ AI ครบชุด<br />ช่วย <span>ทำงานไวขึ้น</span>',
+    text: "เริ่มจาก AI สร้างภาพโปรโมท และ AI Check Ads สำหรับเจ้าของธุรกิจที่ต้องการผลลัพธ์ใช้งานได้จริง",
+    primary: "◇ เปิดเครื่องมือ",
+    secondary: "▤ อ่านเทคนิค",
+    tileOne: "AI Tools",
+    tileTwo: "Ads Check",
+    cube: "AI",
+  },
+];
+
 function setMessage(message) {
   if (systemMessage) systemMessage.textContent = message;
 }
@@ -29,6 +59,63 @@ function setAuthUi(user) {
   if (userStatus) userStatus.textContent = user?.email || "เข้าสู่ระบบแล้ว";
 
   setMessage(user ? "เข้าสู่ระบบเรียบร้อย พร้อมเริ่มใช้งาน AI Hub" : "พร้อมเริ่มเรียนรู้และใช้งาน AI ในเว็บเดียว");
+}
+
+function initHeroCarousel() {
+  const carousel = document.querySelector("#heroCarousel");
+  if (!carousel) return;
+
+  const title = document.querySelector("#heroTitle");
+  const text = document.querySelector("#heroText");
+  const primary = document.querySelector("#heroPrimaryButton");
+  const secondary = document.querySelector("#heroSecondaryButton");
+  const tileOne = document.querySelector("#heroTileOne");
+  const tileTwo = document.querySelector("#heroTileTwo");
+  const cube = document.querySelector("#heroCube");
+  const dots = [...document.querySelectorAll("#heroDots button")];
+  const prev = document.querySelector("#heroPrev");
+  const next = document.querySelector("#heroNext");
+  let activeIndex = 0;
+  let timerId;
+
+  function renderSlide(index) {
+    activeIndex = (index + heroSlides.length) % heroSlides.length;
+    const slide = heroSlides[activeIndex];
+    carousel.dataset.slide = String(activeIndex + 1);
+    if (title) title.innerHTML = slide.title;
+    if (text) text.textContent = slide.text;
+    if (primary) primary.textContent = slide.primary;
+    if (secondary) secondary.textContent = slide.secondary;
+    if (tileOne) tileOne.innerHTML = `${slide.tileOne}<span>▶</span>`;
+    if (tileTwo) tileTwo.innerHTML = `${slide.tileTwo}<i></i><i></i><i></i>`;
+    if (cube) cube.textContent = slide.cube;
+    dots.forEach((dot, dotIndex) => dot.setAttribute("aria-current", String(dotIndex === activeIndex)));
+  }
+
+  function restartTimer() {
+    window.clearInterval(timerId);
+    timerId = window.setInterval(() => renderSlide(activeIndex + 1), 6500);
+  }
+
+  prev?.addEventListener("click", () => {
+    renderSlide(activeIndex - 1);
+    restartTimer();
+  });
+
+  next?.addEventListener("click", () => {
+    renderSlide(activeIndex + 1);
+    restartTimer();
+  });
+
+  dots.forEach((dot, dotIndex) => {
+    dot.addEventListener("click", () => {
+      renderSlide(dotIndex);
+      restartTimer();
+    });
+  });
+
+  renderSlide(0);
+  restartTimer();
 }
 
 loginButton?.addEventListener("click", async () => {
@@ -50,3 +137,5 @@ if (!isFirebaseConfigured()) {
 } else {
   watchAuth(({ user }) => setAuthUi(user));
 }
+
+initHeroCarousel();

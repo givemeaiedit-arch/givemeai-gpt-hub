@@ -334,6 +334,18 @@ img {
   box-shadow: var(--shadow);
 }
 
+.hero-card[data-slide="2"] {
+  background:
+    radial-gradient(circle at 78% 46%, rgba(255, 142, 24, 0.8), transparent 18rem),
+    linear-gradient(90deg, #050a0d 0%, #11100b 42%, #ff7b00 140%);
+}
+
+.hero-card[data-slide="3"] {
+  background:
+    radial-gradient(circle at 78% 46%, rgba(255, 100, 0, 0.72), transparent 18rem),
+    linear-gradient(90deg, #050a0d 0%, #08141a 42%, #ff6400 140%);
+}
+
 .hero-card::before {
   position: absolute;
   inset: 0;
@@ -524,6 +536,58 @@ img {
 
 .mobile-dots {
   display: none;
+}
+
+.hero-slider-controls {
+  position: absolute;
+  right: 24px;
+  bottom: 20px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-nav {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.28);
+  font-size: 1.6rem;
+  font-weight: 850;
+  line-height: 1;
+  backdrop-filter: blur(10px);
+}
+
+.hero-dots {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+
+.hero-slider-controls .mobile-dots {
+  position: static;
+  inset: auto;
+  z-index: auto;
+  transform: none;
+}
+
+.hero-dots button {
+  width: 11px;
+  height: 11px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.hero-dots button[aria-current="true"] {
+  width: 28px;
+  background: var(--orange);
 }
 
 .quick-grid,
@@ -1711,15 +1775,30 @@ meter::-webkit-meter-optimum-value {
     transform: translateX(-50%);
   }
 
+  .hero-slider-controls {
+    right: auto;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+  }
+
+  .hero-nav {
+    width: 34px;
+    height: 34px;
+    font-size: 1.35rem;
+  }
+
   .mobile-dots b,
-  .mobile-dots i {
+  .mobile-dots i,
+  .hero-dots button {
     width: 12px;
     height: 12px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.45);
   }
 
-  .mobile-dots b {
+  .mobile-dots b,
+  .hero-dots button[aria-current="true"] {
     width: 28px;
     background: var(--orange);
   }
