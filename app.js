@@ -4,6 +4,11 @@ import {
   signOutUser,
   watchAuth,
 } from "./auth-shared.js";
+import {
+  getResolvedProfile,
+  recordLearning,
+  recordToolUsage,
+} from "./profile-store.js";
 
 const loginButton = document.querySelector("#loginButton");
 const logoutButton = document.querySelector("#logoutButton");
@@ -14,6 +19,9 @@ const userStatus = document.querySelector("#userStatus");
 const systemMessage = document.querySelector("#systemMessage");
 
 const fallbackAvatar = "assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png";
+const currentPage = window.location.pathname.split("/").pop() || "index.html";
+let currentUser = null;
+let pageTrackedFor = "";
 
 const heroSlides = [
   {
@@ -55,16 +63,98 @@ function setMessage(message) {
   if (systemMessage) systemMessage.textContent = message;
 }
 
-function setAuthUi(user) {
+async function setAuthUi(user) {
+  const profile = await getResolvedProfile(user);
+
   if (loginButton) loginButton.hidden = Boolean(user);
   if (logoutButton) logoutButton.hidden = !user;
   if (userBadge) userBadge.hidden = !user;
 
-  if (userAvatar) userAvatar.src = user?.photoURL || fallbackAvatar;
-  if (userName) userName.textContent = user?.displayName || user?.email || "ผู้ใช้ Gmail";
-  if (userStatus) userStatus.textContent = user?.email || "เข้าสู่ระบบแล้ว";
+  if (userAvatar) userAvatar.src = profile.photoURL || fallbackAvatar;
+  if (userName) userName.textContent = profile.displayName || "ผู้ใช้ Gmail";
+  if (userStatus) userStatus.textContent = profile.email || "เข้าสู่ระบบแล้ว";
 
   setMessage(user ? "เข้าสู่ระบบเรียบร้อย พร้อมเริ่มใช้งาน AI Hub" : "พร้อมเริ่มเรียนรู้และใช้งาน AI ในเว็บเดียว");
+}
+
+function trackPageView(user) {
+  const userKey = user?.uid || user?.email || "";
+  if (!userKey || pageTrackedFor === `${currentPage}:${userKey}`) return;
+
+  if (currentPage === "courses.html") {
+    recordLearning(user, {
+      id: "courses-hub",
+      title: "คอร์สเรียนทั้งหมด",
+      subtitle: "เปิดหน้าคอร์สวิดีโอ",
+      url: "courses.html",
+      progress: 10,
+      status: "เริ่มต้นดูคอร์ส",
+    });
+  }
+
+  if (currentPage === "tools.html") {
+    recordToolUsage(user, {
+      id: "tools-hub",
+      title: "เครื่องมือทั้งหมด",
+      subtitle: "เปิดหน้ารวมเครื่องมือ",
+      url: "tools.html",
+      status: "เปิดหน้ารวมเครื่องมือ",
+    });
+  }
+
+  pageTrackedFor = `${currentPage}:${userKey}`;
+}
+
+function initProfileShortcuts() {
+  const statusLink = document.querySelector("#userStatus");
+  if (!statusLink) return;
+  statusLink.setAttribute("href", "profile.html");
+}
+
+function initTrackingInteractions() {
+  const courseCards = [...document.querySelectorAll("[data-course-id]")];
+  if (courseCards.length) {
+    const seenCourseIds = new Set();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting || !currentUser) return;
+          const card = entry.target;
+          const courseId = card.dataset.courseId;
+          if (!courseId || seenCourseIds.has(courseId)) return;
+
+          seenCourseIds.add(courseId);
+          recordLearning(currentUser, {
+            id: courseId,
+            title: card.dataset.courseTitle,
+            subtitle: card.dataset.courseSubtitle,
+            url: currentPage === "courses.html" ? `courses.html#${card.id}` : "courses.html",
+            progress: Number(card.dataset.courseProgress || 0),
+            status: card.dataset.courseStatus || "",
+          });
+        });
+      },
+      { threshold: 0.6 },
+    );
+
+    courseCards.forEach((card) => observer.observe(card));
+  }
+
+  document.querySelectorAll("[data-tool-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (currentUser) {
+        recordToolUsage(currentUser, {
+          id: button.dataset.toolId,
+          title: button.dataset.toolTitle,
+          subtitle: button.dataset.toolSubtitle,
+          url: "tools.html",
+          status: "กดใช้งานจากหน้าเครื่องมือ",
+        });
+      }
+
+      setMessage(button.dataset.toolMessage || "บันทึกการใช้เครื่องมือแล้ว");
+    });
+  });
 }
 
 function initHeroCarousel() {
@@ -161,7 +251,13 @@ if (!isFirebaseConfigured()) {
   loginButton?.setAttribute("disabled", "true");
   setMessage("ยังไม่ได้ตั้งค่า Firebase");
 } else {
-  watchAuth(({ user }) => setAuthUi(user));
+  watchAuth(async ({ user }) => {
+    currentUser = user;
+    await setAuthUi(user);
+    trackPageView(user);
+  });
 }
 
+initProfileShortcuts();
+initTrackingInteractions();
 initHeroCarousel();

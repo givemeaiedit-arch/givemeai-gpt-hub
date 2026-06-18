@@ -6,6 +6,7 @@ import {
   signInWithPopup,
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { firebaseConfig, isFirebaseConfigured } from "./firebase-config.js";
 
 let services = null;
@@ -20,6 +21,7 @@ export function getFirebaseServices() {
     services = {
       app,
       auth: getAuth(app),
+      db: getFirestore(app),
       provider,
     };
   }

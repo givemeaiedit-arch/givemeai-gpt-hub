@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>โปรไฟล์ของฉัน | GivemeAI</title>
+    <link rel="icon" href="assets/Icon/asset_1x1_cropfix/asset_1-01-growth-arrow.png" />
+    <link rel="stylesheet" href="aihub.css" />
+    <script defer src="browser-check.js"></script>
+  </head>
+  <body>
+    <div class="app-shell profile-shell">
+      <aside class="sidebar" aria-label="เมนูหลัก">
+        <a class="brand" href="index.html" aria-label="GivemeAI">
+          <strong>Giveme<span>AI</span></strong>
+          <small>Learn • Prompt • Create</small>
+        </a>
+
+        <nav class="side-nav">
+          <a class="nav-item" href="index.html"><span class="nav-icon">⌂</span>หน้าหลัก</a>
+
+          <p class="nav-group">เรียนรู้ AI</p>
+          <a class="nav-item" href="courses.html"><span class="nav-icon">▱</span>คอร์สเรียนทั้งหมด</a>
+          <a class="nav-item" href="articles.html"><span class="nav-icon">▤</span>บทความ & เทคนิค</a>
+
+          <p class="nav-group">เครื่องมือ AI</p>
+          <a class="nav-item" href="tools.html"><span class="nav-icon">◌</span>เครื่องมือทั้งหมด</a>
+
+          <p class="nav-group">บัญชี</p>
+          <a class="nav-item active" href="profile.html"><span class="nav-icon">♙</span>โปรไฟล์ของฉัน</a>
+        </nav>
+
+        <section class="upgrade-card" aria-label="อัปเกรดเป็น Pro">
+          <div class="upgrade-title">♛ อัปเกรดเป็น Pro</div>
+          <p>รวมคอร์สพิเศษ Prompt และเครื่องมือ AI สำหรับใช้งานจริง</p>
+          <button class="orange-button" type="button">อัปเกรดเลย <span>→</span></button>
+        </section>
+      </aside>
+
+      <main class="main-content profile-main">
+        <header class="mobile-header">
+          <div class="brand mobile-brand">
+            <strong>Giveme<span>AI</span></strong>
+            <small>Learn • Prompt • Create</small>
+          </div>
+          <div class="mobile-actions">
+            <button class="icon-button notification" type="button" aria-label="แจ้งเตือน">
+              <img src="assets/Icon/asset_1x1_cropfix/asset_6-02-bell-silver.png" alt="" />
+              <span>3</span>
+            </button>
+            <div class="mini-avatar" aria-hidden="true">
+              <img src="assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png" alt="" />
+            </div>
+          </div>
+        </header>
+
+        <header class="topbar">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input type="search" placeholder="ค้นหาหน้าต่าง ๆ ใน AI Hub..." aria-label="ค้นหา" />
+            <kbd>⌘ K</kbd>
+          </label>
+
+          <div class="top-actions">
+            <button class="icon-button desktop-only" type="button" aria-label="โหมดกลางคืน">◐</button>
+            <button class="icon-button notification desktop-only" type="button" aria-label="แจ้งเตือน">
+              <img src="assets/Icon/asset_1x1_cropfix/asset_6-02-bell-silver.png" alt="" />
+              <span>3</span>
+            </button>
+
+            <button class="login-chip" id="loginButton" type="button">
+              <span>Login Gmail</span>
+            </button>
+
+            <div class="user-badge" id="userBadge" hidden>
+              <img id="userAvatar" alt="" />
+              <span>
+                <strong id="userName">ผู้ใช้ Gmail</strong>
+                <a id="userStatus" class="user-status-link" href="profile.html">เข้าสู่ระบบแล้ว</a>
+              </span>
+            </div>
+
+            <button class="logout-chip" id="logoutButton" type="button" hidden>ออก</button>
+          </div>
+        </header>
+
+        <p class="system-message" id="systemMessage">จัดการชื่อ รูปโปรไฟล์ และดูประวัติการใช้งานของคุณ</p>
+
+        <section class="profile-hero">
+          <div>
+            <p class="tools-kicker">MY PROFILE</p>
+            <h1>โปรไฟล์ของฉัน</h1>
+            <p>เปลี่ยนชื่อ เปลี่ยนรูปโปรไฟล์ และดูว่าคุณเรียนอะไรไปแล้วหรือใช้เครื่องมือไหนบ่อยที่สุดในเว็บนี้</p>
+          </div>
+          <div class="profile-stats">
+            <article><strong id="learningCount">0</strong><span>ประวัติการเรียน</span></article>
+            <article><strong id="toolCount">0</strong><span>เครื่องมือที่ใช้</span></article>
+          </div>
+        </section>
+
+        <section class="profile-layout">
+          <article class="profile-card profile-editor">
+            <div class="panel-heading">
+              <h2>ข้อมูลโปรไฟล์</h2>
+            </div>
+
+            <div class="profile-header-card">
+              <img id="profilePreview" src="assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png" alt="รูปโปรไฟล์" />
+              <div>
+                <strong id="profileLoginState">เข้าสู่ระบบด้วย Gmail เพื่อเริ่มใช้งาน</strong>
+                <span id="profileEmail">ยังไม่ได้เข้าสู่ระบบ</span>
+              </div>
+            </div>
+
+            <label class="profile-field">
+              <span>ชื่อที่ต้องการแสดง</span>
+              <input id="profileDisplayName" type="text" placeholder="เช่น Notzio CM" />
+            </label>
+
+            <label class="profile-field">
+              <span>เปลี่ยนรูปโปรไฟล์</span>
+              <input id="profilePhotoInput" type="file" accept="image/*" />
+            </label>
+
+            <div class="profile-actions">
+              <button class="orange-button" id="profileSaveButton" type="button">บันทึกโปรไฟล์</button>
+              <button class="soft-button" id="profileResetButton" type="button">รีเซ็ต</button>
+            </div>
+
+            <p class="profile-status" id="profileStatus" data-tone="muted">โปรไฟล์จะถูกเก็บไว้ในเบราว์เซอร์ของบัญชีนี้</p>
+          </article>
+
+          <article class="profile-card">
+            <div class="panel-heading">
+              <h2>ประวัติการเรียน</h2>
+            </div>
+            <ul class="history-list" id="learningHistoryList"></ul>
+          </article>
+
+          <article class="profile-card">
+            <div class="panel-heading">
+              <h2>การใช้เครื่องมือ</h2>
+            </div>
+            <ul class="history-list" id="toolUsageList"></ul>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <nav class="bottom-nav" aria-label="เมนูมือถือ">
+      <a href="index.html"><span>⌂</span>หน้าหลัก</a>
+      <a href="courses.html"><span>▱</span>คอร์ส</a>
+      <a href="articles.html"><span>▤</span>บทความ</a>
+      <a href="tools.html"><span>◇</span>เครื่องมือ</a>
+      <a class="active" href="profile.html"><span>♙</span>โปรไฟล์</a>
+    </nav>
+
+    <script type="module" src="app.js"></script>
+    <script type="module" src="profile.js"></script>
+  </body>
+</html>
