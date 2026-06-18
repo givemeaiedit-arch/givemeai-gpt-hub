@@ -3,41 +3,270 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GivemeAI GPT Hub</title>
-    <link rel="icon" href="assets/favicon.png" />
+    <title>GivemeAI | Learn Prompt Create</title>
+    <link rel="icon" href="assets/Icon/asset_1x1_cropfix/asset_1-01-growth-arrow.png" />
     <link rel="stylesheet" href="aihub.css" />
     <script defer src="browser-check.js"></script>
   </head>
   <body>
-    <main class="blank-shell">
-      <section class="blank-card" aria-labelledby="pageTitle">
-        <div class="brand-lockup">
-          <span class="brand-mark" aria-hidden="true">G</span>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="เมนูหลัก">
+        <a class="brand" href="index.html" aria-label="GivemeAI">
+          <strong>Giveme<span>AI</span></strong>
+          <small>Learn • Prompt • Create</small>
+        </a>
+
+        <nav class="side-nav">
+          <a class="nav-item active" href="#"><span class="nav-icon">⌂</span>หน้าหลัก</a>
+
+          <p class="nav-group">เรียนรู้ AI</p>
+          <a class="nav-item" href="#"><span class="nav-icon">▱</span>คอร์สเรียนทั้งหมด</a>
+          <a class="nav-item" href="articles.html"><span class="nav-icon">▤</span>บทความ & เทคนิค</a>
+
+          <p class="nav-group">คลัง Prompt</p>
+          <a class="nav-item" href="#"><span class="nav-icon">▣</span>Prompt ยอดนิยม</a>
+          <a class="nav-item" href="#"><span class="nav-icon">⌘</span>หมวดหมู่ Prompt</a>
+
+          <p class="nav-group">เครื่องมือ AI</p>
+          <a class="nav-item" href="tools.html"><span class="nav-icon">◌</span>เครื่องมือทั้งหมด</a>
+        </nav>
+
+        <section class="upgrade-card" aria-label="อัปเกรดเป็น Pro">
+          <div class="upgrade-title">♛ อัปเกรดเป็น Pro</div>
+          <p>ปลดล็อกคอร์สพิเศษ ใช้งานเครื่องมือไม่จำกัด</p>
+          <button class="orange-button" type="button">อัปเกรดเลย <span>→</span></button>
+        </section>
+      </aside>
+
+      <main class="main-content">
+        <header class="mobile-header">
+          <div class="brand mobile-brand">
+            <strong>Giveme<span>AI</span></strong>
+            <small>Learn • Prompt • Create</small>
+          </div>
+          <div class="mobile-actions">
+            <button class="icon-button notification" type="button" aria-label="แจ้งเตือน">
+              <img src="assets/Icon/asset_1x1_cropfix/asset_6-02-bell-silver.png" alt="" />
+              <span>3</span>
+            </button>
+            <div class="mini-avatar" aria-hidden="true">
+              <img src="assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png" alt="" />
+            </div>
+          </div>
+        </header>
+
+        <header class="topbar">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input type="search" placeholder="ค้นหาคอร์สเรียน, Prompt, เครื่องมือ AI..." aria-label="ค้นหา" />
+            <kbd>⌘ K</kbd>
+          </label>
+
+          <div class="top-actions">
+            <button class="icon-button desktop-only" type="button" aria-label="โหมดกลางคืน">◐</button>
+            <button class="icon-button notification desktop-only" type="button" aria-label="แจ้งเตือน">
+              <img src="assets/Icon/asset_1x1_cropfix/asset_6-02-bell-silver.png" alt="" />
+              <span>3</span>
+            </button>
+
+            <button class="login-chip" id="loginButton" type="button">
+              <span>Login Gmail</span>
+            </button>
+
+            <div class="user-badge" id="userBadge" hidden>
+              <img id="userAvatar" alt="" />
+              <span>
+                <strong id="userName">ผู้ใช้ Gmail</strong>
+                <small id="userStatus">เข้าสู่ระบบแล้ว</small>
+              </span>
+            </div>
+
+            <button class="logout-chip" id="logoutButton" type="button" hidden>ออก</button>
+          </div>
+        </header>
+
+        <p class="system-message" id="systemMessage">พร้อมเริ่มเรียนรู้และใช้งาน AI ในเว็บเดียว</p>
+
+        <section class="hero-card">
+          <div class="hero-copy">
+            <h1>เรียน AI อย่างเป็นระบบ<br />ใช้ <span>Prompt อย่างชาญฉลาด</span></h1>
+            <p>คอร์สคุณภาพ เครื่องมือครบ พร้อม Prompt ใช้งานจริง สำหรับทุกสายอาชีพ</p>
+            <div class="hero-actions">
+              <button class="orange-button" type="button"><span>▶</span> เริ่มเรียนเลย</button>
+              <button class="dark-button" type="button"><span>▱</span> ดูคลัง Prompt</button>
+            </div>
+          </div>
+
+          <div class="hero-art" aria-hidden="true">
+            <div class="orbit orbit-one"></div>
+            <div class="orbit orbit-two"></div>
+            <div class="hero-tile video-tile">AI Course<span>▶</span></div>
+            <div class="hero-tile prompt-tile">Prompt<i></i><i></i><i></i></div>
+            <div class="ai-cube">AI</div>
+          </div>
+          <div class="mobile-dots" aria-hidden="true"><b></b><i></i><i></i><i></i></div>
+        </section>
+
+        <section class="quick-grid" aria-label="หมวดหมู่ด่วน">
+          <a href="#"><img src="assets/Icon/Asset_4/03.png" alt="" />คอร์สเรียน</a>
+          <a href="#"><img src="assets/Icon/asset_1x1_cropfix/asset_3-20-credit-card.png" alt="" />Prompt</a>
+          <a href="#"><img src="assets/Icon/asset_1x1_cropfix/asset_3-07-briefcase.png" alt="" />เครื่องมือ AI</a>
+          <a href="#"><img src="assets/Icon/asset_1x1_cropfix/asset_5-14-promo-sparkles.png" alt="" />เส้นทางเรียน</a>
+          <a href="#"><img src="assets/Icon/asset_1x1_cropfix/asset_1-17-stacked-blocks.png" alt="" />แจกฟรี</a>
+        </section>
+
+        <section class="stats-card" aria-label="ภาพรวม">
+          <article>
+            <img src="assets/Icon/Asset_4/03.png" alt="" />
+            <span>คอร์สเรียนทั้งหมด</span>
+            <strong>120+</strong>
+            <small>คอร์สคุณภาพ</small>
+          </article>
+          <article>
+            <img src="assets/Icon/Asset_4/05.png" alt="" />
+            <span>Prompt พร้อมใช้</span>
+            <strong>5,000+</strong>
+            <small>อัปเดตทุกสัปดาห์</small>
+          </article>
+          <article>
+            <img src="assets/Icon/asset_1x1_cropfix/asset_1-06-network-nodes.png" alt="" />
+            <span>ผู้เรียนของเรา</span>
+            <strong>128K+</strong>
+            <small>เติบโตขึ้นทุกวัน</small>
+          </article>
+          <article>
+            <img src="assets/Icon/asset_1x1_cropfix/asset_1-11-trophy-cup.png" alt="" />
+            <span>รีวิว 5 ดาว</span>
+            <strong>4.9/5</strong>
+            <small>จากผู้เรียนจริง</small>
+          </article>
+        </section>
+
+        <section class="content-section">
+          <div class="section-heading">
+            <h2>คอร์สเรียนแนะนำ</h2>
+            <a href="#">ดูทั้งหมด →</a>
+          </div>
+          <div class="course-row">
+            <article class="course-card">
+              <figure><img src="assets/banners/เริ่มต้นใช้งาน.png" alt="" /><span>แนะนำ</span></figure>
+              <h3>เริ่มต้นใช้งาน AI</h3>
+              <p>สำหรับมือใหม่</p>
+              <div><small>12 บทเรียน</small><b>★ 4.8 (1.2K)</b></div>
+              <meter min="0" max="100" value="80">80%</meter>
+            </article>
+            <article class="course-card">
+              <figure><img src="assets/banners/สร้างภาพโปรโมท.png" alt="" /></figure>
+              <h3>สร้างภาพโปรโมท</h3>
+              <p>ด้วย Midjourney</p>
+              <div><small>18 บทเรียน</small><b>★ 4.9 (892)</b></div>
+              <meter min="0" max="100" value="65">65%</meter>
+            </article>
+            <article class="course-card">
+              <figure><img src="assets/banners/สร้างวิดีโอ.png" alt="" /></figure>
+              <h3>สร้างวิดีโอ AI</h3>
+              <p>ให้ไวรัล</p>
+              <div><small>15 บทเรียน</small><b>★ 4.8 (756)</b></div>
+              <meter min="0" max="100" value="40">40%</meter>
+            </article>
+            <article class="course-card">
+              <figure><img src="assets/banners/ทำการตลาดด้วย.png" alt="" /></figure>
+              <h3>ทำการตลาดด้วย AI</h3>
+              <p>เพิ่มยอดขาย</p>
+              <div><small>20 บทเรียน</small><b>★ 4.9 (1.1K)</b></div>
+              <meter min="0" max="100" value="75">75%</meter>
+            </article>
+          </div>
+        </section>
+
+        <section class="prompt-free">
           <div>
-            <p class="eyebrow">GivemeAI GPT Hub</p>
-            <h1 id="pageTitle">พื้นที่ว่างสำหรับสร้างเว็บใหม่</h1>
+            <h2>Prompt แจกฟรีประจำสัปดาห์</h2>
+            <p>รวม Prompt สุดเจ๋ง ใช้งานได้จริง อัปเดตใหม่ทุกสัปดาห์</p>
           </div>
-        </div>
-
-        <p class="lead">
-          เว็บนี้ถูกเคลียร์ระบบเดิมแล้ว เหลือเฉพาะ Google Login และระบบแจ้งเตือนให้เปิดด้วย Google Chrome
-        </p>
-
-        <div class="auth-panel" aria-live="polite">
-          <button class="primary-button" id="loginButton" type="button">Login Gmail</button>
-          <div class="user-badge" id="userBadge" hidden>
-            <img id="userAvatar" alt="" />
-            <span>
-              <strong id="userName">Guest</strong>
-              <small id="userStatus">เข้าสู่ระบบแล้ว</small>
-            </span>
+          <button class="orange-pill" type="button">⇩ รับฟรี</button>
+          <div class="tag-row">
+            <span>การตลาด</span><span>เขียนคอนเทนต์</span><span>สร้างภาพ</span><span>วิเคราะห์ข้อมูล</span><span>โฆษณา</span>
           </div>
-          <button class="ghost-button" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
-        </div>
+        </section>
 
-        <p class="helper-text" id="systemMessage">พร้อมเริ่มออกแบบเว็บใหม่จากหน้านี้</p>
-      </section>
-    </main>
+        <section class="content-section category-section">
+          <div class="section-heading">
+            <h2>หมวดหมู่ Prompt ยอดนิยม</h2>
+            <a href="#">ดูทั้งหมด →</a>
+          </div>
+          <div class="category-row">
+            <article><img src="assets/Icon/asset_1x1_cropfix/asset_5-17-image-card-1.png" alt="" /><strong>สร้างภาพ</strong><small>1,245 Prompt</small></article>
+            <article><img src="assets/Icon/asset_1x1_cropfix/asset_2-12-video-card.png" alt="" /><strong>สร้างวิดีโอ</strong><small>952 Prompt</small></article>
+            <article><img src="assets/Icon/asset_1x1_cropfix/asset_1-05-megaphone.png" alt="" /><strong>การตลาด</strong><small>1,532 Prompt</small></article>
+            <article><img src="assets/Icon/asset_1x1_cropfix/asset_3-07-briefcase.png" alt="" /><strong>ธุรกิจ</strong><small>1,125 Prompt</small></article>
+            <article><img src="assets/Icon/Asset_4/09.png" alt="" /><strong>เขียนคอนเทนต์</strong><small>1,872 Prompt</small></article>
+            <article><img src="assets/Icon/asset_1x1_cropfix/asset_1-17-stacked-blocks.png" alt="" /><strong>อื่นๆ</strong><small>620 Prompt</small></article>
+          </div>
+        </section>
+      </main>
+
+      <aside class="right-panel" aria-label="แผงข้อมูล">
+        <section class="side-card learning-card">
+          <div class="panel-heading">
+            <h2>เส้นทางการเรียนของคุณ</h2>
+            <a href="#">ดูทั้งหมด</a>
+          </div>
+          <div class="learning-current">
+            <img src="assets/Icon/asset_1x1_cropfix/asset_3-03-laptop-ai.png" alt="" />
+            <div>
+              <strong>เริ่มต้นใช้งาน ChatGPT</strong>
+              <span>สำหรับมือใหม่</span>
+              <div class="progress-line"><i></i></div>
+            </div>
+            <b>80%</b>
+          </div>
+          <ol class="lesson-list">
+            <li><span>1</span>รู้จักกับ AI และ ChatGPT <b>✓</b></li>
+            <li><span>2</span>เขียน Prompt อย่างไรให้ได้ผล <b>✓</b></li>
+            <li><span>3</span>สร้างผลงานชิ้นแรกด้วย AI <em>▷</em></li>
+          </ol>
+          <button class="soft-button" type="button">ดูเส้นทางการเรียนทั้งหมด</button>
+        </section>
+
+        <section class="side-card prompt-list">
+          <div class="panel-heading">
+            <h2>Prompt ยอดนิยม</h2>
+            <a href="#">ดูทั้งหมด</a>
+          </div>
+          <article>
+            <img src="assets/banners/โปรโมทร้านอาหาร.png" alt="" />
+            <div><strong>Prompt โปรโมทร้านอาหาร</strong><small>★ 4.9 (1.2K)</small></div>
+            <button type="button">คัดลอก</button>
+          </article>
+          <article>
+            <img src="assets/banners/ภาพสินค้า.png" alt="" />
+            <div><strong>Prompt ภาพสินค้า Luxury</strong><small>★ 4.8 (892)</small></div>
+            <button type="button">คัดลอก</button>
+          </article>
+          <article>
+            <img src="assets/banners/โฆษณา.png" alt="" />
+            <div><strong>Prompt โฆษณา Facebook Ads</strong><small>★ 4.9 (1.5K)</small></div>
+            <button type="button">คัดลอก</button>
+          </article>
+        </section>
+
+        <section class="pro-panel">
+          <img src="assets/Icon/asset_1x1_cropfix/asset_5-15-gift-box.png" alt="" />
+          <h2>เป็นสมาชิก Pro</h2>
+          <p>ปลดล็อกคอร์สพิเศษ, Prompt ไม่จำกัด และเครื่องมือ AI ระดับพรีเมียม</p>
+          <button type="button">อัปเกรดตอนนี้ →</button>
+        </section>
+      </aside>
+    </div>
+
+    <nav class="bottom-nav" aria-label="เมนูมือถือ">
+      <a class="active" href="#"><span>⌂</span>หน้าหลัก</a>
+      <a href="#"><span>▱</span>คอร์ส</a>
+      <a href="articles.html"><span>▤</span>บทความ</a>
+      <a href="tools.html"><span>◇</span>เครื่องมือ</a>
+      <a href="#"><span>♙</span>โปรไฟล์</a>
+    </nav>
 
     <script type="module" src="app.js"></script>
   </body>

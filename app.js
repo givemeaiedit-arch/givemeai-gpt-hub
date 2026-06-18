@@ -13,6 +13,8 @@ const userName = document.querySelector("#userName");
 const userStatus = document.querySelector("#userStatus");
 const systemMessage = document.querySelector("#systemMessage");
 
+const fallbackAvatar = "assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png";
+
 function setMessage(message) {
   if (systemMessage) systemMessage.textContent = message;
 }
@@ -22,10 +24,11 @@ function setAuthUi(user) {
   if (logoutButton) logoutButton.hidden = !user;
   if (userBadge) userBadge.hidden = !user;
 
-  if (userAvatar) userAvatar.src = user?.photoURL || "assets/favicon.png";
+  if (userAvatar) userAvatar.src = user?.photoURL || fallbackAvatar;
   if (userName) userName.textContent = user?.displayName || user?.email || "ผู้ใช้ Gmail";
   if (userStatus) userStatus.textContent = user?.email || "เข้าสู่ระบบแล้ว";
-  setMessage(user ? "เข้าสู่ระบบเรียบร้อย พร้อมสร้างเว็บใหม่ต่อได้" : "พร้อมเริ่มออกแบบเว็บใหม่จากหน้านี้");
+
+  setMessage(user ? "เข้าสู่ระบบเรียบร้อย พร้อมเริ่มใช้งาน AI Hub" : "พร้อมเริ่มเรียนรู้และใช้งาน AI ในเว็บเดียว");
 }
 
 loginButton?.addEventListener("click", async () => {

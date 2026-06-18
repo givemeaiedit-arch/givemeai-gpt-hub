@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>บทความ & เทคนิค | GivemeAI</title>
+    <link rel="icon" href="assets/Icon/asset_1x1_cropfix/asset_1-01-growth-arrow.png" />
+    <link rel="stylesheet" href="aihub.css" />
+    <script defer src="browser-check.js"></script>
+  </head>
+  <body>
+    <div class="app-shell articles-shell">
+      <aside class="sidebar" aria-label="เมนูหลัก">
+        <a class="brand" href="index.html" aria-label="GivemeAI">
+          <strong>Giveme<span>AI</span></strong>
+          <small>Learn • Prompt • Create</small>
+        </a>
+
+        <nav class="side-nav">
+          <a class="nav-item" href="index.html"><span class="nav-icon">⌂</span>หน้าหลัก</a>
+
+          <p class="nav-group">เรียนรู้ AI</p>
+          <a class="nav-item" href="index.html#courses"><span class="nav-icon">▱</span>คอร์สเรียนทั้งหมด</a>
+          <a class="nav-item active" href="articles.html"><span class="nav-icon">▤</span>บทความ & เทคนิค</a>
+
+          <p class="nav-group">คลัง Prompt</p>
+          <a class="nav-item" href="index.html#prompts"><span class="nav-icon">▣</span>Prompt ยอดนิยม</a>
+          <a class="nav-item" href="index.html#categories"><span class="nav-icon">⌘</span>หมวดหมู่ Prompt</a>
+
+          <p class="nav-group">เครื่องมือ AI</p>
+          <a class="nav-item" href="tools.html"><span class="nav-icon">◌</span>เครื่องมือทั้งหมด</a>
+        </nav>
+
+        <section class="upgrade-card" aria-label="อัปเกรดเป็น Pro">
+          <div class="upgrade-title">♛ อัปเกรดเป็น Pro</div>
+          <p>ปลดล็อกคู่มือเชิงลึก Prompt และเครื่องมือ AI สำหรับทำงานจริง</p>
+          <button class="orange-button" type="button">อัปเกรดเลย <span>→</span></button>
+        </section>
+      </aside>
+
+      <main class="main-content articles-main">
+        <header class="mobile-header">
+          <div class="brand mobile-brand">
+            <strong>Giveme<span>AI</span></strong>
+            <small>Learn • Prompt • Create</small>
+          </div>
+          <div class="mobile-actions">
+            <button class="icon-button notification" type="button" aria-label="แจ้งเตือน">
+              <img src="assets/Icon/asset_1x1_cropfix/asset_6-02-bell-silver.png" alt="" />
+              <span>3</span>
+            </button>
+            <div class="mini-avatar" aria-hidden="true">
+              <img src="assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png" alt="" />
+            </div>
+          </div>
+        </header>
+
+        <header class="topbar">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="articleSearch" type="search" placeholder="ค้นหาบทความ, เทคนิค, ชื่อ AI..." aria-label="ค้นหาบทความ" />
+            <kbd>⌘ K</kbd>
+          </label>
+
+          <div class="top-actions">
+            <button class="icon-button desktop-only" type="button" aria-label="โหมดกลางคืน">◐</button>
+            <button class="icon-button notification desktop-only" type="button" aria-label="แจ้งเตือน">
+              <img src="assets/Icon/asset_1x1_cropfix/asset_6-02-bell-silver.png" alt="" />
+              <span>3</span>
+            </button>
+
+            <button class="login-chip" id="loginButton" type="button">
+              <span>Login Gmail</span>
+            </button>
+
+            <div class="user-badge" id="userBadge" hidden>
+              <img id="userAvatar" alt="" />
+              <span>
+                <strong id="userName">ผู้ใช้ Gmail</strong>
+                <small id="userStatus">เข้าสู่ระบบแล้ว</small>
+              </span>
+            </div>
+
+            <button class="logout-chip" id="logoutButton" type="button" hidden>ออก</button>
+          </div>
+        </header>
+
+        <p class="system-message" id="systemMessage">รวมบทความและเทคนิค AI ที่จัดไว้ให้อ่านง่าย</p>
+
+        <section class="articles-hero" aria-labelledby="articlesTitle">
+          <div>
+            <p class="articles-kicker">AI KNOWLEDGE HUB</p>
+            <h1 id="articlesTitle">บทความ & เทคนิค</h1>
+            <p>เลือกศึกษา AI แต่ละตัวจากคู่มือที่จัดหมวดไว้แล้ว เหมาะสำหรับเจ้าของธุรกิจ นักการตลาด ครีเอเตอร์ และคนที่อยากใช้ AI ทำงานจริง</p>
+          </div>
+          <div class="articles-metrics" aria-label="ภาพรวมคู่มือ">
+            <article><strong id="articleCount">32</strong><span>คู่มือ AI</span></article>
+            <article><strong id="pageCount">0</strong><span>เอกสารรวม</span></article>
+            <article><strong id="categoryCount">7</strong><span>หมวดหลัก</span></article>
+          </div>
+        </section>
+
+        <section class="article-controls" aria-label="ตัวกรองบทความ">
+          <div class="filter-chips" id="categoryFilters" role="list"></div>
+          <div class="article-sort">
+            <select id="articleSort" aria-label="จัดเรียงบทความ">
+              <option value="featured">แนะนำก่อน</option>
+              <option value="az">A-Z</option>
+              <option value="docs-desc">เอกสารเยอะสุด</option>
+              <option value="docs-asc">เอกสารน้อยสุด</option>
+              <option value="category">หมวด</option>
+            </select>
+            <button id="clearFilters" type="button">ล้างตัวกรอง</button>
+          </div>
+        </section>
+
+        <section class="article-layout">
+          <div>
+            <div class="section-heading">
+              <h2>คู่มือ AI ทั้งหมด</h2>
+              <span id="resultCount" class="result-count">0 รายการ</span>
+            </div>
+            <div class="article-grid" id="articleGrid"></div>
+            <div class="article-empty" id="articleEmpty" hidden>
+              <strong>ไม่พบบทความที่ตรงกับคำค้น</strong>
+              <p>ลองเปลี่ยนคำค้นหรือกดล้างตัวกรองเพื่อดูคู่มือทั้งหมด</p>
+              <button type="button" data-clear-empty>ล้างตัวกรอง</button>
+            </div>
+          </div>
+
+          <aside class="reader-panel" id="readerPanel" aria-live="polite">
+            <p class="reader-label">เลือกคู่มือ</p>
+            <h2>เริ่มจากเครื่องมือที่คุณสนใจ</h2>
+            <p>คลิกการ์ด AI ทางซ้ายเพื่อดูสรุป เหมาะกับใคร เทคนิคที่ควรศึกษา และลิงก์ต้นฉบับ</p>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <nav class="bottom-nav articles-bottom-nav" aria-label="เมนูมือถือ">
+      <a href="index.html"><span>⌂</span>หน้าหลัก</a>
+      <a class="active" href="articles.html"><span>▤</span>บทความ</a>
+      <a href="index.html#prompts"><span>▣</span>Prompt</a>
+      <a href="tools.html"><span>◇</span>เครื่องมือ</a>
+      <a href="#"><span>♙</span>โปรไฟล์</a>
+    </nav>
+
+    <script src="articles.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

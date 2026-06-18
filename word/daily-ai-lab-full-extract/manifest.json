@@ -1,0 +1,226 @@
+[
+  {
+    "name": "Antigravity",
+    "href": "/docs/antigravity",
+    "count": 4,
+    "file": "01-antigravity.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "Base44",
+    "href": "/docs/base44",
+    "count": 4,
+    "file": "02-base44.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "Bolt",
+    "href": "/docs/bolt",
+    "count": 4,
+    "file": "03-bolt.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "ChatGPT",
+    "href": "/docs/chatgpt",
+    "count": 14,
+    "file": "04-chatgpt.md",
+    "pagesCaptured": 14
+  },
+  {
+    "name": "Claude",
+    "href": "/docs/claude",
+    "count": 19,
+    "file": "05-claude.md",
+    "pagesCaptured": 19
+  },
+  {
+    "name": "Codex",
+    "href": "/docs/codex",
+    "count": 11,
+    "file": "06-codex.md",
+    "pagesCaptured": 11
+  },
+  {
+    "name": "Cursor",
+    "href": "/docs/cursor",
+    "count": 6,
+    "file": "07-cursor.md",
+    "pagesCaptured": 6
+  },
+  {
+    "name": "DALL·E",
+    "href": "/docs/dall-e",
+    "count": 13,
+    "file": "08-dall-e.md",
+    "pagesCaptured": 13
+  },
+  {
+    "name": "ElevenLabs",
+    "href": "/docs/elevenlabs",
+    "count": 6,
+    "file": "09-elevenlabs.md",
+    "pagesCaptured": 6
+  },
+  {
+    "name": "Gemini",
+    "href": "/docs/gemini",
+    "count": 30,
+    "file": "10-gemini.md",
+    "pagesCaptured": 30
+  },
+  {
+    "name": "Google AI Studio",
+    "href": "/docs/google-ai-studio",
+    "count": 4,
+    "file": "11-google-ai-studio.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "Google Flow",
+    "href": "/docs/google-flow",
+    "count": 4,
+    "file": "12-google-flow.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "Google Jules",
+    "href": "/docs/google-jules",
+    "count": 4,
+    "file": "13-google-jules.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "Google Stitch",
+    "href": "/docs/google-stitch",
+    "count": 4,
+    "file": "14-google-stitch.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "Grok",
+    "href": "/docs/grok",
+    "count": 23,
+    "file": "15-grok.md",
+    "pagesCaptured": 23
+  },
+  {
+    "name": "Hermes",
+    "href": "/docs/hermes",
+    "count": 8,
+    "file": "16-hermes.md",
+    "pagesCaptured": 8
+  },
+  {
+    "name": "HeyGen",
+    "href": "/docs/heygen",
+    "count": 6,
+    "file": "17-heygen.md",
+    "pagesCaptured": 6
+  },
+  {
+    "name": "Hugging Face",
+    "href": "/docs/hugging-face",
+    "count": 4,
+    "file": "18-hugging-face.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "Kimi",
+    "href": "/docs/kimi",
+    "count": 4,
+    "file": "19-kimi.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "Kling AI",
+    "href": "/docs/kling-ai",
+    "count": 16,
+    "file": "20-kling-ai.md",
+    "pagesCaptured": 16
+  },
+  {
+    "name": "Lovable",
+    "href": "/docs/lovable",
+    "count": 4,
+    "file": "21-lovable.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "Midjourney",
+    "href": "/docs/midjourney",
+    "count": 56,
+    "file": "22-midjourney.md",
+    "pagesCaptured": 56
+  },
+  {
+    "name": "Ollama",
+    "href": "/docs/ollama",
+    "count": 4,
+    "file": "23-ollama.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "OpenClaw",
+    "href": "/docs/openclaw",
+    "count": 7,
+    "file": "24-openclaw.md",
+    "pagesCaptured": 7
+  },
+  {
+    "name": "OpenRouter",
+    "href": "/docs/openrouter",
+    "count": 4,
+    "file": "25-openrouter.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "Perplexity",
+    "href": "/docs/perplexity",
+    "count": 18,
+    "file": "26-perplexity.md",
+    "pagesCaptured": 18
+  },
+  {
+    "name": "Replit",
+    "href": "/docs/replit",
+    "count": 4,
+    "file": "27-replit.md",
+    "pagesCaptured": 4
+  },
+  {
+    "name": "Runway",
+    "href": "/docs/runway",
+    "count": 20,
+    "file": "28-runway.md",
+    "pagesCaptured": 20
+  },
+  {
+    "name": "Seedance",
+    "href": "/docs/seedance",
+    "count": 5,
+    "file": "29-seedance.md",
+    "pagesCaptured": 5
+  },
+  {
+    "name": "Suno",
+    "href": "/docs/suno",
+    "count": 20,
+    "file": "30-suno.md",
+    "pagesCaptured": 20
+  },
+  {
+    "name": "Windsurf",
+    "href": "/docs/windsurf",
+    "count": 6,
+    "file": "31-windsurf.md",
+    "pagesCaptured": 6
+  },
+  {
+    "name": "Z.ai",
+    "href": "/docs/z-ai",
+    "count": 13,
+    "file": "32-z-ai.md",
+    "pagesCaptured": 13
+  }
+]
