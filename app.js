@@ -94,7 +94,11 @@ function initHeroCarousel() {
 
   function restartTimer() {
     window.clearInterval(timerId);
-    timerId = window.setInterval(() => renderSlide(activeIndex + 1), 6500);
+    timerId = window.setInterval(() => renderSlide(activeIndex + 1), 5000);
+  }
+
+  function pauseTimer() {
+    window.clearInterval(timerId);
   }
 
   prev?.addEventListener("click", () => {
@@ -113,6 +117,11 @@ function initHeroCarousel() {
       restartTimer();
     });
   });
+
+  carousel.addEventListener("mouseenter", pauseTimer);
+  carousel.addEventListener("mouseleave", restartTimer);
+  carousel.addEventListener("focusin", pauseTimer);
+  carousel.addEventListener("focusout", restartTimer);
 
   renderSlide(0);
   restartTimer();
