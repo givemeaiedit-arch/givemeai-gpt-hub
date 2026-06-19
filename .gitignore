@@ -1,5 +1,6 @@
 .firebase/
 .firebaserc
+.env.local
 node_modules/
 dist/
 New/
