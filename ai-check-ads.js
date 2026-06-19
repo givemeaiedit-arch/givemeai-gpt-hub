@@ -62,7 +62,7 @@ let uploadDropzone = null;
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
 const FREE_LIMIT_MESSAGE =
-  "เนเธเนเธชเธดเธ—เธเธดเนเธ•เธฃเธงเธเน€เธเนเธเธเธฃเธตเธเธฃเธเนเธฅเนเธง เธซเธฒเธเธ•เนเธญเธเธเธฒเธฃเธ•เธฃเธงเธเธชเธญเธเน€เธเธดเนเธกเน€เธ•เธดเธก เธ•เธดเธ”เธ•เนเธญ Admin Page เน€เธเธทเนเธญเธญเธฑเธเน€เธเธฃเธ”เน€เธเนเธ Pro 290 เธเธฒเธ—เธ•เนเธญเน€เธ”เธทเธญเธ เธฃเธฑเธเธชเธดเธ—เธเธดเนเนเธเนเน€เธเธฃเธทเนเธญเธเธกเธทเธญ Check Ads เนเธ”เนเธงเธฑเธเธฅเธฐ 10 เธเธฃเธฑเนเธ เธเธฃเนเธญเธกเน€เธเนเธฒเธ–เธถเธเธเธญเธฃเนเธชเน€เธฃเธตเธขเธ AI เธกเธฒเธเธเธงเนเธฒ 20 เธเธ— เนเธฅเธฐเน€เธเธฃเธทเนเธญเธเธกเธทเธญ AI เนเธซเธกเน เน เนเธเธญเธเธฒเธเธ•";
+  "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว หากต้องการตรวจสอบเพิ่มเติม ติดต่อ Admin Page เพื่ออัปเกรดเป็น Pro 290 บาทต่อเดือน รับสิทธิ์ใช้เครื่องมือ Check Ads ได้วันละ 10 ครั้ง พร้อมคอร์สเรียน AI มากกว่า 20 บท และเครื่องมือ AI ใหม่ ๆ ในอนาคต";
 
 const metricMeta = {
   hook_scroll_stop: 15,
@@ -271,7 +271,7 @@ function renderStars(score) {
   const filled = Math.max(1, Math.min(5, Math.round(Number(score || 0) / 20)));
   auditStars.innerHTML = Array.from({ length: 5 }, (_, index) => {
     const isOff = index >= filled ? ' class="is-off"' : "";
-    return `<span${isOff}>โ…</span>`;
+    return `<span${isOff}>★</span>`;
   }).join("");
 }
 
@@ -305,7 +305,7 @@ function renderAudit(data) {
 
   if (secondaryAudienceList) {
     secondaryAudienceList.innerHTML = personaToHtml(data.secondary_audiences?.length ? data.secondary_audiences : [
-      { title: "เนเธกเนเธเธเธเธฅเธธเนเธกเธฃเธญเธเน€เธ”เนเธเธเธฑเธ”", description: "เนเธกเน€เธ”เธฅเธขเธฑเธเนเธกเนเนเธขเธ persona เธฃเธญเธเน€เธเธดเนเธกเน€เธ•เธดเธกเธเธฒเธเธ เธฒเธเธเธตเน" },
+      { title: "ไม่พบกลุ่มรองเด่นชัด", description: "โมเดลยังไม่แยก persona รองเพิ่มเติมจากภาพนี้" },
     ]);
   }
 
@@ -337,34 +337,34 @@ function renderAudit(data) {
 function applyMockAudit() {
   renderAudit({
     overall_score: 78,
-    creative_potential: "เธชเธนเธ",
+    creative_potential: "สูง",
     summary_3_lines: [
-      "เธชเธทเนเธญ pain เนเธฅเธฐเธเธฅเธฅเธฑเธเธเนเนเธ”เนเนเธง เน€เธซเนเธเธเธฃเธฐเนเธขเธเธเนเนเธ 1-2 เธงเธดเธเธฒเธ—เธต",
-      "เธกเธต offer เนเธฅเธฐ proof เธ”เธต เนเธ•เน CTA เธขเธฑเธเนเธกเนเนเธฃเธเธเธญ",
-      "audience signal เธเนเธญเธเธเนเธฒเธเธเธฑเธ” เนเธ•เนเธขเธฑเธเน€เธเธดเนเธกเธเธงเธฒเธกเน€เธเธเธฒเธฐเธเธฅเธธเนเธกเนเธ”เนเธญเธตเธ",
+      "สื่อ pain และผลลัพธ์ได้ไว เห็นประโยชน์ใน 1-2 วินาที",
+      "มี offer และ proof ดี แต่ CTA ยังไม่แรงพอ",
+      "audience signal ค่อนข้างชัด แต่ยังเพิ่มความเฉพาะกลุ่มได้อีก",
     ],
     primary_audience: {
-      demographic: "เธเธนเนเธซเธเธดเธ 18-30 เธเธต เนเธเนเธ—เธข",
-      interests: ["Skincare", "Beauty", "Self-care", "เธฃเธตเธงเธดเธง"],
-      behaviors: ["เธเธญเธเธเธญเธเน€เธ—เธเธ•เน before/after", "เธญเนเธฒเธเธฃเธตเธงเธดเธง", "เน€เธ—เธตเธขเธเธฃเธฒเธเธฒเนเธฅเธฐเธเธฅเธฅเธฑเธเธเน"],
-      pain_desire: ["เธชเธดเธง", "เธฃเธญเธขเธชเธดเธง", "เธเธดเธงเธซเธกเธญเธ", "เธญเธขเธฒเธเน€เธซเนเธเธเธฅเนเธง"],
-      creative_signals: ["เธเนเธญเธเธงเธฒเธกเธเธฅเธฅเธฑเธเธเน", "เธ เธฒเธเธเธฒเธเนเธเธ", "เธฃเธฒเธเธฒ", "เธฃเธตเธงเธดเธง"],
+      demographic: "ผู้หญิง 18-30 ปี ในไทย",
+      interests: ["Skincare", "Beauty", "Self-care", "รีวิว"],
+      behaviors: ["ชอบคอนเทนต์ before/after", "อ่านรีวิว", "เทียบราคาและผลลัพธ์"],
+      pain_desire: ["สิว", "รอยสิว", "ผิวหมอง", "อยากเห็นผลไว"],
+      creative_signals: ["ข้อความผลลัพธ์", "ภาพนางแบบ", "ราคา", "รีวิว"],
     },
     secondary_audiences: [
-      { title: "เธเธนเนเธซเธเธดเธ 25-35 เธเธต", description: "เธ—เธณเธเธฒเธเธญเธญเธเธเธดเธจ เธชเธเนเธเธเธดเธงเธซเธเนเธฒเนเธฅเธฐเธเธฒเธฃเธ”เธนเนเธฅเธ•เธฑเธงเน€เธญเธ" },
-      { title: "เธงเธฑเธขเธฃเธธเนเธ / เธเธฑเธเธจเธถเธเธฉเธฒ 16-22 เธเธต", description: "เน€เธฃเธดเนเธกเธกเธตเธชเธดเธง เธเธญเธเธเธญเธเน€เธ—เธเธ•เน TikTok / IG เธ—เธตเนเน€เธซเนเธเธเธฅเนเธง" },
-      { title: "เธเธนเนเธเธฒเธข 18-28 เธเธต", description: "เน€เธฃเธดเนเธกเธ”เธนเนเธฅเธเธดเธงเนเธฅเธฐเธชเธเนเธเธชเธดเธเธเนเธฒเธ—เธตเนเนเธเนเธเนเธฒเธข เธฃเธฒเธเธฒเนเธกเนเนเธฃเธ" },
+      { title: "ผู้หญิง 25-35 ปี", description: "ทำงานออฟฟิศ สนใจผิวหน้าและการดูแลตัวเอง" },
+      { title: "วัยรุ่น / นักศึกษา 16-22 ปี", description: "เริ่มมีสิว ชอบคอนเทนต์ TikTok / IG ที่เห็นผลไว" },
+      { title: "ผู้ชาย 18-28 ปี", description: "เริ่มดูแลผิวและสนใจสินค้าที่ใช้ง่าย ราคาไม่แรง" },
     ],
     audience_size_estimate: {
       min: 1500000,
       max: 4000000,
-      confidence: "เธเธฅเธฒเธ-เธชเธนเธ",
-      rationale: "เธเธฃเธฐเน€เธกเธดเธเธเธฒเธ creative signal เนเธฅเธฐเธฅเธฑเธเธฉเธ“เธฐ pain เธ—เธตเนเธเธงเนเธฒเธเธเธญเนเธเธ•เธฅเธฒเธ”เนเธ—เธข",
+      confidence: "กลาง-สูง",
+      rationale: "ประเมินจาก creative signal และลักษณะ pain ที่กว้างพอในตลาดไทย",
     },
     andromeda_signal_check: {
-      clarity: "เธเนเธญเธเธเนเธฒเธเธเธฑเธ” เน€เธซเธกเธฒเธฐเธเธฑเธ pain เน€เธฃเธทเนเธญเธเธชเธดเธง / เธเธดเธงเนเธช / เธเธฅเธฅเธฑเธเธเนเน€เธฃเนเธง",
-      understood_signals: ["เธเธนเนเธซเธเธดเธเธงเธฑเธขเธฃเธธเนเธเธ–เธถเธเธงเธฑเธขเธ—เธณเธเธฒเธ", "เธเธฑเธเธซเธฒเธชเธดเธง เธเธดเธงเนเธกเนเนเธช", "เธ•เนเธญเธเธเธฒเธฃเธเธฅเธฅเธฑเธเธเนเน€เธฃเนเธง"],
-      confusing_signals: ["proof เธเธฃเธดเธเธขเธฑเธเธเนเธญเธข", "เธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”เธเนเธญเธเธฑเธเธงเธฅเธขเธฑเธเธ•เธญเธเนเธกเนเธเธฃเธ", "CTA เธขเธฑเธเนเธกเนเธเธฑเธ”เธเธญ"],
+      clarity: "ค่อนข้างชัด เหมาะกับ pain เรื่องสิว / ผิวใส / ผลลัพธ์เร็ว",
+      understood_signals: ["ผู้หญิงวัยรุ่นถึงวัยทำงาน", "ปัญหาสิว ผิวไม่ใส", "ต้องการผลลัพธ์เร็ว"],
+      confusing_signals: ["proof จริงยังน้อย", "รายละเอียดข้อกังวลยังตอบไม่ครบ", "CTA ยังไม่ชัดพอ"],
     },
     category_scores: {
       hook_scroll_stop: 13,
@@ -378,30 +378,30 @@ function applyMockAudit() {
       andromeda_readiness: 7,
     },
     strengths: [
-      "เน€เธเธดเธ”เธ เธฒเธเธเนเธงเธขเธเธฅเธฅเธฑเธเธเนเธเธฑเธ” เธ”เธนเธเนเธฒเธชเธเนเธ",
-      "เธชเธทเนเธญ pain เนเธฅเธฐ benefit เนเธ”เนเน€เธฃเนเธง",
-      "เธกเธตเธฃเธฒเธเธฒเนเธฅเธฐเธฃเธตเธงเธดเธงเธเนเธงเธขเน€เธเธดเนเธกเธเธงเธฒเธกเธเนเธฒเน€เธเธทเนเธญเธ–เธทเธญ",
+      "เปิดภาพช่วยผลลัพธ์ชัด ดูน่าสนใจ",
+      "สื่อ pain และ benefit ได้เร็ว",
+      "มีราคาและรีวิวช่วยเพิ่มความน่าเชื่อถือ",
     ],
     weaknesses: [
-      "เธขเธฑเธเนเธกเนเธกเธต handling objection เธกเธฒเธเธเธญ",
-      "CTA เธขเธฑเธเธ—เธฑเนเธงเนเธ เนเธกเนเน€เธฃเนเธเธเธฒเธฃเธ•เธฑเธ”เธชเธดเธเนเธ",
-      "proof เน€เธเธดเธเธฅเธถเธเธขเธฑเธเธเนเธญเธขเธ–เนเธฒเธ•เนเธญเธเธเธฒเธฃ scale",
+      "ยังไม่มี handling objection มากพอ",
+      "CTA ยังทั่วไป ไม่เร่งการตัดสินใจ",
+      "proof เชิงลึกยังน้อยถ้าต้องการ scale",
     ],
     fixes_now: [
-      "เน€เธเธดเนเธก before / after เธซเธฃเธทเธญเธฃเธตเธงเธดเธง 1-2 เน€เธเธช",
-      "เน€เธเธดเนเธกเธเธฃเธฐเนเธขเธเธ•เธญเธเธเนเธญเธเธฑเธเธงเธฅ เน€เธเนเธ เธเธดเธงเนเธเนเธเนเธฒเธขเนเธเนเนเธ”เนเนเธซเธก",
-      "เธเธฃเธฑเธ CTA เนเธซเนเธเธฑเธ”เธเธถเนเธ เน€เธเนเธ เธ—เธฑเธเน€เธเธทเนเธญเธฃเธฑเธเนเธเธฃเธงเธฑเธเธเธตเน",
+      "เพิ่ม before / after หรือรีวิว 1-2 เคส",
+      "เพิ่มประโยคตอบข้อกังวล เช่น ผิวแพ้ง่ายใช้ได้ไหม",
+      "ปรับ CTA ให้ชัดขึ้น เช่น ทักเพื่อรับโปรวันนี้",
     ],
     hook_options: [
-      "เธชเธดเธงเธเธถเนเธเธ—เธธเธเธงเธฑเธ? เธฅเธญเธเธ•เธฑเธงเธเธตเน 7 เธงเธฑเธเน€เธซเนเธเธเธฅ",
-      "เธเนเธญเธเธเธญเธ 1 เธซเธขเธ” เธ•เธทเนเธเธกเธฒเธเธดเธงเนเธชเธเธถเนเธ",
-      "เธเธดเธงเธญเนเธญเธเธฅเนเธฒ เธเธทเนเธเธฅเธธเธเนเธซเนเธ”เธนเธชเธ”เธเธถเนเธเน€เธฃเนเธง",
-      "เน€เธเธฃเธฑเนเธกเธฅเธ”เธชเธดเธงเธ—เธตเนเนเธเนเนเธฅเนเธงเธญเธขเธฒเธเธเธญเธเธ•เนเธญ",
-      "เธ–เนเธฒเธญเธขเธฒเธเธเธดเธงเนเธชเนเธง เธฅเธญเธเน€เธฃเธดเนเธกเธเธฒเธเธ•เธฑเธงเธเธตเน",
+      "สิวขึ้นทุกวัน? ลองตัวนี้ 7 วันเห็นผล",
+      "ก่อนนอน 1 หยด ตื่นมาผิวใสขึ้น",
+      "ผิวอ่อนล้า ฟื้นลุคให้ดูสดขึ้นเร็ว",
+      "เซรั่มลดสิวที่ใช้แล้วอยากบอกต่อ",
+      "ถ้าอยากผิวใสไว ลองเริ่มจากตัวนี้",
     ],
     final_verdict: {
-      status: "เธเธงเธฃเนเธเนเธเนเธญเธเธฃเธฑเธ",
-      reason: "เธ เธฒเธเธฃเธงเธกเธ”เธต เนเธ•เนเธเธงเธฃเน€เธเธดเนเธก Proof, objection handling เนเธฅเธฐ CTA เธ—เธตเนเธเธฑเธ”เธเธถเนเธเธเนเธญเธเธขเธดเธเธเธเธเธฃเธดเธ",
+      status: "ควรแก้ก่อนรัน",
+      reason: "ภาพรวมดี แต่ควรเพิ่ม Proof, objection handling และ CTA ที่ชัดขึ้นก่อนยิงงบจริง",
     },
   });
 }
@@ -409,30 +409,30 @@ function applyMockAudit() {
 async function analyzeWithBackend() {
   const endpoint = apiEndpointInput?.value?.trim();
   if (!endpoint) {
-    setRequestStatus("เธเธฃเธธเธ“เธฒเธฃเธฐเธเธธ backend endpoint เธเนเธญเธ", "error");
+    setRequestStatus("กรุณาระบุ backend endpoint ก่อน", "error");
     return;
   }
 
   if (!selectedImageDataUrl) {
-    setRequestStatus("เธเธฃเธธเธ“เธฒเธญเธฑเธเนเธซเธฅเธ”เธฃเธนเธเนเธเธฉเธ“เธฒเธเนเธญเธเธเธ”เธงเธดเน€เธเธฃเธฒเธฐเธซเน", "error");
+    setRequestStatus("กรุณาอัปโหลดรูปโฆษณาก่อนกดวิเคราะห์", "error");
     return;
   }
 
   if (!currentUser) {
-    setRequestStatus("เธเธฃเธธเธ“เธฒ Login Gmail เธเนเธญเธเนเธเนเธเธฒเธ", "error");
+    setRequestStatus("กรุณา Login Gmail ก่อนใช้งาน", "error");
     return;
   }
 
   let user = currentUser;
   if (!user) {
-    setRequestStatus("เธเธฃเธธเธ“เธฒ Login Gmail เธเนเธญเธ Check Ads", "error");
+    setRequestStatus("กรุณา Login Gmail ก่อน Check Ads", "error");
     try {
       const credential = await signInWithGoogle();
       user = credential.user;
       currentUser = user;
       updateAdminUi();
     } catch {
-      setRequestStatus("เธขเธฑเธเนเธกเนเนเธ”เน Login Gmail เธเธถเธเธขเธฑเธเธชเนเธเธงเธดเน€เธเธฃเธฒเธฐเธซเนเนเธกเนเนเธ”เน", "error");
+      setRequestStatus("ยังไม่ได้ Login Gmail จึงยังส่งวิเคราะห์ไม่ได้", "error");
       return;
     }
   }
@@ -441,7 +441,7 @@ async function analyzeWithBackend() {
   try {
     idToken = await user.getIdToken();
   } catch {
-    setRequestStatus("เธขเธทเธเธขเธฑเธเธชเธดเธ—เธเธดเน Gmail เนเธกเนเธชเธณเน€เธฃเนเธ เธเธฃเธธเธ“เธฒ Login เนเธซเธกเนเธญเธตเธเธเธฃเธฑเนเธ", "error");
+    setRequestStatus("ยืนยันสิทธิ์ Gmail ไม่สำเร็จ กรุณา Login ใหม่อีกครั้ง", "error");
     return;
   }
 
@@ -451,7 +451,7 @@ async function analyzeWithBackend() {
     fileName: selectedFileName,
     fileSize: selectedFileSize,
     productName:
-      productNameInput?.value?.trim() || "เนเธซเน AI เธ”เธนเธเธฒเธเธ เธฒเธเนเธเธฉเธ“เธฒเนเธฅเธฐเธฃเธฐเธเธธเธเธทเนเธญเธชเธดเธเธเนเธฒเธซเธฃเธทเธญเธเธฃเธฐเน€เธ เธ—เธชเธดเธเธเนเธฒเธ—เธตเนเนเธเธฅเนเน€เธเธตเธขเธเธ—เธตเนเธชเธธเธ”",
+      productNameInput?.value?.trim() || "ให้ AI ดูจากภาพโฆษณาและระบุชื่อสินค้าหรือประเภทสินค้าที่ใกล้เคียงที่สุด",
     targetMarket: targetMarketInput?.value?.trim() || "TH",
     objective: objectiveInput?.value?.trim() || "meta_ads_conversion",
     notes: notesInput?.value?.trim() || "-",
@@ -461,10 +461,10 @@ async function analyzeWithBackend() {
     runAuditButton.disabled = true;
     setResultPanelsVisible(false);
     setSkeletonVisible(true);
-    runAuditButton.textContent = "เธเธณเธฅเธฑเธเธงเธดเน€เธเธฃเธฒเธฐเธซเน...";
+    runAuditButton.textContent = "กำลังวิเคราะห์...";
     if (auditStatusBadge) auditStatusBadge.textContent = "Loading";
     setUpgradeNotice(false);
-    setRequestStatus("เธเธณเธฅเธฑเธเธชเนเธเธฃเธนเธเนเธ backend เน€เธเธทเนเธญเธงเธดเน€เธเธฃเธฒเธฐเธซเน...", "loading");
+    setRequestStatus("กำลังส่งรูปไป backend เพื่อวิเคราะห์...", "loading");
 
     const response = await fetch(endpoint, {
       method: "POST",
@@ -481,11 +481,11 @@ async function analyzeWithBackend() {
     try {
       result = raw ? JSON.parse(raw) : {};
     } catch {
-      throw new Error("backend เธ•เธญเธเธเธฅเธฑเธเนเธกเนเนเธเน JSON เธ—เธตเนเธญเนเธฒเธเนเธ”เน");
+      throw new Error("backend ตอบกลับไม่ใช่ JSON ที่อ่านได้");
     }
 
     if (!response.ok) {
-      const backendError = new Error(result?.error || "เธงเธดเน€เธเธฃเธฒเธฐเธซเนเนเธกเนเธชเธณเน€เธฃเนเธ");
+      const backendError = new Error(result?.error || "วิเคราะห์ไม่สำเร็จ");
       backendError.code = result?.code || "";
       backendError.upgradeUrl = result?.upgradeUrl || "";
       throw backendError;
@@ -507,7 +507,7 @@ async function analyzeWithBackend() {
     if (error.code === "FREE_LIMIT_REACHED") {
       setUpgradeNotice(true, error.message || FREE_LIMIT_MESSAGE, error.upgradeUrl || PRO_UPGRADE_URL);
     }
-    setRequestStatus(error.message || "เน€เธเธดเธ”เธเนเธญเธเธดเธ”เธเธฅเธฒเธ”เธฃเธฐเธซเธงเนเธฒเธเธงเธดเน€เธเธฃเธฒเธฐเธซเน", "error");
+    setRequestStatus(error.message || "เกิดข้อผิดพลาดระหว่างวิเคราะห์", "error");
   } finally {
     runAuditButton.disabled = false;
     runAuditButton.textContent = "วิเคราะห์เลย";
@@ -534,7 +534,7 @@ adsImageInput?.addEventListener("change", async (event) => {
   } catch {
     initUploadUi();
     setDefaultPreview();
-    setRequestStatus("เธญเนเธฒเธเนเธเธฅเนเธฃเธนเธเนเธกเนเธชเธณเน€เธฃเนเธ", "error");
+    setRequestStatus("อ่านไฟล์รูปไม่สำเร็จ", "error");
   }
 });
 
@@ -552,7 +552,7 @@ heroLoginButton?.addEventListener("click", async () => {
   try {
     await signInWithGoogle();
   } catch {
-    setRequestStatus("Login Gmail เนเธกเนเธชเธณเน€เธฃเนเธ เธเธฃเธธเธ“เธฒเธฅเธญเธเนเธซเธกเนเธญเธตเธเธเธฃเธฑเนเธ", "error");
+    setRequestStatus("Login Gmail ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", "error");
   }
 });
 
