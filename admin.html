@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Panel | GivemeAI</title>
+    <link rel="icon" href="assets/Icon/asset_1x1_cropfix/asset_1-01-growth-arrow.png" />
+    <link rel="stylesheet" href="aihub.css" />
+    <script defer src="browser-check.js"></script>
+  </head>
+  <body>
+    <div class="app-shell leaderboard-shell admin-shell">
+      <aside class="sidebar" aria-label="เมนูหลัก">
+        <a class="brand" href="index.html" aria-label="GivemeAI">
+          <strong>Giveme<span>AI</span></strong>
+          <small>Learn • Prompt • Create</small>
+        </a>
+
+        <nav class="side-nav">
+          <a class="nav-item" href="index.html"><span class="nav-icon">⌂</span>หน้าหลัก</a>
+          <a class="nav-item" href="tools.html"><span class="nav-icon">✌</span>เครื่องมือทั้งหมด</a>
+          <a class="nav-item" href="ai-check-ads.html"><span class="nav-icon">✓</span>AI Check Ads</a>
+          <a class="nav-item" href="profile.html"><span class="nav-icon">☻</span>โปรไฟล์ของฉัน</a>
+          <a class="nav-item active" href="admin.html"><span class="nav-icon">A</span>Admin Panel</a>
+        </nav>
+
+        <section class="upgrade-card" aria-label="Admin">
+          <div class="upgrade-title">Admin Only</div>
+          <p>หน้านี้อ่านข้อมูลผู้ใช้และประวัติ AI Check Ads ได้เฉพาะบัญชี Admin เท่านั้น</p>
+          <a class="orange-button" href="ai-check-ads.html">กลับไป Check Ads <span>→</span></a>
+        </section>
+      </aside>
+
+      <main class="main-content leaderboard-main admin-main">
+        <header class="topbar">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="adminSearchInput" type="search" placeholder="ค้นหาอีเมล ชื่อไฟล์ หรือชื่อสินค้า..." aria-label="ค้นหาใน Admin Panel" />
+            <kbd>⌘ K</kbd>
+          </label>
+
+          <div class="top-actions">
+            <button class="login-chip" id="loginButton" type="button"><span>Login Gmail</span></button>
+            <div class="user-badge" id="userBadge" hidden>
+              <img id="userAvatar" alt="" />
+              <span>
+                <strong id="userName">ผู้ใช้ Gmail</strong>
+                <a id="userStatus" class="user-status-link" href="profile.html">เข้าสู่ระบบแล้ว</a>
+              </span>
+            </div>
+            <button class="logout-chip" id="logoutButton" type="button" hidden>ออก</button>
+          </div>
+        </header>
+
+        <p class="system-message" id="systemMessage">Admin Dashboard สำหรับดูผู้ใช้และประวัติ AI Check Ads</p>
+
+        <section class="leaderboard-hero admin-hero">
+          <div>
+            <p class="tools-kicker">ADMIN DASHBOARD</p>
+            <h1>หลังบ้าน GivemeAI</h1>
+            <p>ดูรายชื่อผู้ใช้ ดูประวัติการ Check Ads และตรวจว่าใครเช็คไฟล์ไหนเมื่อไหร่</p>
+          </div>
+          <div class="leaderboard-status-card">
+            <strong id="adminStatus">กรุณา Login ด้วยบัญชี Admin</strong>
+            <span>Admin: Givemeai.edit@gmail.com</span>
+          </div>
+        </section>
+
+        <section class="admin-stat-grid" aria-label="ภาพรวม Admin">
+          <article>
+            <span>ผู้ใช้ทั้งหมด</span>
+            <strong id="adminUserCount">0</strong>
+          </article>
+          <article>
+            <span>ประวัติ Check Ads</span>
+            <strong id="adminCheckCount">0</strong>
+          </article>
+          <article>
+            <span>ล่าสุด</span>
+            <strong id="adminLatestTime">-</strong>
+          </article>
+        </section>
+
+        <section class="admin-grid">
+          <article class="leaderboard-table-card admin-card">
+            <div class="panel-heading">
+              <h2>รายชื่อผู้ใช้</h2>
+              <span id="adminUsersLabel">-</span>
+            </div>
+            <div class="leaderboard-table-wrap">
+              <table class="leaderboard-table admin-table">
+                <thead>
+                  <tr>
+                    <th>ผู้ใช้</th>
+                    <th>อีเมล</th>
+                    <th>อัปเดตล่าสุด</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="adminUsersBody"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="leaderboard-table-card admin-card">
+            <div class="panel-heading">
+              <h2>ประวัติ AI Check Ads</h2>
+              <span id="adminHistoryLabel">-</span>
+            </div>
+            <div class="leaderboard-table-wrap">
+              <table class="leaderboard-table admin-table">
+                <thead>
+                  <tr>
+                    <th>เวลา</th>
+                    <th>ผู้ใช้</th>
+                    <th>ไฟล์</th>
+                    <th>สินค้า</th>
+                    <th>คะแนน</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="adminHistoryBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="profile-card admin-profile-card" id="adminProfilePanel">
+          <div class="panel-heading">
+            <h2>โปรไฟล์และประวัติรายคน</h2>
+            <span>เลือกผู้ใช้จากตารางเพื่อดูรายละเอียด</span>
+          </div>
+          <div id="adminProfileDetail" class="admin-profile-empty">
+            ยังไม่ได้เลือกผู้ใช้
+          </div>
+          <div class="leaderboard-table-wrap">
+            <table class="leaderboard-table admin-table">
+              <thead>
+                <tr>
+                  <th>เวลา</th>
+                  <th>ไฟล์</th>
+                  <th>สินค้า</th>
+                  <th>คะแนน</th>
+                  <th>ซ้ำ</th>
+                </tr>
+              </thead>
+              <tbody id="adminUserHistoryBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <nav class="bottom-nav" aria-label="เมนูมือถือ">
+      <a href="index.html"><span>⌂</span>หน้าหลัก</a>
+      <a href="tools.html"><span>✇</span>เครื่องมือ</a>
+      <a href="ai-check-ads.html"><span>✓</span>Check Ads</a>
+      <a href="profile.html"><span>☻</span>โปรไฟล์</a>
+      <a class="active" href="admin.html"><span>A</span>Admin</a>
+    </nav>
+
+    <script type="module" src="app.js"></script>
+    <script type="module" src="admin.js"></script>
+  </body>
+</html>

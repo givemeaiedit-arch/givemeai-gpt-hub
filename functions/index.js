@@ -1,12 +1,19 @@
 import { readFile } from "node:fs/promises";
+import { initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import { onRequest } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
+
+initializeApp();
 
 const openAiApiKey = defineSecret("OPENAI_API_KEY");
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4.1";
 const OPENAI_FAST_MODEL = process.env.OPENAI_FAST_MODEL || "gpt-4.1-mini";
 const promptUrl = new URL("./openai/ai-check-ads-prompt.md", import.meta.url);
 const schemaUrl = new URL("./openai/ai-check-ads-schema.json", import.meta.url);
+const adminAuth = getAuth();
+const adminDb = getFirestore();
 
 function setCors(res) {
   res.set("Access-Control-Allow-Origin", "*");
@@ -69,6 +76,130 @@ async function readJsonBody(req) {
   }
   const text = Buffer.concat(chunks).toString("utf8");
   return text ? JSON.parse(text) : {};
+}
+
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function toFileKey(fileName) {
+  const normalized = String(fileName || "unnamed-file")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+  return Buffer.from(normalized, "utf8").toString("base64url").slice(0, 120) || "unnamed-file";
+}
+
+function timestampToIso(value) {
+  if (!value) return "";
+  if (typeof value.toDate === "function") return value.toDate().toISOString();
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value === "string") return value;
+  return "";
+}
+
+async function verifySignedInUser(req) {
+  const authHeader = req.get("authorization") || "";
+  const match = authHeader.match(/^Bearer\s+(.+)$/i);
+  if (!match) {
+    throw new Error("กรุณา Login Gmail ก่อน Check Ads");
+  }
+
+  const decoded = await adminAuth.verifyIdToken(match[1]);
+  return {
+    uid: decoded.uid,
+    email: decoded.email || "",
+    displayName: decoded.name || decoded.email?.split("@")[0] || "ผู้ใช้ Gmail",
+    photoURL: decoded.picture || "",
+  };
+}
+
+async function ensureUserProfile(user) {
+  await adminDb.collection("users").doc(user.uid).set(
+    {
+      email: user.email,
+      emailLower: normalizeEmail(user.email),
+      googleDisplayName: user.displayName,
+      googlePhotoURL: user.photoURL,
+      updatedAt: FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true },
+  );
+}
+
+function buildHistoryResponse(data) {
+  return {
+    ...(data.result || {}),
+    history: {
+      fromHistory: true,
+      fileName: data.fileName || "",
+      productName: data.productName || "",
+      checkedAt: timestampToIso(data.checkedAt),
+      checkedBy: data.userEmail || "",
+    },
+  };
+}
+
+async function getExistingAdCheck(user, fileName) {
+  if (!fileName) return null;
+  const fileKey = toFileKey(fileName);
+  const userHistoryRef = adminDb
+    .collection("users")
+    .doc(user.uid)
+    .collection("adCheckHistory")
+    .doc(fileKey);
+  const globalHistoryRef = adminDb.collection("adCheckHistory").doc(`${user.uid}_${fileKey}`);
+  const snapshot = await userHistoryRef.get();
+  if (!snapshot.exists) return null;
+  const data = snapshot.data() || {};
+  const duplicateUpdate = {
+    duplicateHits: FieldValue.increment(1),
+    lastDuplicateAt: FieldValue.serverTimestamp(),
+  };
+  await Promise.all([
+    userHistoryRef.set(duplicateUpdate, { merge: true }),
+    globalHistoryRef.set(duplicateUpdate, { merge: true }),
+  ]);
+  return buildHistoryResponse(data);
+}
+
+async function saveAdCheckHistory(user, payload, result) {
+  const fileName = String(payload.fileName || "unnamed-file").trim() || "unnamed-file";
+  const fileKey = toFileKey(fileName);
+  const checkedAt = FieldValue.serverTimestamp();
+  const historyData = {
+    uid: user.uid,
+    userEmail: user.email,
+    userEmailLower: normalizeEmail(user.email),
+    displayName: user.displayName,
+    photoURL: user.photoURL,
+    fileName,
+    fileKey,
+    fileSize: Number(payload.fileSize || 0),
+    mimeType: payload.mimeType || "",
+    productName: payload.productName || "",
+    targetMarket: payload.targetMarket || "TH",
+    objective: payload.objective || "meta_ads_conversion",
+    notes: payload.notes || "",
+    result,
+    score: Number(result.overall_score || 0),
+    checkedAt,
+    updatedAt: checkedAt,
+    duplicateHits: 0,
+  };
+
+  const userHistoryRef = adminDb
+    .collection("users")
+    .doc(user.uid)
+    .collection("adCheckHistory")
+    .doc(fileKey);
+  const globalHistoryRef = adminDb.collection("adCheckHistory").doc(`${user.uid}_${fileKey}`);
+
+  await Promise.all([
+    userHistoryRef.set(historyData, { merge: true }),
+    globalHistoryRef.set(historyData, { merge: true }),
+  ]);
 }
 
 async function analyzeCreative(payload) {
@@ -149,6 +280,28 @@ async function analyzeCreative(payload) {
   }
 
   return JSON.parse(outputText);
+}
+
+async function analyzeCreativeForUser(req, payload) {
+  const user = await verifySignedInUser(req);
+  await ensureUserProfile(user);
+
+  const existing = await getExistingAdCheck(user, payload.fileName);
+  if (existing) {
+    return existing;
+  }
+
+  const result = await analyzeCreative(payload);
+  await saveAdCheckHistory(user, payload, result);
+  return {
+    ...result,
+    history: {
+      fromHistory: false,
+      fileName: payload.fileName || "",
+      productName: payload.productName || "",
+      checkedBy: user.email,
+    },
+  };
 }
 
 async function extractProductNameFromCreative(payload) {
@@ -269,7 +422,7 @@ export const analyzeAdCreative = onRequest(
 
     try {
       const payload = await readJsonBody(req);
-      const result = await analyzeCreative(payload);
+      const result = await analyzeCreativeForUser(req, payload);
       sendJson(res, 200, result);
     } catch (error) {
       sendJson(res, 400, {

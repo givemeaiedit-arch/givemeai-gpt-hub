@@ -1,3 +1,5 @@
+import { signInWithGoogle, watchAuth } from "./auth-shared.js";
+
 const adsImageInput = document.querySelector("#adsImageInput");
 const clearAdsImageButton = document.querySelector("#clearAdsImageButton");
 const runAuditButton = document.querySelector("#runAuditButton");
@@ -14,6 +16,8 @@ const productNameInput = document.querySelector("#productNameInput");
 const targetMarketInput = document.querySelector("#targetMarketInput");
 const objectiveInput = document.querySelector("#objectiveInput");
 const notesInput = document.querySelector("#notesInput");
+const auditAdminSettings = document.querySelector("#auditAdminSettings");
+const adminOnlyElements = [...document.querySelectorAll(".admin-only")];
 const auditSummaryList = document.querySelector("#auditSummaryList");
 const primaryAudienceDemographic = document.querySelector("#primaryAudienceDemographic");
 const primaryAudienceInterests = document.querySelector("#primaryAudienceInterests");
@@ -37,6 +41,11 @@ const auditStars = document.querySelector("#auditStars");
 
 let selectedImageDataUrl = "";
 let selectedMimeType = "image/jpeg";
+let selectedFileName = "";
+let selectedFileSize = 0;
+let currentUser = null;
+
+const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 
 const metricMeta = {
   hook_scroll_stop: 15,
@@ -56,9 +65,23 @@ function setRequestStatus(message, tone = "muted") {
   auditRequestStatus.dataset.tone = tone;
 }
 
+function isAdminUser(user) {
+  return ADMIN_EMAILS.has(String(user?.email || "").trim().toLowerCase());
+}
+
+function updateAdminUi() {
+  const isAdmin = isAdminUser(currentUser);
+  if (auditAdminSettings) auditAdminSettings.hidden = !isAdmin;
+  adminOnlyElements.forEach((element) => {
+    element.hidden = !isAdmin;
+  });
+}
+
 function setDefaultPreview() {
   selectedImageDataUrl = "";
   selectedMimeType = "image/jpeg";
+  selectedFileName = "";
+  selectedFileSize = 0;
   if (adsPreviewImage) adsPreviewImage.src = "assets/banners/โฆษณา.png";
   if (previewOverlayTitle) previewOverlayTitle.textContent = "พร้อมเชื่อม API วิเคราะห์ภาพ";
   if (previewOverlayText) previewOverlayText.textContent = "ตอนนี้แสดงภาพตัวอย่างก่อน เมื่ออัปโหลดรูป ระบบจะพรีวิวภาพจริงในช่องนี้";
@@ -322,9 +345,27 @@ async function analyzeWithBackend() {
     return;
   }
 
+  let user = currentUser;
+  if (!user) {
+    setRequestStatus("กรุณา Login Gmail ก่อน Check Ads", "error");
+    try {
+      const credential = await signInWithGoogle();
+      user = credential.user;
+      currentUser = user;
+      updateAdminUi();
+    } catch {
+      setRequestStatus("ยังไม่ได้ Login Gmail จึงยังส่งวิเคราะห์ไม่ได้", "error");
+      return;
+    }
+  }
+
+  const idToken = await user.getIdToken();
+
   const payload = {
     imageBase64: selectedImageDataUrl.split(",")[1],
     mimeType: selectedMimeType,
+    fileName: selectedFileName,
+    fileSize: selectedFileSize,
     productName: productNameInput?.value?.trim() || "ไม่ระบุ",
     targetMarket: targetMarketInput?.value?.trim() || "TH",
     objective: objectiveInput?.value?.trim() || "meta_ads_conversion",
@@ -341,6 +382,7 @@ async function analyzeWithBackend() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
       },
       body: JSON.stringify(payload),
     });
@@ -361,7 +403,11 @@ async function analyzeWithBackend() {
     renderAudit(result);
     if (previewOverlayTitle) previewOverlayTitle.textContent = "วิเคราะห์จาก OpenAI สำเร็จ";
     if (previewOverlayText) previewOverlayText.textContent = "ผลลัพธ์บนหน้านี้ถูกเติมจาก JSON response ที่ backend ส่งกลับมาแล้ว";
-    setRequestStatus("วิเคราะห์สำเร็จและเติมผลลัพธ์ลงหน้าแล้ว", "success");
+    if (result.history?.fromHistory) {
+      setRequestStatus(`ไฟล์ชื่อนี้ (${result.history.fileName}) เคย Check ไปแล้ว ระบบดึงประวัติเดิมมาให้ดู`, "success");
+    } else {
+      setRequestStatus("วิเคราะห์สำเร็จและบันทึกประวัติแล้ว", "success");
+    }
   } catch (error) {
     if (auditStatusBadge) auditStatusBadge.textContent = "Error";
     setRequestStatus(error.message || "เกิดข้อผิดพลาดระหว่างวิเคราะห์", "error");
@@ -379,6 +425,8 @@ adsImageInput?.addEventListener("change", async (event) => {
     const dataUrl = await readImage(file);
     selectedImageDataUrl = dataUrl;
     selectedMimeType = file.type || "image/jpeg";
+    selectedFileName = file.name || "";
+    selectedFileSize = file.size || 0;
     if (adsPreviewImage) adsPreviewImage.src = dataUrl;
     if (previewOverlayTitle) previewOverlayTitle.textContent = "ภาพพร้อมวิเคราะห์";
     if (previewOverlayText) previewOverlayText.textContent = `ไฟล์: ${file.name} พร้อมใช้เป็น input สำหรับ backend และ OpenAI vision`;
@@ -398,6 +446,11 @@ clearAdsImageButton?.addEventListener("click", () => {
 });
 
 runAuditButton?.addEventListener("click", analyzeWithBackend);
+
+watchAuth(({ user }) => {
+  currentUser = user;
+  updateAdminUi();
+});
 
 setDefaultPreview();
 applyMockAudit();
