@@ -111,7 +111,7 @@
         <section class="audit-upload-card" id="auditUploadCard">
           <div class="audit-upload-copy">
             <strong>ตั้งค่า request ก่อนวิเคราะห์</strong>
-            <p id="auditUploadHint">กำหนด endpoint ของ backend, ชื่อสินค้า, objective และหมายเหตุ เพื่อส่งไปพร้อมรูปที่อัปโหลด</p>
+            <p id="auditUploadHint">อัปโหลดรูปโฆษณา แล้วกดวิเคราะห์ได้ทันที ระบบจะช่วยตีความสินค้าจากภาพให้ในการวิเคราะห์</p>
           </div>
           <div class="audit-upload-actions">
             <input id="adsImageInput" type="file" accept="image/*" hidden />
@@ -126,8 +126,8 @@
               <input id="apiEndpointInput" type="text" value="https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/analyzeAdCreative" />
             </label>
             <label class="audit-field">
-              <span>ชื่อสินค้า</span>
-              <input id="productNameInput" type="text" value="เซรั่มลดสิว" />
+              <span>ชื่อสินค้า (ถ้าต้องการระบุเอง)</span>
+              <input id="productNameInput" type="text" value="" placeholder="ปล่อยว่างได้ ระบบจะดูจากภาพเป็นหลัก" />
             </label>
             <label class="audit-field">
               <span>ตลาดเป้าหมาย</span>
