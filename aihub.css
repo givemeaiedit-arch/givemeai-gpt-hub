@@ -41,24 +41,24 @@ body {
 body.page-motion .app-shell,
 body.page-motion .bottom-nav {
   transition:
-    opacity 220ms ease,
-    transform 220ms ease,
-    filter 220ms ease;
+    opacity 320ms ease,
+    transform 320ms ease,
+    filter 320ms ease;
   will-change: opacity, transform, filter;
 }
 
 body.page-motion:not(.page-motion-ready) .app-shell,
 body.page-motion:not(.page-motion-ready) .bottom-nav {
   opacity: 0;
-  transform: translateY(10px);
-  filter: blur(4px);
+  transform: translateY(6px);
+  filter: blur(2px);
 }
 
 body.page-motion.page-is-leaving .app-shell,
 body.page-motion.page-is-leaving .bottom-nav {
   opacity: 0;
-  transform: translateY(8px);
-  filter: blur(4px);
+  transform: translateY(4px);
+  filter: blur(2px);
 }
 
 a {

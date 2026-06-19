@@ -234,7 +234,7 @@
       document.body.classList.add("page-is-leaving");
       window.setTimeout(() => {
         window.location.href = nextUrl.href;
-      }, 180);
+      }, 240);
     });
   }
 })();
