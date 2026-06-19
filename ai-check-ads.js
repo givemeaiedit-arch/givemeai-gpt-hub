@@ -11,6 +11,8 @@ const auditScoreValue = document.querySelector("#auditScoreValue");
 const auditScoreBar = document.querySelector("#auditScoreBar");
 const auditPotential = document.querySelector("#auditPotential");
 const auditRequestStatus = document.querySelector("#auditRequestStatus");
+const auditUpgradeNotice = document.querySelector("#auditUpgradeNotice");
+const auditUpgradeLink = document.querySelector("#auditUpgradeLink");
 const apiEndpointInput = document.querySelector("#apiEndpointInput");
 const productNameInput = document.querySelector("#productNameInput");
 const targetMarketInput = document.querySelector("#targetMarketInput");
@@ -46,6 +48,9 @@ let selectedFileSize = 0;
 let currentUser = null;
 
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
+const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
+const FREE_LIMIT_MESSAGE =
+  "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว หากต้องการตรวจสอบเพิ่มเติม ติดต่อ Admin Page เพื่ออัปเกรดเป็น Pro 290 บาทต่อเดือน รับสิทธิ์ใช้เครื่องมือ Check Ads ได้วันละ 10 ครั้ง พร้อมเข้าถึงคอร์สเรียน AI มากกว่า 20 บท และเครื่องมือ AI ใหม่ ๆ ในอนาคต";
 
 const metricMeta = {
   hook_scroll_stop: 15,
@@ -63,6 +68,14 @@ function setRequestStatus(message, tone = "muted") {
   if (!auditRequestStatus) return;
   auditRequestStatus.textContent = message;
   auditRequestStatus.dataset.tone = tone;
+}
+
+function setUpgradeNotice(visible, message = FREE_LIMIT_MESSAGE, url = PRO_UPGRADE_URL) {
+  if (!auditUpgradeNotice) return;
+  auditUpgradeNotice.hidden = !visible;
+  const copy = auditUpgradeNotice.querySelector("p");
+  if (copy) copy.textContent = message;
+  if (auditUpgradeLink) auditUpgradeLink.href = url || PRO_UPGRADE_URL;
 }
 
 function isAdminUser(user) {
@@ -86,6 +99,7 @@ function setDefaultPreview() {
   if (previewOverlayTitle) previewOverlayTitle.textContent = "พร้อมเชื่อม API วิเคราะห์ภาพ";
   if (previewOverlayText) previewOverlayText.textContent = "ตอนนี้แสดงภาพตัวอย่างก่อน เมื่ออัปโหลดรูป ระบบจะพรีวิวภาพจริงในช่องนี้";
   if (auditStatusBadge) auditStatusBadge.textContent = "Mock Result";
+  setUpgradeNotice(false);
   setRequestStatus("ยังไม่ได้ส่ง request", "muted");
 }
 
@@ -119,13 +133,21 @@ async function autoFillProductNameFromImage(file) {
   if (!selectedImageDataUrl || !productNameInput) return;
 
   const fallbackName = guessProductNameFromFile(file?.name);
+  if (!currentUser) {
+    if (fallbackName) productNameInput.value = fallbackName;
+    setRequestStatus("Login Gmail ก่อน ระบบจึงจะอ่านชื่อสินค้าจากรูปให้อัตโนมัติได้", "muted");
+    return;
+  }
+
   setRequestStatus("กำลังอ่านชื่อสินค้าจากรูป...", "loading");
 
   try {
+    const idToken = await currentUser.getIdToken();
     const response = await fetch(getProductNameEndpoint(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
       },
       body: JSON.stringify({
         imageBase64: selectedImageDataUrl.split(",")[1],
@@ -359,7 +381,13 @@ async function analyzeWithBackend() {
     }
   }
 
-  const idToken = await user.getIdToken();
+  let idToken = "";
+  try {
+    idToken = await user.getIdToken();
+  } catch {
+    setRequestStatus("ยืนยันสิทธิ์ Gmail ไม่สำเร็จ กรุณา Login ใหม่อีกครั้ง", "error");
+    return;
+  }
 
   const payload = {
     imageBase64: selectedImageDataUrl.split(",")[1],
@@ -376,6 +404,7 @@ async function analyzeWithBackend() {
     runAuditButton.disabled = true;
     runAuditButton.textContent = "กำลังวิเคราะห์...";
     if (auditStatusBadge) auditStatusBadge.textContent = "Loading";
+    setUpgradeNotice(false);
     setRequestStatus("กำลังส่งรูปไป backend เพื่อวิเคราะห์...", "loading");
 
     const response = await fetch(endpoint, {
@@ -397,7 +426,10 @@ async function analyzeWithBackend() {
     }
 
     if (!response.ok) {
-      throw new Error(result?.error || "วิเคราะห์ไม่สำเร็จ");
+      const backendError = new Error(result?.error || "วิเคราะห์ไม่สำเร็จ");
+      backendError.code = result?.code || "";
+      backendError.upgradeUrl = result?.upgradeUrl || "";
+      throw backendError;
     }
 
     renderAudit(result);
@@ -410,6 +442,9 @@ async function analyzeWithBackend() {
     }
   } catch (error) {
     if (auditStatusBadge) auditStatusBadge.textContent = "Error";
+    if (error.code === "FREE_LIMIT_REACHED") {
+      setUpgradeNotice(true, error.message || FREE_LIMIT_MESSAGE, error.upgradeUrl || PRO_UPGRADE_URL);
+    }
     setRequestStatus(error.message || "เกิดข้อผิดพลาดระหว่างวิเคราะห์", "error");
   } finally {
     runAuditButton.disabled = false;
@@ -431,6 +466,7 @@ adsImageInput?.addEventListener("change", async (event) => {
     if (previewOverlayTitle) previewOverlayTitle.textContent = "ภาพพร้อมวิเคราะห์";
     if (previewOverlayText) previewOverlayText.textContent = `ไฟล์: ${file.name} พร้อมใช้เป็น input สำหรับ backend และ OpenAI vision`;
     if (auditStatusBadge) auditStatusBadge.textContent = "Uploaded";
+    setUpgradeNotice(false);
     setRequestStatus("อัปโหลดรูปแล้ว พร้อมส่ง request", "success");
     await autoFillProductNameFromImage(file);
   } catch {

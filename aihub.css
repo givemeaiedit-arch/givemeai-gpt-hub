@@ -3936,8 +3936,36 @@ meter::-webkit-meter-optimum-value {
 }
 
 .audit-admin-settings[hidden],
-.admin-only[hidden] {
+.admin-only[hidden],
+.audit-upgrade-notice[hidden] {
   display: none !important;
+}
+
+.audit-upgrade-notice {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 18px;
+  border: 1px solid rgba(249, 115, 22, 0.28);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fff7ed, #ffffff);
+  box-shadow: 0 16px 40px rgba(249, 115, 22, 0.12);
+}
+
+.audit-upgrade-notice strong {
+  color: #9a3412;
+  font-size: 1.05rem;
+}
+
+.audit-upgrade-notice p {
+  max-width: 760px;
+  color: #4b5563;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.audit-upgrade-notice .orange-button {
+  justify-self: start;
 }
 
 .admin-shell {

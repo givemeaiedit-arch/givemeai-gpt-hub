@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
-import { FieldValue, getFirestore } from "firebase-admin/firestore";
+import { FieldValue, Timestamp, getFirestore } from "firebase-admin/firestore";
 import { onRequest } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 
@@ -14,6 +14,10 @@ const promptUrl = new URL("./openai/ai-check-ads-prompt.md", import.meta.url);
 const schemaUrl = new URL("./openai/ai-check-ads-schema.json", import.meta.url);
 const adminAuth = getAuth();
 const adminDb = getFirestore();
+const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
+const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
+const FREE_LIMIT_EXCEEDED_MESSAGE =
+  "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว หากต้องการตรวจสอบเพิ่มเติม ติดต่อ Admin Page เพื่ออัปเกรดเป็น Pro 290 บาทต่อเดือน รับสิทธิ์ใช้เครื่องมือ Check Ads ได้วันละ 10 ครั้ง พร้อมเข้าถึงคอร์สเรียน AI มากกว่า 20 บท และเครื่องมือ AI ใหม่ ๆ ในอนาคต";
 
 function setCors(res) {
   res.set("Access-Control-Allow-Origin", "*");
@@ -126,6 +130,76 @@ async function ensureUserProfile(user) {
     },
     { merge: true },
   );
+}
+
+function isAdminEmail(email) {
+  return ADMIN_EMAILS.has(normalizeEmail(email));
+}
+
+function isProProfile(profileData) {
+  const values = [
+    profileData?.plan,
+    profileData?.tier,
+    profileData?.memberLevel,
+    profileData?.subscriptionStatus,
+  ].map((value) => normalizeEmail(value));
+  return values.includes("pro") || values.includes("admin");
+}
+
+function buildLimitErrorPayload(message) {
+  const error = new Error(message);
+  error.statusCode = 403;
+  error.code = "FREE_LIMIT_REACHED";
+  error.upgradeUrl = PRO_UPGRADE_URL;
+  return error;
+}
+
+async function getUserUsageProfile(user) {
+  const userRef = adminDb.collection("users").doc(user.uid);
+  const snapshot = await userRef.get();
+  const profileData = snapshot.exists ? snapshot.data() || {} : {};
+  const isPrivileged = isAdminEmail(user.email) || isProProfile(profileData);
+  return {
+    userRef,
+    plan: isPrivileged ? "pro" : "free",
+    dailyLimit: isPrivileged ? 10 : 1,
+    isPrivileged,
+  };
+}
+
+async function hasAnyAdCheck(userRef) {
+  const snapshot = await userRef.collection("adCheckHistory").limit(1).get();
+  return !snapshot.empty;
+}
+
+async function countTodayAdChecks(userRef) {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const snapshot = await userRef
+    .collection("adCheckHistory")
+    .where("checkedAt", ">=", Timestamp.fromDate(start))
+    .limit(10)
+    .get();
+  return snapshot.size;
+}
+
+async function enforceAdCheckQuota(user) {
+  const usage = await getUserUsageProfile(user);
+  if (usage.isPrivileged) {
+    const usedToday = await countTodayAdChecks(usage.userRef);
+    if (usedToday >= usage.dailyLimit) {
+      throw buildLimitErrorPayload(
+        "วันนี้ใช้สิทธิ์ Pro สำหรับ Check Ads ครบ 10 ครั้งแล้ว กรุณากลับมาใช้งานใหม่ในวันถัดไป หรือติดต่อ Admin Page หากต้องการเพิ่มสิทธิ์พิเศษ",
+      );
+    }
+    return usage;
+  }
+
+  if (await hasAnyAdCheck(usage.userRef)) {
+    throw buildLimitErrorPayload(FREE_LIMIT_EXCEEDED_MESSAGE);
+  }
+
+  return usage;
 }
 
 function buildHistoryResponse(data) {
@@ -291,6 +365,8 @@ async function analyzeCreativeForUser(req, payload) {
     return existing;
   }
 
+  await enforceAdCheckQuota(user);
+
   const result = await analyzeCreative(payload);
   await saveAdCheckHistory(user, payload, result);
   return {
@@ -425,8 +501,10 @@ export const analyzeAdCreative = onRequest(
       const result = await analyzeCreativeForUser(req, payload);
       sendJson(res, 200, result);
     } catch (error) {
-      sendJson(res, 400, {
+      sendJson(res, error.statusCode || 400, {
         error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
+        upgradeUrl: error.upgradeUrl || "",
       });
     }
   },
@@ -454,12 +532,16 @@ export const extractProductName = onRequest(
     }
 
     try {
+      const user = await verifySignedInUser(req);
+      await ensureUserProfile(user);
       const payload = await readJsonBody(req);
       const result = await extractProductNameFromCreative(payload);
       sendJson(res, 200, result);
     } catch (error) {
-      sendJson(res, 400, {
+      sendJson(res, error.statusCode || 400, {
         error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
+        upgradeUrl: error.upgradeUrl || "",
       });
     }
   },
