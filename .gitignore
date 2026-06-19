@@ -1,6 +1,7 @@
 .firebase/
 .firebaserc
 .env.local
+openai-server*.log
 node_modules/
 dist/
 New/
