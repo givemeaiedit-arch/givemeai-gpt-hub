@@ -75,6 +75,74 @@ function readImage(file) {
   });
 }
 
+function getProductNameEndpoint() {
+  const endpoint = apiEndpointInput?.value?.trim() || "";
+  if (endpoint.includes("analyzeAdCreative")) {
+    return endpoint.replace("analyzeAdCreative", "extractProductName");
+  }
+  return "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/extractProductName";
+}
+
+function guessProductNameFromFile(fileName) {
+  return (fileName || "")
+    .replace(/\.[^.]+$/, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\b(ad|ads|creative|image|photo|promo|banner)\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function autoFillProductNameFromImage(file) {
+  if (!selectedImageDataUrl || !productNameInput) return;
+
+  const fallbackName = guessProductNameFromFile(file?.name);
+  setRequestStatus("กำลังอ่านชื่อสินค้าจากรูป...", "loading");
+
+  try {
+    const response = await fetch(getProductNameEndpoint(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        imageBase64: selectedImageDataUrl.split(",")[1],
+        mimeType: selectedMimeType,
+      }),
+    });
+
+    const raw = await response.text();
+    let result = null;
+    try {
+      result = raw ? JSON.parse(raw) : {};
+    } catch {
+      throw new Error("อ่านผลชื่อสินค้าไม่สำเร็จ");
+    }
+
+    if (!response.ok) {
+      throw new Error(result?.error || "อ่านชื่อสินค้าจากภาพไม่สำเร็จ");
+    }
+
+    const detectedName = (result?.productName || "").trim();
+    if (detectedName) {
+      productNameInput.value = detectedName;
+      setRequestStatus(`อ่านชื่อสินค้าอัตโนมัติแล้ว: ${detectedName}`, "success");
+      return;
+    }
+
+    if (fallbackName) {
+      productNameInput.value = fallbackName;
+      setRequestStatus("อ่านชื่อจากภาพไม่ได้ จึงใช้ชื่อไฟล์แทน", "muted");
+    }
+  } catch (error) {
+    if (fallbackName) {
+      productNameInput.value = fallbackName;
+      setRequestStatus("อ่านชื่อจากภาพไม่ได้ จึงใช้ชื่อไฟล์แทน", "muted");
+      return;
+    }
+    setRequestStatus(error.message || "อ่านชื่อสินค้าจากรูปไม่สำเร็จ", "error");
+  }
+}
+
 function listToHtml(items) {
   return (items || [])
     .map((item) => `<li>${item}</li>`)
@@ -316,6 +384,7 @@ adsImageInput?.addEventListener("change", async (event) => {
     if (previewOverlayText) previewOverlayText.textContent = `ไฟล์: ${file.name} พร้อมใช้เป็น input สำหรับ backend และ OpenAI vision`;
     if (auditStatusBadge) auditStatusBadge.textContent = "Uploaded";
     setRequestStatus("อัปโหลดรูปแล้ว พร้อมส่ง request", "success");
+    await autoFillProductNameFromImage(file);
   } catch {
     setDefaultPreview();
     setRequestStatus("อ่านไฟล์รูปไม่สำเร็จ", "error");
