@@ -1003,6 +1003,70 @@ meter::-webkit-meter-optimum-value {
   white-space: nowrap;
 }
 
+.pro-code-inline,
+.pro-code-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pro-code-inline input,
+.pro-code-card input {
+  min-width: 108px;
+  min-height: 42px;
+  border: 1px solid var(--faint);
+  border-radius: 12px;
+  padding: 0 12px;
+  font: inherit;
+  text-transform: uppercase;
+  background: #ffffff;
+}
+
+.pro-code-inline button,
+.pro-code-card button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 12px;
+  padding: 0 14px;
+  font: inherit;
+  font-weight: 900;
+  color: #ffffff;
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  cursor: pointer;
+}
+
+.pro-code-inline small,
+.pro-code-card small {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.pro-code-inline small[data-tone="success"],
+.pro-code-card small[data-tone="success"] {
+  color: #0f8a5f;
+}
+
+.pro-code-inline small[data-tone="error"],
+.pro-code-card small[data-tone="error"] {
+  color: #c2410c;
+}
+
+.pro-code-inline small[data-tone="loading"],
+.pro-code-card small[data-tone="loading"] {
+  color: #1d4ed8;
+}
+
+.pro-code-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin: 12px 0 6px;
+}
+
+.pro-code-card small {
+  grid-column: 1 / -1;
+}
+
 .prompt-list {
   display: grid;
   gap: 16px;

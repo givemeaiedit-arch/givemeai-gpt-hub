@@ -11,6 +11,8 @@ import {
 
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 const fallbackAvatar = "assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png";
+const GENERATE_PRO_CODE_ENDPOINT =
+  "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/generateProCode";
 
 const adminStatus = document.querySelector("#adminStatus");
 const adminUserCount = document.querySelector("#adminUserCount");
@@ -23,13 +25,35 @@ const adminProfileDetail = document.querySelector("#adminProfileDetail");
 const adminUsersLabel = document.querySelector("#adminUsersLabel");
 const adminHistoryLabel = document.querySelector("#adminHistoryLabel");
 const adminSearchInput = document.querySelector("#adminSearchInput");
+const proCodesLabel = document.querySelector("#proCodesLabel");
+const proCodesBody = document.querySelector("#proCodesBody");
+const generateProCodeButton = document.querySelector("#generateProCodeButton");
+const proCodeStatus = document.querySelector("#proCodeStatus");
 
 let allUsers = [];
 let allHistory = [];
+let allProCodes = [];
 let currentAdmin = null;
 
 function isAdminUser(user) {
   return ADMIN_EMAILS.has(String(user?.email || "").trim().toLowerCase());
+}
+
+function normalizeAccessValue(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function getMemberLevel(data) {
+  const values = [
+    data?.plan,
+    data?.tier,
+    data?.memberLevel,
+    data?.subscriptionStatus,
+  ].map(normalizeAccessValue);
+
+  if (values.includes("admin")) return "Admin";
+  if (values.includes("pro") || values.includes("active")) return "Pro";
+  return "Free";
 }
 
 function escapeHtml(value) {
@@ -63,7 +87,7 @@ function getProfileName(data) {
 }
 
 function getProfilePhoto(data) {
-  return data.photoURL || data.googlePhotoURL || data.photoURL || fallbackAvatar;
+  return data.photoURL || data.googlePhotoURL || fallbackAvatar;
 }
 
 function setAdminStatus(message, tone = "muted") {
@@ -72,19 +96,25 @@ function setAdminStatus(message, tone = "muted") {
   adminStatus.dataset.tone = tone;
 }
 
-function setEmptyTable(body, message) {
+function setProCodeStatus(message, tone = "muted") {
+  if (!proCodeStatus) return;
+  proCodeStatus.textContent = message;
+  proCodeStatus.dataset.tone = tone;
+}
+
+function setEmptyTable(body, message, columnCount = 6) {
   if (!body) return;
-  body.innerHTML = `<tr><td colspan="6">${escapeHtml(message)}</td></tr>`;
+  body.innerHTML = `<tr><td colspan="${columnCount}">${escapeHtml(message)}</td></tr>`;
 }
 
 function filterData() {
   const keyword = adminSearchInput?.value?.trim().toLowerCase() || "";
   if (!keyword) {
-    return { users: allUsers, history: allHistory };
+    return { users: allUsers, history: allHistory, proCodes: allProCodes };
   }
 
   const users = allUsers.filter((item) => {
-    const haystack = `${item.email} ${item.displayName}`.toLowerCase();
+    const haystack = `${item.email} ${item.displayName} ${item.memberLevel}`.toLowerCase();
     return haystack.includes(keyword);
   });
 
@@ -93,14 +123,20 @@ function filterData() {
     return haystack.includes(keyword);
   });
 
-  return { users, history };
+  const proCodes = allProCodes.filter((item) => {
+    const haystack =
+      `${item.code} ${item.statusLabel} ${item.redeemedByEmail} ${item.createdByEmail}`.toLowerCase();
+    return haystack.includes(keyword);
+  });
+
+  return { users, history, proCodes };
 }
 
 function renderUsers(users) {
   if (adminUsersLabel) adminUsersLabel.textContent = `${users.length} users`;
 
   if (!users.length) {
-    setEmptyTable(adminUsersBody, "ยังไม่มีผู้ใช้");
+    setEmptyTable(adminUsersBody, "ยังไม่มีผู้ใช้", 5);
     return;
   }
 
@@ -115,6 +151,7 @@ function renderUsers(users) {
             </div>
           </td>
           <td>${escapeHtml(user.email || "-")}</td>
+          <td>${escapeHtml(user.memberLevel)}</td>
           <td>${formatDate(user.updatedAt)}</td>
           <td><button class="soft-button admin-small-button" type="button" data-admin-user="${escapeHtml(user.uid)}">ดูโปรไฟล์</button></td>
         </tr>
@@ -127,7 +164,7 @@ function renderHistory(history) {
   if (adminHistoryLabel) adminHistoryLabel.textContent = `${history.length} checks`;
 
   if (!history.length) {
-    setEmptyTable(adminHistoryBody, "ยังไม่มีประวัติ Check Ads");
+    setEmptyTable(adminHistoryBody, "ยังไม่มีประวัติ Check Ads", 6);
     return;
   }
 
@@ -147,10 +184,36 @@ function renderHistory(history) {
     .join("");
 }
 
+function renderProCodes(codes) {
+  if (proCodesLabel) proCodesLabel.textContent = `${codes.length} codes`;
+
+  if (!codes.length) {
+    setEmptyTable(proCodesBody, "ยังไม่มี Pro Code", 5);
+    return;
+  }
+
+  proCodesBody.innerHTML = codes
+    .map(
+      (item) => `
+        <tr>
+          <td><strong>${escapeHtml(item.code)}</strong></td>
+          <td>${escapeHtml(item.statusLabel)}</td>
+          <td>${formatDate(item.createdAt)}</td>
+          <td>${escapeHtml(item.redeemedByEmail || "-")}</td>
+          <td>
+            <button class="soft-button admin-small-button" type="button" data-copy-code="${escapeHtml(item.code)}">Copy</button>
+          </td>
+        </tr>
+      `,
+    )
+    .join("");
+}
+
 function renderAll() {
-  const { users, history } = filterData();
+  const { users, history, proCodes } = filterData();
   renderUsers(users);
   renderHistory(history);
+  renderProCodes(proCodes);
 
   if (adminUserCount) adminUserCount.textContent = String(allUsers.length);
   if (adminCheckCount) adminCheckCount.textContent = String(allHistory.length);
@@ -164,8 +227,13 @@ function normalizeUserDoc(entry) {
     email: data.email || "",
     displayName: getProfileName(data),
     photoURL: getProfilePhoto(data),
+    memberLevel: getMemberLevel(data),
     updatedAt: data.updatedAt,
     createdAt: data.createdAt,
+    plan: data.plan || "",
+    tier: data.tier || "",
+    subscriptionStatus: data.subscriptionStatus || "",
+    proCode: data.proCode || "",
   };
 }
 
@@ -187,6 +255,22 @@ function normalizeHistoryDoc(entry) {
   };
 }
 
+function normalizeProCodeDoc(entry) {
+  const data = entry.data() || {};
+  const redeemedByEmail = data.redeemedByEmail || "";
+  const status = String(data.status || (redeemedByEmail ? "redeemed" : "available")).toLowerCase();
+  return {
+    id: entry.id,
+    code: data.code || entry.id,
+    status,
+    statusLabel: status === "redeemed" ? "ใช้แล้ว" : "พร้อมใช้",
+    createdAt: data.createdAt,
+    createdByEmail: data.createdByEmail || "",
+    redeemedByEmail,
+    redeemedAt: data.redeemedAt,
+  };
+}
+
 async function loadAdminData() {
   if (!isFirebaseConfigured()) {
     setAdminStatus("ยังไม่ได้ตั้งค่า Firebase", "error");
@@ -196,16 +280,19 @@ async function loadAdminData() {
   const services = getFirebaseServices();
   const usersQuery = query(collection(services.db, "users"), orderBy("updatedAt", "desc"), limit(100));
   const historyQuery = query(collection(services.db, "adCheckHistory"), orderBy("checkedAt", "desc"), limit(200));
+  const proCodesQuery = query(collection(services.db, "proCodes"), orderBy("createdAt", "desc"), limit(200));
 
   setAdminStatus("กำลังโหลดข้อมูลหลังบ้าน...", "loading");
 
-  const [usersSnapshot, historySnapshot] = await Promise.all([
+  const [usersSnapshot, historySnapshot, proCodesSnapshot] = await Promise.all([
     getDocs(usersQuery),
     getDocs(historyQuery),
+    getDocs(proCodesQuery),
   ]);
 
   allUsers = usersSnapshot.docs.map(normalizeUserDoc);
   allHistory = historySnapshot.docs.map(normalizeHistoryDoc);
+  allProCodes = proCodesSnapshot.docs.map(normalizeProCodeDoc);
 
   renderAll();
   setAdminStatus("โหลดข้อมูล Admin สำเร็จ", "success");
@@ -229,7 +316,8 @@ async function loadUserProfile(uid) {
         <div>
           <strong>${escapeHtml(profile.displayName)}</strong>
           <p>${escapeHtml(profile.email || "-")}</p>
-          <small>UID: ${escapeHtml(profile.uid)}</small>
+          <small>ระดับสมาชิก: ${escapeHtml(profile.memberLevel || "Free")}</small>
+          <small>Pro Code: ${escapeHtml(profile.proCode || "-")}</small>
         </div>
         <span>${history.length} checks</span>
       </div>
@@ -237,7 +325,7 @@ async function loadUserProfile(uid) {
   }
 
   if (!history.length) {
-    setEmptyTable(adminUserHistoryBody, "ผู้ใช้นี้ยังไม่มีประวัติ Check Ads");
+    setEmptyTable(adminUserHistoryBody, "ผู้ใช้นี้ยังไม่มีประวัติ Check Ads", 5);
     return;
   }
 
@@ -256,13 +344,63 @@ async function loadUserProfile(uid) {
     .join("");
 }
 
-document.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-admin-user]");
-  if (!button) return;
-  loadUserProfile(button.dataset.adminUser);
+async function copyText(value) {
+  if (!value) return;
+  await navigator.clipboard.writeText(value);
+}
+
+async function generateProCode() {
+  if (!currentAdmin) {
+    setProCodeStatus("กรุณา Login ด้วยบัญชี Admin", "error");
+    return;
+  }
+
+  try {
+    if (generateProCodeButton) generateProCodeButton.disabled = true;
+    setProCodeStatus("กำลังสร้าง Pro Code...", "loading");
+    const idToken = await currentAdmin.getIdToken();
+    const response = await fetch(GENERATE_PRO_CODE_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({}),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result?.error || "สร้าง Pro Code ไม่สำเร็จ");
+    }
+
+    setProCodeStatus(`สร้าง Pro Code สำเร็จ: ${result.code}`, "success");
+    await loadAdminData();
+  } catch (error) {
+    setProCodeStatus(error.message || "สร้าง Pro Code ไม่สำเร็จ", "error");
+  } finally {
+    if (generateProCodeButton) generateProCodeButton.disabled = false;
+  }
+}
+
+document.addEventListener("click", async (event) => {
+  const userButton = event.target.closest("[data-admin-user]");
+  if (userButton) {
+    await loadUserProfile(userButton.dataset.adminUser);
+    return;
+  }
+
+  const copyButton = event.target.closest("[data-copy-code]");
+  if (copyButton) {
+    try {
+      await copyText(copyButton.dataset.copyCode);
+      setProCodeStatus(`คัดลอก Code ${copyButton.dataset.copyCode} แล้ว`, "success");
+    } catch {
+      setProCodeStatus("คัดลอก Code ไม่สำเร็จ", "error");
+    }
+  }
 });
 
 adminSearchInput?.addEventListener("input", renderAll);
+generateProCodeButton?.addEventListener("click", generateProCode);
 
 watchAuth(async ({ user, configured }) => {
   currentAdmin = null;
@@ -275,24 +413,23 @@ watchAuth(async ({ user, configured }) => {
   if (!user) {
     allUsers = [];
     allHistory = [];
+    allProCodes = [];
     renderAll();
     setAdminStatus("กรุณา Login ด้วยบัญชี Admin", "muted");
+    setProCodeStatus("กรุณา Login ด้วยบัญชี Admin", "muted");
     return;
   }
 
   if (!isAdminUser(user)) {
     allUsers = [];
     allHistory = [];
+    allProCodes = [];
     renderAll();
     setAdminStatus("บัญชีนี้ไม่ใช่ Admin จึงดูข้อมูลหลังบ้านไม่ได้", "error");
+    setProCodeStatus("บัญชีนี้ไม่ใช่ Admin", "error");
     return;
   }
 
   currentAdmin = user;
-
-  try {
-    await loadAdminData();
-  } catch (error) {
-    setAdminStatus(error.message || "โหลดข้อมูล Admin ไม่สำเร็จ", "error");
-  }
+  await loadAdminData();
 });

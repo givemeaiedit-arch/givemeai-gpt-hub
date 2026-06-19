@@ -167,6 +167,125 @@ async function getUserUsageProfile(user) {
   };
 }
 
+function generateRandomProCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let output = "";
+  for (let index = 0; index < 5; index += 1) {
+    output += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return output;
+}
+
+async function createUniqueProCode(adminUser) {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const code = generateRandomProCode();
+    const codeRef = adminDb.collection("proCodes").doc(code);
+    const existing = await codeRef.get();
+    if (existing.exists) continue;
+
+    await codeRef.set({
+      code,
+      status: "available",
+      createdAt: FieldValue.serverTimestamp(),
+      createdByUid: adminUser.uid,
+      createdByEmail: adminUser.email,
+      redeemedByUid: "",
+      redeemedByEmail: "",
+      redeemedByDisplayName: "",
+    });
+
+    return code;
+  }
+
+  throw new Error("ไม่สามารถสร้าง Pro Code ใหม่ได้");
+}
+
+async function redeemProCodeForUser(user, rawCode) {
+  const code = String(rawCode || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+
+  if (code.length !== 5) {
+    const error = new Error("กรุณากรอก Pro Code 5 หลัก");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const codeRef = adminDb.collection("proCodes").doc(code);
+  const userRef = adminDb.collection("users").doc(user.uid);
+
+  return adminDb.runTransaction(async (transaction) => {
+    const [codeSnapshot, userSnapshot] = await Promise.all([
+      transaction.get(codeRef),
+      transaction.get(userRef),
+    ]);
+
+    if (!codeSnapshot.exists) {
+      const error = new Error(`ไม่พบ Pro Code ${code}`);
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const codeData = codeSnapshot.data() || {};
+    const redeemedByUid = codeData.redeemedByUid || "";
+
+    if (redeemedByUid && redeemedByUid !== user.uid) {
+      const error = new Error(`Pro Code ${code} ถูกใช้ไปแล้ว`);
+      error.statusCode = 409;
+      throw error;
+    }
+
+    const userData = userSnapshot.exists ? userSnapshot.data() || {} : {};
+    const alreadyPro =
+      isAdminEmail(user.email) ||
+      isProProfile({
+        plan: userData.plan,
+        tier: userData.tier,
+        memberLevel: userData.memberLevel,
+        subscriptionStatus: userData.subscriptionStatus,
+      });
+
+    transaction.set(
+      userRef,
+      {
+        email: user.email,
+        emailLower: normalizeEmail(user.email),
+        googleDisplayName: user.displayName,
+        googlePhotoURL: user.photoURL,
+        plan: "pro",
+        tier: "pro",
+        memberLevel: "pro",
+        subscriptionStatus: "active",
+        proCode: code,
+        proActivatedAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+
+    if (!redeemedByUid) {
+      transaction.set(
+        codeRef,
+        {
+          status: "redeemed",
+          redeemedAt: FieldValue.serverTimestamp(),
+          redeemedByUid: user.uid,
+          redeemedByEmail: user.email,
+          redeemedByDisplayName: user.displayName || user.email?.split("@")[0] || "",
+        },
+        { merge: true },
+      );
+    }
+
+    return {
+      code,
+      alreadyPro,
+      alreadyRedeemedBySameUser: redeemedByUid === user.uid,
+    };
+  });
+}
+
 async function hasAnyAdCheck(userRef) {
   const snapshot = await userRef.collection("adCheckHistory").limit(1).get();
   return !snapshot.empty;
@@ -542,6 +661,93 @@ export const extractProductName = onRequest(
         error: error.message || "Unknown error",
         code: error.code || "UNKNOWN_ERROR",
         upgradeUrl: error.upgradeUrl || "",
+      });
+    }
+  },
+);
+
+export const generateProCode = onRequest(
+  {
+    region: "asia-southeast1",
+    cors: true,
+    timeoutSeconds: 60,
+    memory: "256MiB",
+  },
+  async (req, res) => {
+    setCors(res);
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      const user = await verifySignedInUser(req);
+      await ensureUserProfile(user);
+
+      if (!isAdminEmail(user.email)) {
+        sendJson(res, 403, { error: "บัญชีนี้ไม่มีสิทธิ์สร้าง Pro Code" });
+        return;
+      }
+
+      const code = await createUniqueProCode(user);
+      sendJson(res, 200, {
+        ok: true,
+        code,
+        message: `สร้าง Pro Code สำเร็จ: ${code}`,
+      });
+    } catch (error) {
+      sendJson(res, error.statusCode || 400, {
+        error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  },
+);
+
+export const redeemProCode = onRequest(
+  {
+    region: "asia-southeast1",
+    cors: true,
+    timeoutSeconds: 60,
+    memory: "256MiB",
+  },
+  async (req, res) => {
+    setCors(res);
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      const user = await verifySignedInUser(req);
+      await ensureUserProfile(user);
+      const payload = await readJsonBody(req);
+      const result = await redeemProCodeForUser(user, payload.code);
+
+      sendJson(res, 200, {
+        ok: true,
+        code: result.code,
+        memberLevel: "pro",
+        message: result.alreadyRedeemedBySameUser
+          ? `Pro Code ${result.code} ถูกใช้กับบัญชีนี้อยู่แล้ว`
+          : `เปิดสิทธิ์ Pro สำเร็จด้วย Code ${result.code}`,
+      });
+    } catch (error) {
+      sendJson(res, error.statusCode || 400, {
+        error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   },

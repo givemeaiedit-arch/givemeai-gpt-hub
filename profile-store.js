@@ -68,7 +68,6 @@ async function ensureUserDoc(user) {
       googleDisplayName: user.displayName || "",
       googlePhotoURL: sanitizePhotoURL(user.photoURL),
       updatedAt: serverTimestamp(),
-      createdAt: serverTimestamp(),
     },
     { merge: true },
   );
@@ -83,6 +82,11 @@ function buildFallbackProfile(user, customProfile = {}) {
     displayName: customProfile.displayName?.trim() || user?.displayName || emailFallback,
     photoURL: sanitizePhotoURL(customProfile.photoURL) || sanitizePhotoURL(user?.photoURL) || fallbackAvatar,
     email: user?.email || "",
+    plan: customProfile.plan || "free",
+    tier: customProfile.tier || "free",
+    memberLevel: customProfile.memberLevel || "free",
+    subscriptionStatus: customProfile.subscriptionStatus || "",
+    proCode: customProfile.proCode || "",
   };
 }
 
@@ -118,6 +122,11 @@ export async function getResolvedProfile(user) {
     return buildFallbackProfile(user, {
       displayName: data.displayName,
       photoURL: data.photoURL,
+      plan: data.plan,
+      tier: data.tier,
+      memberLevel: data.memberLevel,
+      subscriptionStatus: data.subscriptionStatus,
+      proCode: data.proCode,
     });
   } catch {
     return buildFallbackProfile(user);
