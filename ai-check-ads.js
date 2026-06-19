@@ -1,4 +1,4 @@
-import { signInWithGoogle, watchAuth } from "./auth-shared.js";
+﻿import { signInWithGoogle, watchAuth } from "./auth-shared.js";
 
 const adsImageInput = document.querySelector("#adsImageInput");
 const clearAdsImageButton = document.querySelector("#clearAdsImageButton");
@@ -47,17 +47,22 @@ const hookOptionsList = document.querySelector("#hookOptionsList");
 const finalVerdictStatus = document.querySelector("#finalVerdictStatus");
 const finalVerdictReason = document.querySelector("#finalVerdictReason");
 const auditStars = document.querySelector("#auditStars");
+const AD_CHECK_USAGE_ENDPOINT =
+  "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/getAdCheckUsage";
 
 let selectedImageDataUrl = "";
 let selectedMimeType = "image/jpeg";
 let selectedFileName = "";
 let selectedFileSize = 0;
 let currentUser = null;
+let usagePill = null;
+let uploadPreviewImage = null;
+let uploadDropzone = null;
 
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
 const FREE_LIMIT_MESSAGE =
-  "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว หากต้องการตรวจสอบเพิ่มเติม ติดต่อ Admin Page เพื่ออัปเกรดเป็น Pro 290 บาทต่อเดือน รับสิทธิ์ใช้เครื่องมือ Check Ads ได้วันละ 10 ครั้ง พร้อมเข้าถึงคอร์สเรียน AI มากกว่า 20 บท และเครื่องมือ AI ใหม่ ๆ ในอนาคต";
+  "เนเธเนเธชเธดเธ—เธเธดเนเธ•เธฃเธงเธเน€เธเนเธเธเธฃเธตเธเธฃเธเนเธฅเนเธง เธซเธฒเธเธ•เนเธญเธเธเธฒเธฃเธ•เธฃเธงเธเธชเธญเธเน€เธเธดเนเธกเน€เธ•เธดเธก เธ•เธดเธ”เธ•เนเธญ Admin Page เน€เธเธทเนเธญเธญเธฑเธเน€เธเธฃเธ”เน€เธเนเธ Pro 290 เธเธฒเธ—เธ•เนเธญเน€เธ”เธทเธญเธ เธฃเธฑเธเธชเธดเธ—เธเธดเนเนเธเนเน€เธเธฃเธทเนเธญเธเธกเธทเธญ Check Ads เนเธ”เนเธงเธฑเธเธฅเธฐ 10 เธเธฃเธฑเนเธ เธเธฃเนเธญเธกเน€เธเนเธฒเธ–เธถเธเธเธญเธฃเนเธชเน€เธฃเธตเธขเธ AI เธกเธฒเธเธเธงเนเธฒ 20 เธเธ— เนเธฅเธฐเน€เธเธฃเธทเนเธญเธเธกเธทเธญ AI เนเธซเธกเน เน เนเธเธญเธเธฒเธเธ•";
 
 const metricMeta = {
   hook_scroll_stop: 15,
@@ -85,6 +90,20 @@ function setUpgradeNotice(visible, message = FREE_LIMIT_MESSAGE, url = PRO_UPGRA
   if (auditUpgradeLink) auditUpgradeLink.href = url || PRO_UPGRADE_URL;
 }
 
+function setUsagePill(usage) {
+  if (!usagePill) return;
+
+  if (!currentUser || !usage) {
+    usagePill.hidden = true;
+    usagePill.textContent = "";
+    return;
+  }
+
+  usagePill.hidden = false;
+  usagePill.dataset.plan = usage.plan || "free";
+  usagePill.textContent = usage.label || "";
+}
+
 function isAdminUser(user) {
   return ADMIN_EMAILS.has(String(user?.email || "").trim().toLowerCase());
 }
@@ -107,10 +126,11 @@ function updateGuestGate() {
   if (clearAdsImageButton) clearAdsImageButton.hidden = !loggedIn;
   if (auditGuestNotice) auditGuestNotice.hidden = loggedIn;
   if (auditUploadCard) auditUploadCard.dataset.locked = loggedIn ? "false" : "true";
+  if (uploadDropzone) uploadDropzone.dataset.locked = loggedIn ? "false" : "true";
   if (auditUploadHint) {
     auditUploadHint.textContent = loggedIn
-      ? "อัปโหลดรูปโฆษณา แล้วกดวิเคราะห์ได้ทันที ระบบจะช่วยตีความสินค้าจากภาพให้ในการวิเคราะห์"
-      : "กรุณา Login Gmail ก่อนใช้งาน ระบบจึงจะเปิดให้อัปโหลดรูปโฆษณาและส่งวิเคราะห์";
+      ? "อัปโหลดรูปโฆษณาแล้วกดวิเคราะห์ได้ทันที"
+      : "กรุณา Login Gmail ก่อนใช้งาน";
   }
 }
 
@@ -123,14 +143,62 @@ function updateAdminUi() {
   updateGuestGate();
 }
 
+function initUploadUi() {
+  if (!auditUploadCard) return;
+
+  uploadDropzone = document.querySelector("#auditUploadDropzone");
+  uploadPreviewImage = document.querySelector("#auditSelectedImage");
+  usagePill = document.querySelector("#auditUsagePill");
+
+  if (!uploadDropzone) return;
+
+  uploadDropzone.addEventListener("click", () => {
+    if (currentUser) adsImageInput?.click();
+  });
+
+  uploadDropzone.addEventListener("keydown", (event) => {
+    if (!currentUser) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      adsImageInput?.click();
+    }
+  });
+
+  ["dragenter", "dragover"].forEach((eventName) => {
+    uploadDropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      if (!currentUser) return;
+      uploadDropzone.dataset.drag = "true";
+    });
+  });
+
+  ["dragleave", "dragend", "drop"].forEach((eventName) => {
+    uploadDropzone.addEventListener(eventName, () => {
+      uploadDropzone.dataset.drag = "false";
+    });
+  });
+
+  uploadDropzone.addEventListener("drop", (event) => {
+    event.preventDefault();
+    if (!currentUser) return;
+    const file = event.dataTransfer?.files?.[0];
+    if (!file) return;
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    adsImageInput.files = transfer.files;
+    adsImageInput.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+}
+
 function setDefaultPreview() {
   selectedImageDataUrl = "";
   selectedMimeType = "image/jpeg";
   selectedFileName = "";
   selectedFileSize = 0;
   if (adsPreviewImage) adsPreviewImage.src = "assets/banners/โฆษณา.png";
+  if (uploadPreviewImage) uploadPreviewImage.src = "assets/banners/โฆษณา.png";
   if (previewOverlayTitle) previewOverlayTitle.textContent = "พร้อมเชื่อม API วิเคราะห์ภาพ";
-  if (previewOverlayText) previewOverlayText.textContent = "ตอนนี้แสดงภาพตัวอย่างก่อน เมื่ออัปโหลดรูป ระบบจะพรีวิวภาพจริงในช่องนี้";
+  if (previewOverlayText) previewOverlayText.textContent = "เมื่ออัปโหลดรูป ระบบจะแสดงรูปค้างไว้และพร้อมกดวิเคราะห์ทันที";
   if (auditStatusBadge) auditStatusBadge.textContent = "Mock Result";
   setUpgradeNotice(false);
   setSkeletonVisible(false);
@@ -145,6 +213,28 @@ function readImage(file) {
     reader.onerror = () => reject(new Error("read-failed"));
     reader.readAsDataURL(file);
   });
+}
+
+async function refreshUsage() {
+  if (!currentUser) {
+    setUsagePill(null);
+    return;
+  }
+
+  try {
+    const idToken = await currentUser.getIdToken();
+    const response = await fetch(AD_CHECK_USAGE_ENDPOINT, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result?.error || "usage-failed");
+    setUsagePill(result.usage || null);
+  } catch {
+    setUsagePill(null);
+  }
 }
 
 function listToHtml(items) {
@@ -181,7 +271,7 @@ function renderStars(score) {
   const filled = Math.max(1, Math.min(5, Math.round(Number(score || 0) / 20)));
   auditStars.innerHTML = Array.from({ length: 5 }, (_, index) => {
     const isOff = index >= filled ? ' class="is-off"' : "";
-    return `<span${isOff}>★</span>`;
+    return `<span${isOff}>โ…</span>`;
   }).join("");
 }
 
@@ -215,7 +305,7 @@ function renderAudit(data) {
 
   if (secondaryAudienceList) {
     secondaryAudienceList.innerHTML = personaToHtml(data.secondary_audiences?.length ? data.secondary_audiences : [
-      { title: "ไม่พบกลุ่มรองเด่นชัด", description: "โมเดลยังไม่แยก persona รองเพิ่มเติมจากภาพนี้" },
+      { title: "เนเธกเนเธเธเธเธฅเธธเนเธกเธฃเธญเธเน€เธ”เนเธเธเธฑเธ”", description: "เนเธกเน€เธ”เธฅเธขเธฑเธเนเธกเนเนเธขเธ persona เธฃเธญเธเน€เธเธดเนเธกเน€เธ•เธดเธกเธเธฒเธเธ เธฒเธเธเธตเน" },
     ]);
   }
 
@@ -247,34 +337,34 @@ function renderAudit(data) {
 function applyMockAudit() {
   renderAudit({
     overall_score: 78,
-    creative_potential: "สูง",
+    creative_potential: "เธชเธนเธ",
     summary_3_lines: [
-      "สื่อ pain และผลลัพธ์ได้ไว เห็นประโยชน์ใน 1-2 วินาที",
-      "มี offer และ proof ดี แต่ CTA ยังไม่แรงพอ",
-      "audience signal ค่อนข้างชัด แต่ยังเพิ่มความเฉพาะกลุ่มได้อีก",
+      "เธชเธทเนเธญ pain เนเธฅเธฐเธเธฅเธฅเธฑเธเธเนเนเธ”เนเนเธง เน€เธซเนเธเธเธฃเธฐเนเธขเธเธเนเนเธ 1-2 เธงเธดเธเธฒเธ—เธต",
+      "เธกเธต offer เนเธฅเธฐ proof เธ”เธต เนเธ•เน CTA เธขเธฑเธเนเธกเนเนเธฃเธเธเธญ",
+      "audience signal เธเนเธญเธเธเนเธฒเธเธเธฑเธ” เนเธ•เนเธขเธฑเธเน€เธเธดเนเธกเธเธงเธฒเธกเน€เธเธเธฒเธฐเธเธฅเธธเนเธกเนเธ”เนเธญเธตเธ",
     ],
     primary_audience: {
-      demographic: "ผู้หญิง 18-30 ปี ในไทย",
-      interests: ["Skincare", "Beauty", "Self-care", "รีวิว"],
-      behaviors: ["ชอบคอนเทนต์ before/after", "อ่านรีวิว", "เทียบราคาและผลลัพธ์"],
-      pain_desire: ["สิว", "รอยสิว", "ผิวหมอง", "อยากเห็นผลไว"],
-      creative_signals: ["ข้อความผลลัพธ์", "ภาพนางแบบ", "ราคา", "รีวิว"],
+      demographic: "เธเธนเนเธซเธเธดเธ 18-30 เธเธต เนเธเนเธ—เธข",
+      interests: ["Skincare", "Beauty", "Self-care", "เธฃเธตเธงเธดเธง"],
+      behaviors: ["เธเธญเธเธเธญเธเน€เธ—เธเธ•เน before/after", "เธญเนเธฒเธเธฃเธตเธงเธดเธง", "เน€เธ—เธตเธขเธเธฃเธฒเธเธฒเนเธฅเธฐเธเธฅเธฅเธฑเธเธเน"],
+      pain_desire: ["เธชเธดเธง", "เธฃเธญเธขเธชเธดเธง", "เธเธดเธงเธซเธกเธญเธ", "เธญเธขเธฒเธเน€เธซเนเธเธเธฅเนเธง"],
+      creative_signals: ["เธเนเธญเธเธงเธฒเธกเธเธฅเธฅเธฑเธเธเน", "เธ เธฒเธเธเธฒเธเนเธเธ", "เธฃเธฒเธเธฒ", "เธฃเธตเธงเธดเธง"],
     },
     secondary_audiences: [
-      { title: "ผู้หญิง 25-35 ปี", description: "ทำงานออฟฟิศ สนใจผิวหน้าและการดูแลตัวเอง" },
-      { title: "วัยรุ่น / นักศึกษา 16-22 ปี", description: "เริ่มมีสิว ชอบคอนเทนต์ TikTok / IG ที่เห็นผลไว" },
-      { title: "ผู้ชาย 18-28 ปี", description: "เริ่มดูแลผิวและสนใจสินค้าที่ใช้ง่าย ราคาไม่แรง" },
+      { title: "เธเธนเนเธซเธเธดเธ 25-35 เธเธต", description: "เธ—เธณเธเธฒเธเธญเธญเธเธเธดเธจ เธชเธเนเธเธเธดเธงเธซเธเนเธฒเนเธฅเธฐเธเธฒเธฃเธ”เธนเนเธฅเธ•เธฑเธงเน€เธญเธ" },
+      { title: "เธงเธฑเธขเธฃเธธเนเธ / เธเธฑเธเธจเธถเธเธฉเธฒ 16-22 เธเธต", description: "เน€เธฃเธดเนเธกเธกเธตเธชเธดเธง เธเธญเธเธเธญเธเน€เธ—เธเธ•เน TikTok / IG เธ—เธตเนเน€เธซเนเธเธเธฅเนเธง" },
+      { title: "เธเธนเนเธเธฒเธข 18-28 เธเธต", description: "เน€เธฃเธดเนเธกเธ”เธนเนเธฅเธเธดเธงเนเธฅเธฐเธชเธเนเธเธชเธดเธเธเนเธฒเธ—เธตเนเนเธเนเธเนเธฒเธข เธฃเธฒเธเธฒเนเธกเนเนเธฃเธ" },
     ],
     audience_size_estimate: {
       min: 1500000,
       max: 4000000,
-      confidence: "กลาง-สูง",
-      rationale: "ประเมินจาก creative signal และลักษณะ pain ที่กว้างพอในตลาดไทย",
+      confidence: "เธเธฅเธฒเธ-เธชเธนเธ",
+      rationale: "เธเธฃเธฐเน€เธกเธดเธเธเธฒเธ creative signal เนเธฅเธฐเธฅเธฑเธเธฉเธ“เธฐ pain เธ—เธตเนเธเธงเนเธฒเธเธเธญเนเธเธ•เธฅเธฒเธ”เนเธ—เธข",
     },
     andromeda_signal_check: {
-      clarity: "ค่อนข้างชัด เหมาะกับ pain เรื่องสิว / ผิวใส / ผลลัพธ์เร็ว",
-      understood_signals: ["ผู้หญิงวัยรุ่นถึงวัยทำงาน", "ปัญหาสิว ผิวไม่ใส", "ต้องการผลลัพธ์เร็ว"],
-      confusing_signals: ["proof จริงยังน้อย", "รายละเอียดข้อกังวลยังตอบไม่ครบ", "CTA ยังไม่ชัดพอ"],
+      clarity: "เธเนเธญเธเธเนเธฒเธเธเธฑเธ” เน€เธซเธกเธฒเธฐเธเธฑเธ pain เน€เธฃเธทเนเธญเธเธชเธดเธง / เธเธดเธงเนเธช / เธเธฅเธฅเธฑเธเธเนเน€เธฃเนเธง",
+      understood_signals: ["เธเธนเนเธซเธเธดเธเธงเธฑเธขเธฃเธธเนเธเธ–เธถเธเธงเธฑเธขเธ—เธณเธเธฒเธ", "เธเธฑเธเธซเธฒเธชเธดเธง เธเธดเธงเนเธกเนเนเธช", "เธ•เนเธญเธเธเธฒเธฃเธเธฅเธฅเธฑเธเธเนเน€เธฃเนเธง"],
+      confusing_signals: ["proof เธเธฃเธดเธเธขเธฑเธเธเนเธญเธข", "เธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”เธเนเธญเธเธฑเธเธงเธฅเธขเธฑเธเธ•เธญเธเนเธกเนเธเธฃเธ", "CTA เธขเธฑเธเนเธกเนเธเธฑเธ”เธเธญ"],
     },
     category_scores: {
       hook_scroll_stop: 13,
@@ -288,30 +378,30 @@ function applyMockAudit() {
       andromeda_readiness: 7,
     },
     strengths: [
-      "เปิดภาพช่วยผลลัพธ์ชัด ดูน่าสนใจ",
-      "สื่อ pain และ benefit ได้เร็ว",
-      "มีราคาและรีวิวช่วยเพิ่มความน่าเชื่อถือ",
+      "เน€เธเธดเธ”เธ เธฒเธเธเนเธงเธขเธเธฅเธฅเธฑเธเธเนเธเธฑเธ” เธ”เธนเธเนเธฒเธชเธเนเธ",
+      "เธชเธทเนเธญ pain เนเธฅเธฐ benefit เนเธ”เนเน€เธฃเนเธง",
+      "เธกเธตเธฃเธฒเธเธฒเนเธฅเธฐเธฃเธตเธงเธดเธงเธเนเธงเธขเน€เธเธดเนเธกเธเธงเธฒเธกเธเนเธฒเน€เธเธทเนเธญเธ–เธทเธญ",
     ],
     weaknesses: [
-      "ยังไม่มี handling objection มากพอ",
-      "CTA ยังทั่วไป ไม่เร่งการตัดสินใจ",
-      "proof เชิงลึกยังน้อยถ้าต้องการ scale",
+      "เธขเธฑเธเนเธกเนเธกเธต handling objection เธกเธฒเธเธเธญ",
+      "CTA เธขเธฑเธเธ—เธฑเนเธงเนเธ เนเธกเนเน€เธฃเนเธเธเธฒเธฃเธ•เธฑเธ”เธชเธดเธเนเธ",
+      "proof เน€เธเธดเธเธฅเธถเธเธขเธฑเธเธเนเธญเธขเธ–เนเธฒเธ•เนเธญเธเธเธฒเธฃ scale",
     ],
     fixes_now: [
-      "เพิ่ม before / after หรือรีวิว 1-2 เคส",
-      "เพิ่มประโยคตอบข้อกังวล เช่น ผิวแพ้ง่ายใช้ได้ไหม",
-      "ปรับ CTA ให้ชัดขึ้น เช่น ทักเพื่อรับโปรวันนี้",
+      "เน€เธเธดเนเธก before / after เธซเธฃเธทเธญเธฃเธตเธงเธดเธง 1-2 เน€เธเธช",
+      "เน€เธเธดเนเธกเธเธฃเธฐเนเธขเธเธ•เธญเธเธเนเธญเธเธฑเธเธงเธฅ เน€เธเนเธ เธเธดเธงเนเธเนเธเนเธฒเธขเนเธเนเนเธ”เนเนเธซเธก",
+      "เธเธฃเธฑเธ CTA เนเธซเนเธเธฑเธ”เธเธถเนเธ เน€เธเนเธ เธ—เธฑเธเน€เธเธทเนเธญเธฃเธฑเธเนเธเธฃเธงเธฑเธเธเธตเน",
     ],
     hook_options: [
-      "สิวขึ้นทุกวัน? ลองตัวนี้ 7 วันเห็นผล",
-      "ก่อนนอน 1 หยด ตื่นมาผิวใสขึ้น",
-      "ผิวอ่อนล้า ฟื้นลุคให้ดูสดขึ้นเร็ว",
-      "เซรั่มลดสิวที่ใช้แล้วอยากบอกต่อ",
-      "ถ้าอยากผิวใสไว ลองเริ่มจากตัวนี้",
+      "เธชเธดเธงเธเธถเนเธเธ—เธธเธเธงเธฑเธ? เธฅเธญเธเธ•เธฑเธงเธเธตเน 7 เธงเธฑเธเน€เธซเนเธเธเธฅ",
+      "เธเนเธญเธเธเธญเธ 1 เธซเธขเธ” เธ•เธทเนเธเธกเธฒเธเธดเธงเนเธชเธเธถเนเธ",
+      "เธเธดเธงเธญเนเธญเธเธฅเนเธฒ เธเธทเนเธเธฅเธธเธเนเธซเนเธ”เธนเธชเธ”เธเธถเนเธเน€เธฃเนเธง",
+      "เน€เธเธฃเธฑเนเธกเธฅเธ”เธชเธดเธงเธ—เธตเนเนเธเนเนเธฅเนเธงเธญเธขเธฒเธเธเธญเธเธ•เนเธญ",
+      "เธ–เนเธฒเธญเธขเธฒเธเธเธดเธงเนเธชเนเธง เธฅเธญเธเน€เธฃเธดเนเธกเธเธฒเธเธ•เธฑเธงเธเธตเน",
     ],
     final_verdict: {
-      status: "ควรแก้ก่อนรัน",
-      reason: "ภาพรวมดี แต่ควรเพิ่ม Proof, objection handling และ CTA ที่ชัดขึ้นก่อนยิงงบจริง",
+      status: "เธเธงเธฃเนเธเนเธเนเธญเธเธฃเธฑเธ",
+      reason: "เธ เธฒเธเธฃเธงเธกเธ”เธต เนเธ•เนเธเธงเธฃเน€เธเธดเนเธก Proof, objection handling เนเธฅเธฐ CTA เธ—เธตเนเธเธฑเธ”เธเธถเนเธเธเนเธญเธเธขเธดเธเธเธเธเธฃเธดเธ",
     },
   });
 }
@@ -319,30 +409,30 @@ function applyMockAudit() {
 async function analyzeWithBackend() {
   const endpoint = apiEndpointInput?.value?.trim();
   if (!endpoint) {
-    setRequestStatus("กรุณาระบุ backend endpoint ก่อน", "error");
+    setRequestStatus("เธเธฃเธธเธ“เธฒเธฃเธฐเธเธธ backend endpoint เธเนเธญเธ", "error");
     return;
   }
 
   if (!selectedImageDataUrl) {
-    setRequestStatus("กรุณาอัปโหลดรูปโฆษณาก่อนกดวิเคราะห์", "error");
+    setRequestStatus("เธเธฃเธธเธ“เธฒเธญเธฑเธเนเธซเธฅเธ”เธฃเธนเธเนเธเธฉเธ“เธฒเธเนเธญเธเธเธ”เธงเธดเน€เธเธฃเธฒเธฐเธซเน", "error");
     return;
   }
 
   if (!currentUser) {
-    setRequestStatus("กรุณา Login Gmail ก่อนใช้งาน", "error");
+    setRequestStatus("เธเธฃเธธเธ“เธฒ Login Gmail เธเนเธญเธเนเธเนเธเธฒเธ", "error");
     return;
   }
 
   let user = currentUser;
   if (!user) {
-    setRequestStatus("กรุณา Login Gmail ก่อน Check Ads", "error");
+    setRequestStatus("เธเธฃเธธเธ“เธฒ Login Gmail เธเนเธญเธ Check Ads", "error");
     try {
       const credential = await signInWithGoogle();
       user = credential.user;
       currentUser = user;
       updateAdminUi();
     } catch {
-      setRequestStatus("ยังไม่ได้ Login Gmail จึงยังส่งวิเคราะห์ไม่ได้", "error");
+      setRequestStatus("เธขเธฑเธเนเธกเนเนเธ”เน Login Gmail เธเธถเธเธขเธฑเธเธชเนเธเธงเธดเน€เธเธฃเธฒเธฐเธซเนเนเธกเนเนเธ”เน", "error");
       return;
     }
   }
@@ -351,7 +441,7 @@ async function analyzeWithBackend() {
   try {
     idToken = await user.getIdToken();
   } catch {
-    setRequestStatus("ยืนยันสิทธิ์ Gmail ไม่สำเร็จ กรุณา Login ใหม่อีกครั้ง", "error");
+    setRequestStatus("เธขเธทเธเธขเธฑเธเธชเธดเธ—เธเธดเน Gmail เนเธกเนเธชเธณเน€เธฃเนเธ เธเธฃเธธเธ“เธฒ Login เนเธซเธกเนเธญเธตเธเธเธฃเธฑเนเธ", "error");
     return;
   }
 
@@ -361,7 +451,7 @@ async function analyzeWithBackend() {
     fileName: selectedFileName,
     fileSize: selectedFileSize,
     productName:
-      productNameInput?.value?.trim() || "ให้ AI ดูจากภาพโฆษณาและระบุชื่อสินค้าหรือประเภทสินค้าที่ใกล้เคียงที่สุด",
+      productNameInput?.value?.trim() || "เนเธซเน AI เธ”เธนเธเธฒเธเธ เธฒเธเนเธเธฉเธ“เธฒเนเธฅเธฐเธฃเธฐเธเธธเธเธทเนเธญเธชเธดเธเธเนเธฒเธซเธฃเธทเธญเธเธฃเธฐเน€เธ เธ—เธชเธดเธเธเนเธฒเธ—เธตเนเนเธเธฅเนเน€เธเธตเธขเธเธ—เธตเนเธชเธธเธ”",
     targetMarket: targetMarketInput?.value?.trim() || "TH",
     objective: objectiveInput?.value?.trim() || "meta_ads_conversion",
     notes: notesInput?.value?.trim() || "-",
@@ -371,10 +461,10 @@ async function analyzeWithBackend() {
     runAuditButton.disabled = true;
     setResultPanelsVisible(false);
     setSkeletonVisible(true);
-    runAuditButton.textContent = "กำลังวิเคราะห์...";
+    runAuditButton.textContent = "เธเธณเธฅเธฑเธเธงเธดเน€เธเธฃเธฒเธฐเธซเน...";
     if (auditStatusBadge) auditStatusBadge.textContent = "Loading";
     setUpgradeNotice(false);
-    setRequestStatus("กำลังส่งรูปไป backend เพื่อวิเคราะห์...", "loading");
+    setRequestStatus("เธเธณเธฅเธฑเธเธชเนเธเธฃเธนเธเนเธ backend เน€เธเธทเนเธญเธงเธดเน€เธเธฃเธฒเธฐเธซเน...", "loading");
 
     const response = await fetch(endpoint, {
       method: "POST",
@@ -391,19 +481,20 @@ async function analyzeWithBackend() {
     try {
       result = raw ? JSON.parse(raw) : {};
     } catch {
-      throw new Error("backend ตอบกลับไม่ใช่ JSON ที่อ่านได้");
+      throw new Error("backend เธ•เธญเธเธเธฅเธฑเธเนเธกเนเนเธเน JSON เธ—เธตเนเธญเนเธฒเธเนเธ”เน");
     }
 
     if (!response.ok) {
-      const backendError = new Error(result?.error || "วิเคราะห์ไม่สำเร็จ");
+      const backendError = new Error(result?.error || "เธงเธดเน€เธเธฃเธฒเธฐเธซเนเนเธกเนเธชเธณเน€เธฃเนเธ");
       backendError.code = result?.code || "";
       backendError.upgradeUrl = result?.upgradeUrl || "";
       throw backendError;
     }
 
     renderAudit(result);
+    setUsagePill(result.usage || null);
     if (previewOverlayTitle) previewOverlayTitle.textContent = "วิเคราะห์จาก OpenAI สำเร็จ";
-    if (previewOverlayText) previewOverlayText.textContent = "ผลลัพธ์บนหน้านี้ถูกเติมจาก JSON response ที่ backend ส่งกลับมาแล้ว";
+    if (previewOverlayText) previewOverlayText.textContent = "ผลลัพธ์หน้านี้ถูกเติมจาก JSON response ที่ backend ส่งกลับมาแล้ว";
     if (result.history?.fromHistory) {
       setRequestStatus(`ไฟล์ชื่อนี้ (${result.history.fileName}) เคย Check ไปแล้ว ระบบดึงประวัติเดิมมาให้ดู`, "success");
     } else {
@@ -412,10 +503,11 @@ async function analyzeWithBackend() {
   } catch (error) {
     setSkeletonVisible(false);
     if (auditStatusBadge) auditStatusBadge.textContent = "Error";
+    await refreshUsage();
     if (error.code === "FREE_LIMIT_REACHED") {
       setUpgradeNotice(true, error.message || FREE_LIMIT_MESSAGE, error.upgradeUrl || PRO_UPGRADE_URL);
     }
-    setRequestStatus(error.message || "เกิดข้อผิดพลาดระหว่างวิเคราะห์", "error");
+    setRequestStatus(error.message || "เน€เธเธดเธ”เธเนเธญเธเธดเธ”เธเธฅเธฒเธ”เธฃเธฐเธซเธงเนเธฒเธเธงเธดเน€เธเธฃเธฒเธฐเธซเน", "error");
   } finally {
     runAuditButton.disabled = false;
     runAuditButton.textContent = "วิเคราะห์เลย";
@@ -433,19 +525,22 @@ adsImageInput?.addEventListener("change", async (event) => {
     selectedFileName = file.name || "";
     selectedFileSize = file.size || 0;
     if (adsPreviewImage) adsPreviewImage.src = dataUrl;
+    if (uploadPreviewImage) uploadPreviewImage.src = dataUrl;
     if (previewOverlayTitle) previewOverlayTitle.textContent = "ภาพพร้อมวิเคราะห์";
-    if (previewOverlayText) previewOverlayText.textContent = `ไฟล์: ${file.name} พร้อมใช้เป็น input สำหรับ backend และ OpenAI vision`;
+    if (previewOverlayText) previewOverlayText.textContent = `ไฟล์: ${file.name} พร้อมแสดงค้างไว้และใช้วิเคราะห์ทันที`;
     if (auditStatusBadge) auditStatusBadge.textContent = "Uploaded";
     setUpgradeNotice(false);
-    setRequestStatus("อัปโหลดรูปแล้ว กดวิเคราะห์ได้เลย", "success");
+    setRequestStatus("อัปโหลดรูปแล้ว กดวิเคราะห์เลยได้ทันที", "success");
   } catch {
+    initUploadUi();
     setDefaultPreview();
-    setRequestStatus("อ่านไฟล์รูปไม่สำเร็จ", "error");
+    setRequestStatus("เธญเนเธฒเธเนเธเธฅเนเธฃเธนเธเนเธกเนเธชเธณเน€เธฃเนเธ", "error");
   }
 });
 
 clearAdsImageButton?.addEventListener("click", () => {
   if (adsImageInput) adsImageInput.value = "";
+  initUploadUi();
   setDefaultPreview();
   applyMockAudit();
   setResultPanelsVisible(false);
@@ -457,15 +552,17 @@ heroLoginButton?.addEventListener("click", async () => {
   try {
     await signInWithGoogle();
   } catch {
-    setRequestStatus("Login Gmail ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", "error");
+    setRequestStatus("Login Gmail เนเธกเนเธชเธณเน€เธฃเนเธ เธเธฃเธธเธ“เธฒเธฅเธญเธเนเธซเธกเนเธญเธตเธเธเธฃเธฑเนเธ", "error");
   }
 });
 
-watchAuth(({ user }) => {
+watchAuth(async ({ user }) => {
   currentUser = user;
   updateAdminUi();
+  await refreshUsage();
 });
 
+initUploadUi();
 setDefaultPreview();
 applyMockAudit();
 setResultPanelsVisible(false);

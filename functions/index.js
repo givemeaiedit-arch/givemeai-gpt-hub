@@ -167,6 +167,26 @@ async function getUserUsageProfile(user) {
   };
 }
 
+async function getAdCheckUsageSummary(user) {
+  const usage = await getUserUsageProfile(user);
+  const usedToday = usage.isPrivileged
+    ? await countTodayAdChecks(usage.userRef)
+    : (await hasAnyAdCheck(usage.userRef)) ? 1 : 0;
+  const remaining = Math.max(0, usage.dailyLimit - usedToday);
+
+  return {
+    plan: usage.plan,
+    dailyLimit: usage.dailyLimit,
+    usedToday,
+    remaining,
+    label: usage.isPrivileged
+      ? `วันนี้ Check ได้อีก ${remaining}/${usage.dailyLimit}`
+      : remaining > 0
+        ? "ยังมีสิทธิ์ทดลองใช้ฟรี 1/1"
+        : "ใช้สิทธิ์ทดลองใช้ฟรีครบแล้ว",
+  };
+}
+
 function generateRandomProCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let output = "";
@@ -481,7 +501,10 @@ async function analyzeCreativeForUser(req, payload) {
 
   const existing = await getExistingAdCheck(user, payload.fileName);
   if (existing) {
-    return existing;
+    return {
+      ...existing,
+      usage: await getAdCheckUsageSummary(user),
+    };
   }
 
   await enforceAdCheckQuota(user);
@@ -496,6 +519,7 @@ async function analyzeCreativeForUser(req, payload) {
       productName: payload.productName || "",
       checkedBy: user.email,
     },
+    usage: await getAdCheckUsageSummary(user),
   };
 }
 
@@ -744,6 +768,40 @@ export const redeemProCode = onRequest(
           ? `Pro Code ${result.code} ถูกใช้กับบัญชีนี้อยู่แล้ว`
           : `เปิดสิทธิ์ Pro สำเร็จด้วย Code ${result.code}`,
       });
+    } catch (error) {
+      sendJson(res, error.statusCode || 400, {
+        error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  },
+);
+
+export const getAdCheckUsage = onRequest(
+  {
+    region: "asia-southeast1",
+    cors: true,
+    timeoutSeconds: 60,
+    memory: "256MiB",
+  },
+  async (req, res) => {
+    setCors(res);
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "GET" && req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      const user = await verifySignedInUser(req);
+      await ensureUserProfile(user);
+      const usage = await getAdCheckUsageSummary(user);
+      sendJson(res, 200, { ok: true, usage });
     } catch (error) {
       sendJson(res, error.statusCode || 400, {
         error: error.message || "Unknown error",
