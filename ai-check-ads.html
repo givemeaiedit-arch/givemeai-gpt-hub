@@ -99,19 +99,23 @@
             <p>อัปโหลดภาพโฆษณา กรอกข้อมูลสินค้า และส่งไป backend เพื่อรับผลวิเคราะห์แบบ Structured JSON จาก OpenAI แล้วเติมลงหน้ารายงานอัตโนมัติ</p>
           </div>
           <div class="audit-hero-actions">
-            <label class="orange-button" for="adsImageInput">อัปโหลดรูปโฆษณา</label>
-            <button class="dark-button" id="runAuditButton" type="button">วิเคราะห์จริง</button>
+            <label class="orange-button" id="uploadTrigger" for="adsImageInput" hidden>อัปโหลดรูปโฆษณา</label>
+            <button class="green-button" id="runAuditButton" type="button">วิเคราะห์เลย</button>
+            <div class="audit-guest-notice" id="auditGuestNotice">
+              <strong>กรุณา login ก่อนใช้งาน</strong>
+              <button class="soft-button" id="heroLoginButton" type="button">Login Gmail</button>
+            </div>
           </div>
         </section>
 
-        <section class="audit-upload-card">
+        <section class="audit-upload-card" id="auditUploadCard">
           <div class="audit-upload-copy">
             <strong>ตั้งค่า request ก่อนวิเคราะห์</strong>
-            <p>กำหนด endpoint ของ backend, ชื่อสินค้า, objective และหมายเหตุ เพื่อส่งไปพร้อมรูปที่อัปโหลด</p>
+            <p id="auditUploadHint">กำหนด endpoint ของ backend, ชื่อสินค้า, objective และหมายเหตุ เพื่อส่งไปพร้อมรูปที่อัปโหลด</p>
           </div>
           <div class="audit-upload-actions">
             <input id="adsImageInput" type="file" accept="image/*" hidden />
-            <button class="soft-button" id="clearAdsImageButton" type="button">ล้างรูป</button>
+            <button class="soft-button" id="clearAdsImageButton" type="button" hidden>ล้างรูป</button>
           </div>
         </section>
 
@@ -150,7 +154,16 @@
           </div>
         </section>
 
-        <section class="audit-grid">
+        <section class="audit-skeleton-grid" id="auditSkeletonGrid" hidden aria-hidden="true">
+          <div class="audit-skeleton-card skeleton-tall"></div>
+          <div class="audit-skeleton-card skeleton-tall"></div>
+          <div class="audit-skeleton-card skeleton-tall"></div>
+          <div class="audit-skeleton-card skeleton-wide"></div>
+          <div class="audit-skeleton-card skeleton-wide"></div>
+          <div class="audit-skeleton-card skeleton-wide"></div>
+        </section>
+
+        <section class="audit-grid" id="auditResultsGrid" hidden>
           <article class="audit-card audit-score-card">
             <div class="audit-card-heading">
               <h2>คะแนนรวม</h2>

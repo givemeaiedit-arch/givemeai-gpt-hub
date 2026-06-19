@@ -2,6 +2,13 @@ import { signInWithGoogle, watchAuth } from "./auth-shared.js";
 
 const adsImageInput = document.querySelector("#adsImageInput");
 const clearAdsImageButton = document.querySelector("#clearAdsImageButton");
+const uploadTrigger = document.querySelector("#uploadTrigger");
+const heroLoginButton = document.querySelector("#heroLoginButton");
+const auditGuestNotice = document.querySelector("#auditGuestNotice");
+const auditUploadCard = document.querySelector("#auditUploadCard");
+const auditUploadHint = document.querySelector("#auditUploadHint");
+const auditSkeletonGrid = document.querySelector("#auditSkeletonGrid");
+const auditResultsGrid = document.querySelector("#auditResultsGrid");
 const runAuditButton = document.querySelector("#runAuditButton");
 const adsPreviewImage = document.querySelector("#adsPreviewImage");
 const previewOverlayTitle = document.querySelector("#previewOverlayTitle");
@@ -82,12 +89,37 @@ function isAdminUser(user) {
   return ADMIN_EMAILS.has(String(user?.email || "").trim().toLowerCase());
 }
 
+function setResultPanelsVisible(visible) {
+  if (auditResultsGrid) auditResultsGrid.hidden = !visible;
+}
+
+function setSkeletonVisible(visible) {
+  if (auditSkeletonGrid) {
+    auditSkeletonGrid.hidden = !visible;
+    auditSkeletonGrid.setAttribute("aria-hidden", visible ? "false" : "true");
+  }
+}
+
+function updateGuestGate() {
+  const loggedIn = Boolean(currentUser);
+  if (uploadTrigger) uploadTrigger.hidden = !loggedIn;
+  if (clearAdsImageButton) clearAdsImageButton.hidden = !loggedIn;
+  if (auditGuestNotice) auditGuestNotice.hidden = loggedIn;
+  if (auditUploadCard) auditUploadCard.dataset.locked = loggedIn ? "false" : "true";
+  if (auditUploadHint) {
+    auditUploadHint.textContent = loggedIn
+      ? "กำหนด endpoint ของ backend, ชื่อสินค้า, objective และหมายเหตุ เพื่อส่งไปพร้อมรูปที่อัปโหลด"
+      : "กรุณา Login Gmail ก่อนใช้งาน ระบบจึงจะเปิดให้อัปโหลดรูปโฆษณาและส่งวิเคราะห์";
+  }
+}
+
 function updateAdminUi() {
   const isAdmin = isAdminUser(currentUser);
   if (auditAdminSettings) auditAdminSettings.hidden = !isAdmin;
   adminOnlyElements.forEach((element) => {
     element.hidden = !isAdmin;
   });
+  updateGuestGate();
 }
 
 function setDefaultPreview() {
@@ -100,6 +132,8 @@ function setDefaultPreview() {
   if (previewOverlayText) previewOverlayText.textContent = "ตอนนี้แสดงภาพตัวอย่างก่อน เมื่ออัปโหลดรูป ระบบจะพรีวิวภาพจริงในช่องนี้";
   if (auditStatusBadge) auditStatusBadge.textContent = "Mock Result";
   setUpgradeNotice(false);
+  setSkeletonVisible(false);
+  setResultPanelsVisible(false);
   setRequestStatus("ยังไม่ได้ส่ง request", "muted");
 }
 
@@ -238,6 +272,8 @@ function renderMetric(key, value) {
 }
 
 function renderAudit(data) {
+  setSkeletonVisible(false);
+  setResultPanelsVisible(true);
   if (auditStatusBadge) auditStatusBadge.textContent = "Analyzed";
   if (auditScoreValue) auditScoreValue.textContent = String(data.overall_score ?? 0);
   if (auditScoreBar) auditScoreBar.style.width = `${Math.max(0, Math.min(100, Number(data.overall_score || 0)))}%`;
@@ -367,6 +403,11 @@ async function analyzeWithBackend() {
     return;
   }
 
+  if (!currentUser) {
+    setRequestStatus("กรุณา Login Gmail ก่อนใช้งาน", "error");
+    return;
+  }
+
   let user = currentUser;
   if (!user) {
     setRequestStatus("กรุณา Login Gmail ก่อน Check Ads", "error");
@@ -402,6 +443,8 @@ async function analyzeWithBackend() {
 
   try {
     runAuditButton.disabled = true;
+    setResultPanelsVisible(false);
+    setSkeletonVisible(true);
     runAuditButton.textContent = "กำลังวิเคราะห์...";
     if (auditStatusBadge) auditStatusBadge.textContent = "Loading";
     setUpgradeNotice(false);
@@ -441,6 +484,7 @@ async function analyzeWithBackend() {
       setRequestStatus("วิเคราะห์สำเร็จและบันทึกประวัติแล้ว", "success");
     }
   } catch (error) {
+    setSkeletonVisible(false);
     if (auditStatusBadge) auditStatusBadge.textContent = "Error";
     if (error.code === "FREE_LIMIT_REACHED") {
       setUpgradeNotice(true, error.message || FREE_LIMIT_MESSAGE, error.upgradeUrl || PRO_UPGRADE_URL);
@@ -448,6 +492,10 @@ async function analyzeWithBackend() {
     setRequestStatus(error.message || "เกิดข้อผิดพลาดระหว่างวิเคราะห์", "error");
   } finally {
     runAuditButton.disabled = false;
+    setTimeout(() => {
+      runAuditButton.textContent = "วิเคราะห์เลย";
+    }, 0);
+    runAuditButton.textContent = "วิเคราะห์เลย";
     runAuditButton.textContent = "วิเคราะห์จริง";
   }
 }
@@ -479,9 +527,18 @@ clearAdsImageButton?.addEventListener("click", () => {
   if (adsImageInput) adsImageInput.value = "";
   setDefaultPreview();
   applyMockAudit();
+  setResultPanelsVisible(false);
 });
 
 runAuditButton?.addEventListener("click", analyzeWithBackend);
+
+heroLoginButton?.addEventListener("click", async () => {
+  try {
+    await signInWithGoogle();
+  } catch {
+    setRequestStatus("Login Gmail ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", "error");
+  }
+});
 
 watchAuth(({ user }) => {
   currentUser = user;
@@ -490,3 +547,5 @@ watchAuth(({ user }) => {
 
 setDefaultPreview();
 applyMockAudit();
+setResultPanelsVisible(false);
+setSkeletonVisible(false);
