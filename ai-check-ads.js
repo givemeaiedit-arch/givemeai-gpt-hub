@@ -103,6 +103,7 @@ function setSkeletonVisible(visible) {
 function updateGuestGate() {
   const loggedIn = Boolean(currentUser);
   if (uploadTrigger) uploadTrigger.hidden = !loggedIn;
+  if (runAuditButton) runAuditButton.hidden = !loggedIn;
   if (clearAdsImageButton) clearAdsImageButton.hidden = !loggedIn;
   if (auditGuestNotice) auditGuestNotice.hidden = loggedIn;
   if (auditUploadCard) auditUploadCard.dataset.locked = loggedIn ? "false" : "true";
