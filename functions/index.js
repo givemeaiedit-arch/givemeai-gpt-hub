@@ -16,6 +16,7 @@ const adminAuth = getAuth();
 const adminDb = getFirestore();
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
+const AD_CHECK_POINTS = 15;
 const FREE_LIMIT_EXCEEDED_MESSAGE =
   "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว หากต้องการตรวจสอบเพิ่มเติม ติดต่อ Admin Page เพื่ออัปเกรดเป็น Pro 290 บาทต่อเดือน รับสิทธิ์ใช้เครื่องมือ Check Ads ได้วันละ 10 ครั้ง พร้อมเข้าถึงคอร์สเรียน AI มากกว่า 20 บท และเครื่องมือ AI ใหม่ ๆ ในอนาคต";
 
@@ -413,6 +414,30 @@ async function saveAdCheckHistory(user, payload, result) {
     userHistoryRef.set(historyData, { merge: true }),
     globalHistoryRef.set(historyData, { merge: true }),
   ]);
+
+  return { fileKey, fileName };
+}
+
+async function awardAdCheckScore(user, fileKey, fileName) {
+  const scoreId = `${user.uid}_ad-check_${fileKey}`;
+  const scoreRef = adminDb.collection("lessonScores").doc(scoreId);
+  const existing = await scoreRef.get();
+  if (existing.exists) {
+    return { awarded: false, points: 0 };
+  }
+
+  await scoreRef.set({
+    uid: user.uid,
+    displayName: user.displayName,
+    photoURL: user.photoURL,
+    lessonId: `ad-check-${fileKey}`,
+    lessonTitle: `AI Check Ads: ${fileName}`,
+    points: AD_CHECK_POINTS,
+    source: "ai-check-ads",
+    createdAt: FieldValue.serverTimestamp(),
+  });
+
+  return { awarded: true, points: AD_CHECK_POINTS };
 }
 
 async function analyzeCreative(payload) {
@@ -510,7 +535,8 @@ async function analyzeCreativeForUser(req, payload) {
   await enforceAdCheckQuota(user);
 
   const result = await analyzeCreative(payload);
-  await saveAdCheckHistory(user, payload, result);
+  const savedHistory = await saveAdCheckHistory(user, payload, result);
+  const scoreAward = await awardAdCheckScore(user, savedHistory.fileKey, savedHistory.fileName);
   return {
     ...result,
     history: {
@@ -519,6 +545,7 @@ async function analyzeCreativeForUser(req, payload) {
       productName: payload.productName || "",
       checkedBy: user.email,
     },
+    scoreAward,
     usage: await getAdCheckUsageSummary(user),
   };
 }

@@ -31,7 +31,7 @@ function renderPodium(items) {
           <img src="${entry.photoURL}" alt="${entry.displayName}" />
           <strong>${entry.displayName}</strong>
           <b>${entry.totalPoints} คะแนน</b>
-          <small>${entry.lessonsCompleted} บทเรียน</small>
+          <small>${entry.lessonsCompleted} กิจกรรม</small>
         </article>
       `,
     )

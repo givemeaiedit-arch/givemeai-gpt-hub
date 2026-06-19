@@ -498,7 +498,8 @@ async function analyzeWithBackend() {
     if (result.history?.fromHistory) {
       setRequestStatus(`ไฟล์ชื่อนี้ (${result.history.fileName}) เคย Check ไปแล้ว ระบบดึงประวัติเดิมมาให้ดู`, "success");
     } else {
-      setRequestStatus("วิเคราะห์สำเร็จและบันทึกประวัติแล้ว", "success");
+      const pointText = result.scoreAward?.awarded ? ` ได้รับ +${result.scoreAward.points} คะแนน` : "";
+      setRequestStatus(`วิเคราะห์สำเร็จและบันทึกประวัติแล้ว${pointText}`, "success");
     }
   } catch (error) {
     setSkeletonVisible(false);
