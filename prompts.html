@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prompt ยอดนิยม | GivemeAI</title>
+    <link rel="icon" href="assets/Icon/asset_1x1_cropfix/asset_1-01-growth-arrow.png" />
+    <link rel="stylesheet" href="aihub.css" />
+    <script defer src="browser-check.js"></script>
+  </head>
+  <body>
+    <div class="app-shell prompt-shell">
+      <aside class="sidebar" aria-label="เมนูหลัก"></aside>
+
+      <main class="main-content prompt-main">
+        <header class="mobile-header"></header>
+        <header class="topbar"></header>
+        <p class="system-message" id="systemMessage">รวม Prompt พร้อมใช้สำหรับธุรกิจไทย</p>
+
+        <section class="prompt-hero">
+          <div>
+            <p class="tools-kicker">PROMPT LIBRARY</p>
+            <h1>Prompt ยอดนิยม</h1>
+            <p>ค้นหา คัดลอก และนำไปใช้ต่อกับงานขาย การตลาด ภาพโปรโมท และคอนเทนต์ของธุรกิจไทยได้ทันที</p>
+          </div>
+          <div class="prompt-hero-panel">
+            <strong id="promptTotal">40</strong>
+            <span>Prompt ตัวอย่างพร้อมใช้</span>
+            <a class="orange-button" href="prompt-categories.html">ดูหมวดหมู่ <span>→</span></a>
+          </div>
+        </section>
+
+        <section class="prompt-toolbar" aria-label="ค้นหาและกรอง Prompt">
+          <label class="prompt-search">
+            <span>⌕</span>
+            <input id="promptSearchInput" type="search" placeholder="ค้นหา เช่น ร้านอาหาร บ้าน รถ เสื้อผ้า คลินิก..." />
+          </label>
+          <div class="prompt-chip-row" id="promptFilterChips"></div>
+        </section>
+
+        <section class="prompt-results-head">
+          <div>
+            <h2 id="promptResultsTitle">ทั้งหมด</h2>
+            <p id="promptResultsMeta">กำลังโหลด prompt...</p>
+          </div>
+          <a href="prompt-categories.html">ดูทุกหมวด →</a>
+        </section>
+
+        <section class="prompt-grid" id="promptGrid" aria-label="รายการ Prompt"></section>
+
+        <section class="prompt-empty" id="promptEmpty" hidden>
+          <strong>ไม่พบ Prompt ที่ค้นหา</strong>
+          <p>ลองค้นหาด้วยคำที่กว้างขึ้น เช่น ร้านอาหาร, Ads, บ้าน, รถ, เสื้อผ้า</p>
+        </section>
+
+        <dialog class="prompt-dialog" id="promptDialog">
+          <button class="prompt-dialog-close" id="promptDialogClose" type="button" aria-label="ปิด">×</button>
+          <div id="promptDialogContent"></div>
+        </dialog>
+
+        <div class="prompt-toast" id="promptToast" role="status" aria-live="polite" hidden>คัดลอก Prompt แล้ว</div>
+      </main>
+    </div>
+
+    <nav class="bottom-nav" aria-label="เมนูมือถือ">
+      <a href="index.html"><span>⌂</span>หน้าหลัก</a>
+      <a href="courses.html"><span>▱</span>คอร์ส</a>
+      <a class="active" href="prompts.html"><span>▣</span>Prompt</a>
+      <a href="tools.html"><span>◇</span>เครื่องมือ</a>
+      <a href="profile.html"><span>♙</span>โปรไฟล์</a>
+    </nav>
+
+    <script src="shared-shell.js"></script>
+    <script src="prompt-data.js"></script>
+    <script src="prompts.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

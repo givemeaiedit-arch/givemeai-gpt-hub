@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>หมวดหมู่ Prompt | GivemeAI</title>
+    <link rel="icon" href="assets/Icon/asset_1x1_cropfix/asset_1-01-growth-arrow.png" />
+    <link rel="stylesheet" href="aihub.css" />
+    <script defer src="browser-check.js"></script>
+  </head>
+  <body>
+    <div class="app-shell prompt-shell">
+      <aside class="sidebar" aria-label="เมนูหลัก"></aside>
+
+      <main class="main-content prompt-main">
+        <header class="mobile-header"></header>
+        <header class="topbar"></header>
+        <p class="system-message" id="systemMessage">เลือกหมวด Prompt ตามประเภทธุรกิจ</p>
+
+        <section class="prompt-hero category-hero">
+          <div>
+            <p class="tools-kicker">PROMPT CATEGORIES</p>
+            <h1>หมวดหมู่ Prompt</h1>
+            <p>รวมหมวด Prompt สำหรับเจ้าของธุรกิจไทย แยกตามประเภทธุรกิจเพื่อให้หยิบไปใช้กับงานจริงได้เร็วขึ้น</p>
+          </div>
+          <div class="prompt-hero-panel">
+            <strong id="categoryTotal">10</strong>
+            <span>หมวดธุรกิจหลัก</span>
+            <a class="orange-button" href="prompts.html">ดู Prompt ทั้งหมด <span>→</span></a>
+          </div>
+        </section>
+
+        <section class="prompt-category-grid" id="promptCategoryGrid" aria-label="หมวดหมู่ Prompt"></section>
+
+        <section class="prompt-guide-panel">
+          <div>
+            <h2>วิธีใช้ Prompt ให้ได้ผล</h2>
+            <p>เลือกหมวดที่ใกล้ธุรกิจของคุณที่สุด แล้วแทนที่ข้อมูลในวงเล็บ เช่น [ชื่อร้าน], [สินค้า], [ราคา], [พื้นที่] ก่อนนำไปใช้กับ ChatGPT หรือเครื่องมือสร้างภาพ</p>
+          </div>
+          <a class="soft-button" href="prompts.html?category=ads">เริ่มจาก Prompt โฆษณา</a>
+        </section>
+      </main>
+    </div>
+
+    <nav class="bottom-nav" aria-label="เมนูมือถือ">
+      <a href="index.html"><span>⌂</span>หน้าหลัก</a>
+      <a href="courses.html"><span>▱</span>คอร์ส</a>
+      <a class="active" href="prompt-categories.html"><span>⌘</span>หมวด</a>
+      <a href="tools.html"><span>◇</span>เครื่องมือ</a>
+      <a href="profile.html"><span>♙</span>โปรไฟล์</a>
+    </nav>
+
+    <script src="shared-shell.js"></script>
+    <script src="prompt-data.js"></script>
+    <script src="prompts.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

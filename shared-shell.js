@@ -21,6 +21,18 @@
       searchLabel: "ค้นหาบทความ",
       active: "articles",
     },
+    "prompts.html": {
+      searchId: "promptShellSearch",
+      searchPlaceholder: "ค้นหา Prompt เช่น ร้านอาหาร บ้าน รถ เสื้อผ้า...",
+      searchLabel: "ค้นหา Prompt",
+      active: "prompts",
+    },
+    "prompt-categories.html": {
+      searchId: "promptCategoryShellSearch",
+      searchPlaceholder: "ค้นหาหมวด Prompt...",
+      searchLabel: "ค้นหาหมวด Prompt",
+      active: "prompt-categories",
+    },
     "tools.html": {
       searchId: "toolSearch",
       searchPlaceholder: "ค้นหาเครื่องมือ เช่น สร้างภาพโปรโมท, AI Check Ads...",
@@ -93,8 +105,8 @@
           <a class="nav-item${isActive("articles")}" href="articles.html"><span class="nav-icon">▤</span>บทความ & เทคนิค</a>
 
           <p class="nav-group">คลัง Prompt</p>
-          <a class="nav-item" href="index.html#prompts"><span class="nav-icon">▣</span>Prompt ยอดนิยม</a>
-          <a class="nav-item" href="index.html#categories"><span class="nav-icon">⌘</span>หมวดหมู่ Prompt</a>
+          <a class="nav-item${isActive("prompts")}" href="prompts.html"><span class="nav-icon">▣</span>Prompt ยอดนิยม</a>
+          <a class="nav-item${isActive("prompt-categories")}" href="prompt-categories.html"><span class="nav-icon">⌘</span>หมวดหมู่ Prompt</a>
 
           <p class="nav-group">เครื่องมือ AI</p>
           <a class="nav-item${isActive("tools")}" href="tools.html"><span class="nav-icon">◌</span>เครื่องมือทั้งหมด</a>
