@@ -8,15 +8,62 @@ const auditStatusBadge = document.querySelector("#auditStatusBadge");
 const auditScoreValue = document.querySelector("#auditScoreValue");
 const auditScoreBar = document.querySelector("#auditScoreBar");
 const auditPotential = document.querySelector("#auditPotential");
+const auditRequestStatus = document.querySelector("#auditRequestStatus");
+const apiEndpointInput = document.querySelector("#apiEndpointInput");
+const productNameInput = document.querySelector("#productNameInput");
+const targetMarketInput = document.querySelector("#targetMarketInput");
+const objectiveInput = document.querySelector("#objectiveInput");
+const notesInput = document.querySelector("#notesInput");
+const auditSummaryList = document.querySelector("#auditSummaryList");
+const primaryAudienceDemographic = document.querySelector("#primaryAudienceDemographic");
+const primaryAudienceInterests = document.querySelector("#primaryAudienceInterests");
+const primaryAudienceBehaviors = document.querySelector("#primaryAudienceBehaviors");
+const primaryAudiencePain = document.querySelector("#primaryAudiencePain");
+const primaryAudienceSignals = document.querySelector("#primaryAudienceSignals");
+const secondaryAudienceList = document.querySelector("#secondaryAudienceList");
+const audienceSizeNumber = document.querySelector("#audienceSizeNumber");
+const audienceSizeConfidence = document.querySelector("#audienceSizeConfidence");
+const audienceSizeRationale = document.querySelector("#audienceSizeRationale");
+const signalClarity = document.querySelector("#signalClarity");
+const signalUnderstoodList = document.querySelector("#signalUnderstoodList");
+const signalConfusingList = document.querySelector("#signalConfusingList");
+const strengthsList = document.querySelector("#strengthsList");
+const weaknessesList = document.querySelector("#weaknessesList");
+const fixesList = document.querySelector("#fixesList");
+const hookOptionsList = document.querySelector("#hookOptionsList");
+const finalVerdictStatus = document.querySelector("#finalVerdictStatus");
+const finalVerdictReason = document.querySelector("#finalVerdictReason");
+const auditStars = document.querySelector("#auditStars");
+
+let selectedImageDataUrl = "";
+let selectedMimeType = "image/jpeg";
+
+const metricMeta = {
+  hook_scroll_stop: 15,
+  audience_signal: 15,
+  pain_desire_clarity: 10,
+  offer_strength: 15,
+  creative_clarity: 10,
+  proof_trust: 10,
+  objection_handling: 10,
+  cta: 5,
+  andromeda_readiness: 10,
+};
+
+function setRequestStatus(message, tone = "muted") {
+  if (!auditRequestStatus) return;
+  auditRequestStatus.textContent = message;
+  auditRequestStatus.dataset.tone = tone;
+}
 
 function setDefaultPreview() {
+  selectedImageDataUrl = "";
+  selectedMimeType = "image/jpeg";
   if (adsPreviewImage) adsPreviewImage.src = "assets/banners/โฆษณา.png";
   if (previewOverlayTitle) previewOverlayTitle.textContent = "พร้อมเชื่อม API วิเคราะห์ภาพ";
   if (previewOverlayText) previewOverlayText.textContent = "ตอนนี้แสดงภาพตัวอย่างก่อน เมื่ออัปโหลดรูป ระบบจะพรีวิวภาพจริงในช่องนี้";
   if (auditStatusBadge) auditStatusBadge.textContent = "Mock Result";
-  if (auditScoreValue) auditScoreValue.textContent = "78";
-  if (auditScoreBar) auditScoreBar.style.width = "78%";
-  if (auditPotential) auditPotential.textContent = "สูง";
+  setRequestStatus("ยังไม่ได้ส่ง request", "muted");
 }
 
 function readImage(file) {
@@ -28,33 +75,260 @@ function readImage(file) {
   });
 }
 
+function listToHtml(items) {
+  return (items || [])
+    .map((item) => `<li>${item}</li>`)
+    .join("");
+}
+
+function personaToHtml(items) {
+  return (items || [])
+    .map(
+      (item, index) => `
+        <li>
+          <b>${index + 1}</b>
+          <div>
+            <strong>${item.title || "-"}</strong>
+            <span>${item.description || "-"}</span>
+          </div>
+        </li>
+      `,
+    )
+    .join("");
+}
+
+function formatCompactNumber(value) {
+  const number = Number(value || 0);
+  if (number >= 1000000) return `${(number / 1000000).toFixed(number % 1000000 === 0 ? 0 : 1)}M`;
+  if (number >= 1000) return `${(number / 1000).toFixed(number % 1000 === 0 ? 0 : 1)}K`;
+  return String(number);
+}
+
+function renderStars(score) {
+  if (!auditStars) return;
+  const filled = Math.max(1, Math.min(5, Math.round(Number(score || 0) / 20)));
+  auditStars.innerHTML = Array.from({ length: 5 }, (_, index) => {
+    const isOff = index >= filled ? ' class="is-off"' : "";
+    return `<span${isOff}>★</span>`;
+  }).join("");
+}
+
+function renderMetric(key, value) {
+  const max = metricMeta[key];
+  if (!max) return;
+  const bar = document.querySelector(`#metric-${key}`);
+  const text = document.querySelector(`#metric-text-${key}`);
+  const numeric = Number(value || 0);
+  const width = Math.max(0, Math.min(100, (numeric / max) * 100));
+  if (bar) bar.style.width = `${width}%`;
+  if (text) text.textContent = `${numeric}/${max}`;
+}
+
+function renderAudit(data) {
+  if (auditStatusBadge) auditStatusBadge.textContent = "Analyzed";
+  if (auditScoreValue) auditScoreValue.textContent = String(data.overall_score ?? 0);
+  if (auditScoreBar) auditScoreBar.style.width = `${Math.max(0, Math.min(100, Number(data.overall_score || 0)))}%`;
+  if (auditPotential) auditPotential.textContent = data.creative_potential || "-";
+  renderStars(data.overall_score || 0);
+
+  if (auditSummaryList) auditSummaryList.innerHTML = listToHtml(data.summary_3_lines);
+
+  if (primaryAudienceDemographic) primaryAudienceDemographic.textContent = data.primary_audience?.demographic || "-";
+  if (primaryAudienceInterests) primaryAudienceInterests.textContent = (data.primary_audience?.interests || []).join(", ") || "-";
+  if (primaryAudienceBehaviors) primaryAudienceBehaviors.textContent = (data.primary_audience?.behaviors || []).join(", ") || "-";
+  if (primaryAudiencePain) primaryAudiencePain.textContent = (data.primary_audience?.pain_desire || []).join(", ") || "-";
+  if (primaryAudienceSignals) primaryAudienceSignals.textContent = (data.primary_audience?.creative_signals || []).join(", ") || "-";
+
+  if (secondaryAudienceList) {
+    secondaryAudienceList.innerHTML = personaToHtml(data.secondary_audiences?.length ? data.secondary_audiences : [
+      { title: "ไม่พบกลุ่มรองเด่นชัด", description: "โมเดลยังไม่แยก persona รองเพิ่มเติมจากภาพนี้" },
+    ]);
+  }
+
+  if (audienceSizeNumber) {
+    const min = formatCompactNumber(data.audience_size_estimate?.min || 0);
+    const max = formatCompactNumber(data.audience_size_estimate?.max || 0);
+    audienceSizeNumber.textContent = `${min} - ${max}`;
+  }
+  if (audienceSizeConfidence) audienceSizeConfidence.textContent = data.audience_size_estimate?.confidence || "-";
+  if (audienceSizeRationale) audienceSizeRationale.textContent = data.audience_size_estimate?.rationale || "-";
+
+  if (signalClarity) signalClarity.textContent = data.andromeda_signal_check?.clarity || "-";
+  if (signalUnderstoodList) signalUnderstoodList.innerHTML = listToHtml(data.andromeda_signal_check?.understood_signals);
+  if (signalConfusingList) signalConfusingList.innerHTML = listToHtml(data.andromeda_signal_check?.confusing_signals);
+
+  Object.entries(metricMeta).forEach(([key]) => {
+    renderMetric(key, data.category_scores?.[key]);
+  });
+
+  if (strengthsList) strengthsList.innerHTML = listToHtml(data.strengths);
+  if (weaknessesList) weaknessesList.innerHTML = listToHtml(data.weaknesses);
+  if (fixesList) fixesList.innerHTML = listToHtml(data.fixes_now);
+  if (hookOptionsList) hookOptionsList.innerHTML = listToHtml(data.hook_options);
+
+  if (finalVerdictStatus) finalVerdictStatus.textContent = data.final_verdict?.status || "-";
+  if (finalVerdictReason) finalVerdictReason.textContent = data.final_verdict?.reason || "-";
+}
+
+function applyMockAudit() {
+  renderAudit({
+    overall_score: 78,
+    creative_potential: "สูง",
+    summary_3_lines: [
+      "สื่อ pain และผลลัพธ์ได้ไว เห็นประโยชน์ใน 1-2 วินาที",
+      "มี offer และ proof ดี แต่ CTA ยังไม่แรงพอ",
+      "audience signal ค่อนข้างชัด แต่ยังเพิ่มความเฉพาะกลุ่มได้อีก",
+    ],
+    primary_audience: {
+      demographic: "ผู้หญิง 18-30 ปี ในไทย",
+      interests: ["Skincare", "Beauty", "Self-care", "รีวิว"],
+      behaviors: ["ชอบคอนเทนต์ before/after", "อ่านรีวิว", "เทียบราคาและผลลัพธ์"],
+      pain_desire: ["สิว", "รอยสิว", "ผิวหมอง", "อยากเห็นผลไว"],
+      creative_signals: ["ข้อความผลลัพธ์", "ภาพนางแบบ", "ราคา", "รีวิว"],
+    },
+    secondary_audiences: [
+      { title: "ผู้หญิง 25-35 ปี", description: "ทำงานออฟฟิศ สนใจผิวหน้าและการดูแลตัวเอง" },
+      { title: "วัยรุ่น / นักศึกษา 16-22 ปี", description: "เริ่มมีสิว ชอบคอนเทนต์ TikTok / IG ที่เห็นผลไว" },
+      { title: "ผู้ชาย 18-28 ปี", description: "เริ่มดูแลผิวและสนใจสินค้าที่ใช้ง่าย ราคาไม่แรง" },
+    ],
+    audience_size_estimate: {
+      min: 1500000,
+      max: 4000000,
+      confidence: "กลาง-สูง",
+      rationale: "ประเมินจาก creative signal และลักษณะ pain ที่กว้างพอในตลาดไทย",
+    },
+    andromeda_signal_check: {
+      clarity: "ค่อนข้างชัด เหมาะกับ pain เรื่องสิว / ผิวใส / ผลลัพธ์เร็ว",
+      understood_signals: ["ผู้หญิงวัยรุ่นถึงวัยทำงาน", "ปัญหาสิว ผิวไม่ใส", "ต้องการผลลัพธ์เร็ว"],
+      confusing_signals: ["proof จริงยังน้อย", "รายละเอียดข้อกังวลยังตอบไม่ครบ", "CTA ยังไม่ชัดพอ"],
+    },
+    category_scores: {
+      hook_scroll_stop: 13,
+      audience_signal: 13,
+      pain_desire_clarity: 9,
+      offer_strength: 12,
+      creative_clarity: 8,
+      proof_trust: 7,
+      objection_handling: 6,
+      cta: 3,
+      andromeda_readiness: 7,
+    },
+    strengths: [
+      "เปิดภาพช่วยผลลัพธ์ชัด ดูน่าสนใจ",
+      "สื่อ pain และ benefit ได้เร็ว",
+      "มีราคาและรีวิวช่วยเพิ่มความน่าเชื่อถือ",
+    ],
+    weaknesses: [
+      "ยังไม่มี handling objection มากพอ",
+      "CTA ยังทั่วไป ไม่เร่งการตัดสินใจ",
+      "proof เชิงลึกยังน้อยถ้าต้องการ scale",
+    ],
+    fixes_now: [
+      "เพิ่ม before / after หรือรีวิว 1-2 เคส",
+      "เพิ่มประโยคตอบข้อกังวล เช่น ผิวแพ้ง่ายใช้ได้ไหม",
+      "ปรับ CTA ให้ชัดขึ้น เช่น ทักเพื่อรับโปรวันนี้",
+    ],
+    hook_options: [
+      "สิวขึ้นทุกวัน? ลองตัวนี้ 7 วันเห็นผล",
+      "ก่อนนอน 1 หยด ตื่นมาผิวใสขึ้น",
+      "ผิวอ่อนล้า ฟื้นลุคให้ดูสดขึ้นเร็ว",
+      "เซรั่มลดสิวที่ใช้แล้วอยากบอกต่อ",
+      "ถ้าอยากผิวใสไว ลองเริ่มจากตัวนี้",
+    ],
+    final_verdict: {
+      status: "ควรแก้ก่อนรัน",
+      reason: "ภาพรวมดี แต่ควรเพิ่ม Proof, objection handling และ CTA ที่ชัดขึ้นก่อนยิงงบจริง",
+    },
+  });
+}
+
+async function analyzeWithBackend() {
+  const endpoint = apiEndpointInput?.value?.trim();
+  if (!endpoint) {
+    setRequestStatus("กรุณาระบุ backend endpoint ก่อน", "error");
+    return;
+  }
+
+  if (!selectedImageDataUrl) {
+    setRequestStatus("กรุณาอัปโหลดรูปโฆษณาก่อนกดวิเคราะห์", "error");
+    return;
+  }
+
+  const payload = {
+    imageBase64: selectedImageDataUrl.split(",")[1],
+    mimeType: selectedMimeType,
+    productName: productNameInput?.value?.trim() || "ไม่ระบุ",
+    targetMarket: targetMarketInput?.value?.trim() || "TH",
+    objective: objectiveInput?.value?.trim() || "meta_ads_conversion",
+    notes: notesInput?.value?.trim() || "-",
+  };
+
+  try {
+    runAuditButton.disabled = true;
+    runAuditButton.textContent = "กำลังวิเคราะห์...";
+    if (auditStatusBadge) auditStatusBadge.textContent = "Loading";
+    setRequestStatus("กำลังส่งรูปไป backend เพื่อวิเคราะห์...", "loading");
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const raw = await response.text();
+    let result = null;
+
+    try {
+      result = raw ? JSON.parse(raw) : {};
+    } catch {
+      throw new Error("backend ตอบกลับไม่ใช่ JSON ที่อ่านได้");
+    }
+
+    if (!response.ok) {
+      throw new Error(result?.error || "วิเคราะห์ไม่สำเร็จ");
+    }
+
+    renderAudit(result);
+    if (previewOverlayTitle) previewOverlayTitle.textContent = "วิเคราะห์จาก OpenAI สำเร็จ";
+    if (previewOverlayText) previewOverlayText.textContent = "ผลลัพธ์บนหน้านี้ถูกเติมจาก JSON response ที่ backend ส่งกลับมาแล้ว";
+    setRequestStatus("วิเคราะห์สำเร็จและเติมผลลัพธ์ลงหน้าแล้ว", "success");
+  } catch (error) {
+    if (auditStatusBadge) auditStatusBadge.textContent = "Error";
+    setRequestStatus(error.message || "เกิดข้อผิดพลาดระหว่างวิเคราะห์", "error");
+  } finally {
+    runAuditButton.disabled = false;
+    runAuditButton.textContent = "วิเคราะห์จริง";
+  }
+}
+
 adsImageInput?.addEventListener("change", async (event) => {
   const file = event.target.files?.[0];
   if (!file) return;
 
   try {
     const dataUrl = await readImage(file);
+    selectedImageDataUrl = dataUrl;
+    selectedMimeType = file.type || "image/jpeg";
     if (adsPreviewImage) adsPreviewImage.src = dataUrl;
     if (previewOverlayTitle) previewOverlayTitle.textContent = "ภาพพร้อมวิเคราะห์";
-    if (previewOverlayText) previewOverlayText.textContent = `ไฟล์: ${file.name} พร้อมใช้เป็น input สำหรับ OpenAI vision ในขั้นถัดไป`;
+    if (previewOverlayText) previewOverlayText.textContent = `ไฟล์: ${file.name} พร้อมใช้เป็น input สำหรับ backend และ OpenAI vision`;
     if (auditStatusBadge) auditStatusBadge.textContent = "Uploaded";
+    setRequestStatus("อัปโหลดรูปแล้ว พร้อมส่ง request", "success");
   } catch {
     setDefaultPreview();
+    setRequestStatus("อ่านไฟล์รูปไม่สำเร็จ", "error");
   }
 });
 
 clearAdsImageButton?.addEventListener("click", () => {
   if (adsImageInput) adsImageInput.value = "";
   setDefaultPreview();
+  applyMockAudit();
 });
 
-runAuditButton?.addEventListener("click", () => {
-  if (auditStatusBadge) auditStatusBadge.textContent = "Ready for API";
-  if (previewOverlayTitle) previewOverlayTitle.textContent = "หน้ารายงานพร้อมต่อ API";
-  if (previewOverlayText) previewOverlayText.textContent = "โครง UI และตำแหน่งผลลัพธ์พร้อมแล้ว เหลือผูก OpenAI API และ prompt วิเคราะห์รูป";
-  if (auditScoreValue) auditScoreValue.textContent = "82";
-  if (auditScoreBar) auditScoreBar.style.width = "82%";
-  if (auditPotential) auditPotential.textContent = "ค่อนข้างสูง";
-});
+runAuditButton?.addEventListener("click", analyzeWithBackend);
 
 setDefaultPreview();
+applyMockAudit();

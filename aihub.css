@@ -3255,6 +3255,83 @@ meter::-webkit-meter-optimum-value {
   align-items: center;
 }
 
+.audit-request-card {
+  margin-bottom: 18px;
+  border: 1px solid var(--faint);
+  border-radius: 22px;
+  padding: 20px 22px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.audit-request-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.audit-field {
+  display: grid;
+  gap: 8px;
+}
+
+.audit-field span {
+  color: #14316e;
+  font-size: 0.92rem;
+  font-weight: 900;
+}
+
+.audit-field input,
+.audit-field textarea {
+  width: 100%;
+  border: 1px solid #dbe4f0;
+  border-radius: 14px;
+  padding: 13px 15px;
+  outline: 0;
+  background: #f8fbff;
+  color: var(--ink);
+  font: inherit;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  resize: vertical;
+}
+
+.audit-field input:focus,
+.audit-field textarea:focus {
+  border-color: #2c7dff;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(44, 125, 255, 0.1);
+}
+
+.audit-field-wide {
+  grid-column: 1 / -1;
+}
+
+.audit-request-status {
+  margin-top: 14px;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 0.94rem;
+  font-weight: 800;
+  line-height: 1.5;
+  color: #5f6570;
+  background: #f5f7fa;
+}
+
+.audit-request-status[data-tone="loading"] {
+  color: #1b4fc8;
+  background: #edf4ff;
+}
+
+.audit-request-status[data-tone="success"] {
+  color: #14825c;
+  background: #eefcf5;
+}
+
+.audit-request-status[data-tone="error"] {
+  color: #c43f32;
+  background: #fff1ef;
+}
+
 .audit-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -3826,7 +3903,8 @@ meter::-webkit-meter-optimum-value {
   }
 
   .audit-hero,
-  .audit-upload-card {
+  .audit-upload-card,
+  .audit-request-card {
     grid-template-columns: 1fr;
     padding: 22px 18px;
   }
@@ -3834,6 +3912,10 @@ meter::-webkit-meter-optimum-value {
   .audit-hero-actions,
   .audit-upload-actions {
     display: grid;
+  }
+
+  .audit-request-grid {
+    grid-template-columns: 1fr;
   }
 
   .audit-grid {

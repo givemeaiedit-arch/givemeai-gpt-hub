@@ -37,7 +37,7 @@
 
         <section class="upgrade-card" aria-label="AI Check Ads">
           <div class="upgrade-title">AI Check Ads</div>
-          <p>อัปโหลดภาพโฆษณา แล้วดูหน้ารายงานผลแบบพร้อมต่อกับ OpenAI API ในรอบถัดไป</p>
+          <p>หน้าเครื่องมือนี้พร้อมอัปโหลดภาพ ส่งไป backend และแสดงผลวิเคราะห์ตาม JSON response ที่ได้จาก OpenAI</p>
           <a class="orange-button" href="tools.html">กลับหน้าเครื่องมือ <span>→</span></a>
         </section>
       </aside>
@@ -89,29 +89,55 @@
           </div>
         </header>
 
-        <p class="system-message" id="systemMessage">หน้า mockup สำหรับ AI Check Ads พร้อมต่อ API วิเคราะห์ภาพในรอบถัดไป</p>
+        <p class="system-message" id="systemMessage">พร้อมรับรูปโฆษณาและเรียก backend วิเคราะห์จริง</p>
 
         <section class="audit-hero">
           <div>
             <p class="tools-kicker">META CREATIVE AUDIT</p>
             <h1>AI Check Ads</h1>
-            <p>อัปโหลดภาพโฆษณาเพื่อดูโครง UI ผลวิเคราะห์แบบ Meta Andromeda Ads Auditor ก่อน รอบนี้ยังเป็น mock result เพื่อเตรียมต่อ OpenAI API และ prompt วิเคราะห์ภาพจริง</p>
+            <p>อัปโหลดภาพโฆษณา กรอกข้อมูลสินค้า และส่งไป backend เพื่อรับผลวิเคราะห์แบบ Structured JSON จาก OpenAI แล้วเติมลงหน้ารายงานอัตโนมัติ</p>
           </div>
           <div class="audit-hero-actions">
             <label class="orange-button" for="adsImageInput">อัปโหลดรูปโฆษณา</label>
-            <button class="dark-button" id="runAuditButton" type="button">วิเคราะห์จำลอง</button>
+            <button class="dark-button" id="runAuditButton" type="button">วิเคราะห์จริง</button>
           </div>
         </section>
 
         <section class="audit-upload-card">
           <div class="audit-upload-copy">
-            <strong>อัปโหลดภาพสำหรับวิเคราะห์</strong>
-            <p>รองรับไฟล์ JPG, PNG หรือ WEBP เพื่อใช้เป็น input สำหรับระบบวิเคราะห์ในขั้นถัดไป</p>
+            <strong>ตั้งค่า request ก่อนวิเคราะห์</strong>
+            <p>กำหนด endpoint ของ backend, ชื่อสินค้า, objective และหมายเหตุ เพื่อส่งไปพร้อมรูปที่อัปโหลด</p>
           </div>
           <div class="audit-upload-actions">
             <input id="adsImageInput" type="file" accept="image/*" hidden />
             <button class="soft-button" id="clearAdsImageButton" type="button">ล้างรูป</button>
           </div>
+        </section>
+
+        <section class="audit-request-card">
+          <div class="audit-request-grid">
+            <label class="audit-field">
+              <span>Backend endpoint</span>
+              <input id="apiEndpointInput" type="text" value="http://127.0.0.1:8787/api/ai-check-ads/analyze" />
+            </label>
+            <label class="audit-field">
+              <span>ชื่อสินค้า</span>
+              <input id="productNameInput" type="text" value="เซรั่มลดสิว" />
+            </label>
+            <label class="audit-field">
+              <span>ตลาดเป้าหมาย</span>
+              <input id="targetMarketInput" type="text" value="TH" />
+            </label>
+            <label class="audit-field">
+              <span>Objective</span>
+              <input id="objectiveInput" type="text" value="meta_ads_conversion" />
+            </label>
+            <label class="audit-field audit-field-wide">
+              <span>หมายเหตุ</span>
+              <textarea id="notesInput" rows="3">ต้องการวิเคราะห์ภาพโฆษณาสำหรับขายจริงในไทย ดูจุดแข็ง จุดอ่อน audience signal และ hook ใหม่</textarea>
+            </label>
+          </div>
+          <div class="audit-request-status" id="auditRequestStatus">ยังไม่ได้ส่ง request</div>
         </section>
 
         <section class="audit-grid">
@@ -123,7 +149,7 @@
             <div class="audit-score-value"><strong id="auditScoreValue">78</strong><small>/100</small></div>
             <div class="audit-score-bar"><span id="auditScoreBar"></span></div>
             <p class="audit-score-label">Creative Potential: <b id="auditPotential">สูง</b></p>
-            <div class="audit-stars" aria-hidden="true">
+            <div class="audit-stars" id="auditStars" aria-hidden="true">
               <span>★</span><span>★</span><span>★</span><span>★</span><span class="is-off">★</span>
             </div>
           </article>
@@ -157,11 +183,11 @@
               <h2>กลุ่มเป้าหมายหลักที่ Ads น่าจะวิ่งไปหา</h2>
             </div>
             <div class="audit-audience-block">
-              <p><strong>Demographic:</strong> ผู้หญิง 18-30 ปี ในไทย</p>
-              <p><strong>Interest:</strong> Skincare, Beauty, Self-care, รีวิว, ก่อนนอน, ผิวใส</p>
-              <p><strong>Behavior:</strong> ชอบคอนเทนต์ before/after, อ่านรีวิว, เปรียบเทียบราคาและผลลัพธ์</p>
-              <p><strong>Pain / Desire:</strong> สิว รอยสิว ผิวหมอง อยากเห็นผลไวและมั่นใจขึ้น</p>
-              <p><strong>Creative Signal:</strong> ภาษา, นางแบบ, ข้อความผลลัพธ์, โปรโมชัน, รีวิว, ราคา</p>
+              <p><strong>Demographic:</strong> <span id="primaryAudienceDemographic">ผู้หญิง 18-30 ปี ในไทย</span></p>
+              <p><strong>Interest:</strong> <span id="primaryAudienceInterests">Skincare, Beauty, Self-care, รีวิว, ก่อนนอน, ผิวใส</span></p>
+              <p><strong>Behavior:</strong> <span id="primaryAudienceBehaviors">ชอบคอนเทนต์ before/after, อ่านรีวิว, เปรียบเทียบราคาและผลลัพธ์</span></p>
+              <p><strong>Pain / Desire:</strong> <span id="primaryAudiencePain">สิว รอยสิว ผิวหมอง อยากเห็นผลไวและมั่นใจขึ้น</span></p>
+              <p><strong>Creative Signal:</strong> <span id="primaryAudienceSignals">ภาษา, นางแบบ, ข้อความผลลัพธ์, โปรโมชัน, รีวิว, ราคา</span></p>
             </div>
           </article>
 
@@ -169,7 +195,7 @@
             <div class="audit-card-heading">
               <h2>กลุ่มเป้าหมายรองที่ระบบอาจลองหา</h2>
             </div>
-            <ol class="audit-persona-list">
+            <ol class="audit-persona-list" id="secondaryAudienceList">
               <li><b>1</b><div><strong>ผู้หญิง 25-35 ปี</strong><span>ทำงานออฟฟิศ สนใจผิวหน้าและการดูแลตัวเอง</span></div></li>
               <li><b>2</b><div><strong>วัยรุ่น / นักศึกษา 16-22 ปี</strong><span>เริ่มมีสิว ชอบคอนเทนต์ TikTok / IG ที่เห็นผลไว</span></div></li>
               <li><b>3</b><div><strong>ผู้ชาย 18-28 ปี</strong><span>เริ่มดูแลผิวและสนใจสินค้าที่ใช้ง่าย ราคาไม่แรง</span></div></li>
@@ -180,9 +206,9 @@
             <div class="audit-card-heading">
               <h2>Audience size estimate ในไทย</h2>
             </div>
-            <div class="audit-size-number">1.5M - 4M</div>
-            <p class="audit-size-level">ระดับความมั่นใจ: <b>กลาง-สูง</b></p>
-            <p class="audit-note">ตัวเลขนี้เป็น mock inference จาก creative signal เพื่อเตรียมโครงหน้ารายงาน ยังไม่ใช่ข้อมูลจริงจาก Ads Manager</p>
+            <div class="audit-size-number" id="audienceSizeNumber">1.5M - 4M</div>
+            <p class="audit-size-level">ระดับความมั่นใจ: <b id="audienceSizeConfidence">กลาง-สูง</b></p>
+            <p class="audit-note" id="audienceSizeRationale">ตัวเลขนี้เป็น mock inference จาก creative signal เพื่อเตรียมโครงหน้ารายงาน ยังไม่ใช่ข้อมูลจริงจาก Ads Manager</p>
           </article>
 
           <article class="audit-card audit-signal-card">
@@ -191,11 +217,11 @@
             </div>
             <div class="audit-signal-group">
               <strong>Signal ชัดหรือกว้างเกินไป</strong>
-              <p>ค่อนข้างชัด เหมาะกับ pain เรื่องสิว / ผิวใส / ผลลัพธ์เร็ว</p>
+              <p id="signalClarity">ค่อนข้างชัด เหมาะกับ pain เรื่องสิว / ผิวใส / ผลลัพธ์เร็ว</p>
             </div>
             <div class="audit-signal-group">
               <strong>สิ่งที่ระบบน่าจะเข้าใจ</strong>
-              <ul class="audit-mini-list">
+              <ul class="audit-mini-list" id="signalUnderstoodList">
                 <li>ผู้หญิงวัยรุ่นถึงวัยทำงาน</li>
                 <li>ปัญหาสิว ผิวไม่ใส</li>
                 <li>ต้องการผลลัพธ์เร็วและดูน่าเชื่อถือ</li>
@@ -203,7 +229,7 @@
             </div>
             <div class="audit-signal-group">
               <strong>สิ่งที่ยังสับสน</strong>
-              <ul class="audit-mini-list">
+              <ul class="audit-mini-list" id="signalConfusingList">
                 <li>Proof จริงยังน้อย</li>
                 <li>รายละเอียดข้อกังวลยังตอบไม่ครบ</li>
                 <li>CTA ยังไม่ชัดเท่าที่ควร</li>
@@ -216,19 +242,22 @@
               <h2>คะแนนแยกตามหัวข้อ</h2>
             </div>
             <div class="audit-metric-list">
-              <div class="audit-metric"><span>Hook / Scroll Stop</span><div class="audit-metric-bar"><i style="width: 87%"></i></div><b>13/15</b></div>
-              <div class="audit-metric"><span>Audience Signal</span><div class="audit-metric-bar"><i style="width: 87%"></i></div><b>13/15</b></div>
-              <div class="audit-metric"><span>Pain / Desire</span><div class="audit-metric-bar"><i style="width: 90%"></i></div><b>9/10</b></div>
-              <div class="audit-metric"><span>Offer Strength</span><div class="audit-metric-bar"><i style="width: 80%"></i></div><b>12/15</b></div>
-              <div class="audit-metric"><span>Proof / Trust</span><div class="audit-metric-bar"><i style="width: 70%"></i></div><b>7/10</b></div>
-              <div class="audit-metric"><span>CTA</span><div class="audit-metric-bar"><i style="width: 60%"></i></div><b>3/5</b></div>
+              <div class="audit-metric"><span>Hook / Scroll Stop</span><div class="audit-metric-bar"><i id="metric-hook_scroll_stop"></i></div><b id="metric-text-hook_scroll_stop">13/15</b></div>
+              <div class="audit-metric"><span>Audience Signal</span><div class="audit-metric-bar"><i id="metric-audience_signal"></i></div><b id="metric-text-audience_signal">13/15</b></div>
+              <div class="audit-metric"><span>Pain / Desire</span><div class="audit-metric-bar"><i id="metric-pain_desire_clarity"></i></div><b id="metric-text-pain_desire_clarity">9/10</b></div>
+              <div class="audit-metric"><span>Offer Strength</span><div class="audit-metric-bar"><i id="metric-offer_strength"></i></div><b id="metric-text-offer_strength">12/15</b></div>
+              <div class="audit-metric"><span>Creative Clarity</span><div class="audit-metric-bar"><i id="metric-creative_clarity"></i></div><b id="metric-text-creative_clarity">8/10</b></div>
+              <div class="audit-metric"><span>Proof / Trust</span><div class="audit-metric-bar"><i id="metric-proof_trust"></i></div><b id="metric-text-proof_trust">7/10</b></div>
+              <div class="audit-metric"><span>Objection Handling</span><div class="audit-metric-bar"><i id="metric-objection_handling"></i></div><b id="metric-text-objection_handling">6/10</b></div>
+              <div class="audit-metric"><span>CTA</span><div class="audit-metric-bar"><i id="metric-cta"></i></div><b id="metric-text-cta">3/5</b></div>
+              <div class="audit-metric"><span>Andromeda Readiness</span><div class="audit-metric-bar"><i id="metric-andromeda_readiness"></i></div><b id="metric-text-andromeda_readiness">7/10</b></div>
             </div>
           </article>
 
           <article class="audit-card audit-insight-card">
             <div class="audit-insight-group is-good">
               <h3>จุดแข็ง</h3>
-              <ul class="audit-mini-list">
+              <ul class="audit-mini-list" id="strengthsList">
                 <li>เปิดภาพช่วยผลลัพธ์ชัด ดูน่าสนใจ</li>
                 <li>สื่อ pain และ benefit ได้เร็ว</li>
                 <li>มีราคาและรีวิวช่วยเพิ่มความน่าเชื่อถือ</li>
@@ -236,7 +265,7 @@
             </div>
             <div class="audit-insight-group is-bad">
               <h3>จุดอ่อน</h3>
-              <ul class="audit-mini-list">
+              <ul class="audit-mini-list" id="weaknessesList">
                 <li>ยังไม่มี handling objection มากพอ</li>
                 <li>CTA ยังทั่วไป ไม่เร่งการตัดสินใจ</li>
                 <li>proof เชิงลึกยังน้อยถ้าต้องการ scale</li>
@@ -244,7 +273,7 @@
             </div>
             <div class="audit-insight-group is-fix">
               <h3>สิ่งที่ควรแก้ทันที</h3>
-              <ul class="audit-mini-list">
+              <ul class="audit-mini-list" id="fixesList">
                 <li>เพิ่ม before / after หรือรีวิว 1-2 เคส</li>
                 <li>เพิ่มประโยคตอบข้อกังวล เช่น ผิวแพ้ง่ายใช้ได้ไหม</li>
                 <li>ปรับ CTA ให้ชัดขึ้น เช่น ทักเพื่อรับโปรวันนี้</li>
@@ -256,7 +285,7 @@
             <div class="audit-card-heading">
               <h2>Hook ใหม่อย่างน้อย 5 ตัวเลือก</h2>
             </div>
-            <ol class="audit-hook-list">
+            <ol class="audit-hook-list" id="hookOptionsList">
               <li>สิวขึ้นทุกวัน? ลองตัวนี้ 7 วันเห็นผล</li>
               <li>ก่อนนอน 1 หยด ตื่นมาผิวใสขึ้น</li>
               <li>ผิวอ่อนล้า ฟื้นลุคให้ดูสดขึ้นเร็ว</li>
@@ -268,8 +297,8 @@
           <article class="audit-card audit-verdict-card">
             <div class="audit-verdict-badge">Final verdict</div>
             <div>
-              <strong>ควรแก้ก่อนรัน</strong>
-              <p>ภาพรวมดี แต่ควรเพิ่ม Proof, objection handling และ CTA ที่ชัดขึ้นก่อนยิงงบจริง เพื่อให้คุณภาพโฆษณาและโอกาสได้ buyer ดีขึ้น</p>
+              <strong id="finalVerdictStatus">ควรแก้ก่อนรัน</strong>
+              <p id="finalVerdictReason">ภาพรวมดี แต่ควรเพิ่ม Proof, objection handling และ CTA ที่ชัดขึ้นก่อนยิงงบจริง เพื่อให้คุณภาพโฆษณาและโอกาสได้ buyer ดีขึ้น</p>
             </div>
           </article>
         </section>
