@@ -33,7 +33,7 @@ loadLocalEnv(resolve(process.cwd(), ".env.local"));
 
 const PORT = Number(process.env.PORT || 8787);
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4.1";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.4-mini";
 
 const baseDir = resolve(process.cwd(), "openai");
 const promptPath = resolve(baseDir, "ai-check-ads-prompt.md");

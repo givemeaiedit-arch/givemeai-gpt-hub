@@ -15,7 +15,7 @@
 
 ```bash
 set OPENAI_API_KEY=YOUR_KEY
-set OPENAI_MODEL=gpt-4.1
+set OPENAI_MODEL=gpt-5.4-mini
 node openai/ai-check-ads-server.mjs
 ```
 

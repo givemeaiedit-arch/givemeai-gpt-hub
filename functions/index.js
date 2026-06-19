@@ -8,8 +8,8 @@ import { defineSecret } from "firebase-functions/params";
 initializeApp();
 
 const openAiApiKey = defineSecret("OPENAI_API_KEY");
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4.1";
-const OPENAI_FAST_MODEL = process.env.OPENAI_FAST_MODEL || "gpt-4.1-mini";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.4-mini";
+const OPENAI_FAST_MODEL = process.env.OPENAI_FAST_MODEL || "gpt-5.4-mini";
 const promptUrl = new URL("./openai/ai-check-ads-prompt.md", import.meta.url);
 const schemaUrl = new URL("./openai/ai-check-ads-schema.json", import.meta.url);
 const adminAuth = getAuth();
