@@ -996,6 +996,13 @@ meter::-webkit-meter-optimum-value {
   text-decoration: none;
 }
 
+.top-admin-link {
+  width: auto;
+  min-height: 44px;
+  padding: 0 16px;
+  white-space: nowrap;
+}
+
 .prompt-list {
   display: grid;
   gap: 16px;
