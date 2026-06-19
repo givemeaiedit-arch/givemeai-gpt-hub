@@ -1,5 +1,6 @@
 (() => {
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const pageConfig = {
     "index.html": {
@@ -194,5 +195,46 @@
     } else {
       main.insertAdjacentHTML("afterbegin", topbarHtml("topbar"));
     }
+  }
+
+  if (!reducedMotion) {
+    document.body.classList.add("page-motion");
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.body.classList.add("page-motion-ready");
+      });
+    });
+
+    let isLeaving = false;
+    document.addEventListener("click", (event) => {
+      if (isLeaving || event.defaultPrevented) return;
+      if (event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      const link = event.target.closest("a[href]");
+      if (!link) return;
+      if ((link.target || "").toLowerCase() === "_blank") return;
+      if (link.hasAttribute("download")) return;
+
+      const rawHref = link.getAttribute("href");
+      if (!rawHref) return;
+      if (rawHref.startsWith("#") || rawHref.startsWith("mailto:") || rawHref.startsWith("tel:") || rawHref.startsWith("javascript:")) {
+        return;
+      }
+
+      const nextUrl = new URL(link.href, window.location.href);
+      if (nextUrl.origin !== window.location.origin) return;
+      if (nextUrl.href === window.location.href) return;
+
+      const samePage = nextUrl.pathname === window.location.pathname && nextUrl.search === window.location.search;
+      if (samePage && nextUrl.hash) return;
+
+      event.preventDefault();
+      isLeaving = true;
+      document.body.classList.add("page-is-leaving");
+      window.setTimeout(() => {
+        window.location.href = nextUrl.href;
+      }, 180);
+    });
   }
 })();

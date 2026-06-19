@@ -38,6 +38,29 @@ body {
   color: var(--ink);
 }
 
+body.page-motion .app-shell,
+body.page-motion .bottom-nav {
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease,
+    filter 220ms ease;
+  will-change: opacity, transform, filter;
+}
+
+body.page-motion:not(.page-motion-ready) .app-shell,
+body.page-motion:not(.page-motion-ready) .bottom-nav {
+  opacity: 0;
+  transform: translateY(10px);
+  filter: blur(4px);
+}
+
+body.page-motion.page-is-leaving .app-shell,
+body.page-motion.page-is-leaving .bottom-nav {
+  opacity: 0;
+  transform: translateY(8px);
+  filter: blur(4px);
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -404,6 +427,18 @@ img {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  body.page-motion .app-shell,
+  body.page-motion .bottom-nav {
+    transition: none;
+    transform: none;
+    filter: none;
+    opacity: 1;
+  }
+
   .hero-card.is-sliding .hero-copy,
   .hero-card.is-sliding .hero-art,
   .hero-card.is-sliding .hero-slider-controls {
