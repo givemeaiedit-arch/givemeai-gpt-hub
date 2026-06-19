@@ -151,6 +151,82 @@
           </div>
         </section>
 
+        <section class="leaderboard-table-card admin-card prompt-admin-card">
+          <div class="panel-heading">
+            <h2>จัดการ Prompt</h2>
+            <span id="adminPromptsLabel">แก้ไข เพิ่ม ลบ และตั้งรูปตัวอย่าง</span>
+          </div>
+
+          <form class="prompt-admin-form" id="promptAdminForm">
+            <input id="promptEditId" type="hidden" />
+            <label>
+              <span>ชื่อ Prompt</span>
+              <input id="promptTitleInput" type="text" required placeholder="เช่น โปรโมทร้านอาหารให้คนอยากสั่ง" />
+            </label>
+            <label>
+              <span>หมวด</span>
+              <select id="promptCategoryInput" required></select>
+            </label>
+            <label>
+              <span>ประเภทธุรกิจ</span>
+              <input id="promptBusinessInput" type="text" required placeholder="เช่น ร้านอาหาร / คาเฟ่" />
+            </label>
+            <label>
+              <span>แท็ก</span>
+              <input id="promptTagsInput" type="text" placeholder="คั่นด้วย comma เช่น Ads, ร้านอาหาร, Caption" />
+            </label>
+            <label class="prompt-admin-wide">
+              <span>คำอธิบายสั้น</span>
+              <textarea id="promptSummaryInput" rows="2" required placeholder="สรุปว่าช่วยทำอะไร"></textarea>
+            </label>
+            <label class="prompt-admin-wide">
+              <span>Prompt พร้อมใช้</span>
+              <textarea id="promptTextInput" rows="6" required placeholder="ใส่ Prompt ที่ผู้ใช้จะคัดลอกไปใช้งาน"></textarea>
+            </label>
+            <label class="prompt-admin-wide">
+              <span>รูปตัวอย่าง / Banner URL</span>
+              <input id="promptCoverInput" type="text" placeholder="assets/banners/โปรโมทร้านอาหาร.png หรือ URL รูปภาพ" />
+            </label>
+            <div class="prompt-admin-preview">
+              <img id="promptCoverPreview" src="assets/banners/สร้างภาพโปรโมท.png" alt="ตัวอย่างรูป Prompt" />
+            </div>
+            <label>
+              <span>Rating</span>
+              <input id="promptRatingInput" type="number" min="0" max="5" step="0.1" value="4.8" />
+            </label>
+            <label>
+              <span>จำนวนใช้งาน</span>
+              <input id="promptUsesInput" type="number" min="0" step="1" value="0" />
+            </label>
+            <label class="prompt-admin-check">
+              <input id="promptFeaturedInput" type="checkbox" />
+              <span>แสดงเป็น Prompt แนะนำ</span>
+            </label>
+            <div class="prompt-admin-actions">
+              <button class="orange-button" id="savePromptButton" type="submit">บันทึก Prompt</button>
+              <button class="soft-button" id="newPromptButton" type="button">เพิ่มรายการใหม่</button>
+              <button class="soft-button danger-button" id="deletePromptButton" type="button" disabled>ลบ Prompt</button>
+            </div>
+          </form>
+
+          <div class="profile-status" id="promptAdminStatus" data-tone="muted">เลือก Prompt จากตารางเพื่อแก้ไข หรือกรอกฟอร์มเพื่อเพิ่มรายการใหม่</div>
+
+          <div class="leaderboard-table-wrap">
+            <table class="leaderboard-table admin-table">
+              <thead>
+                <tr>
+                  <th>Prompt</th>
+                  <th>หมวด</th>
+                  <th>รูปตัวอย่าง</th>
+                  <th>สถานะ</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="adminPromptsBody"></tbody>
+            </table>
+          </div>
+        </section>
+
         <section class="profile-card admin-profile-card" id="adminProfilePanel">
           <div class="panel-heading">
             <h2>โปรไฟล์และประวัติรายคน</h2>
@@ -186,6 +262,7 @@
     </nav>
 
     <script src="shared-shell.js"></script>
+    <script src="prompt-data.js"></script>
     <script type="module" src="app.js"></script>
     <script type="module" src="admin.js"></script>
   </body>

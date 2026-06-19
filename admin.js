@@ -1,12 +1,15 @@
 import { watchAuth, getFirebaseServices, isFirebaseConfigured } from "./auth-shared.js";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
   limit,
   orderBy,
   query,
+  serverTimestamp,
+  setDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
@@ -29,10 +32,30 @@ const proCodesLabel = document.querySelector("#proCodesLabel");
 const proCodesBody = document.querySelector("#proCodesBody");
 const generateProCodeButton = document.querySelector("#generateProCodeButton");
 const proCodeStatus = document.querySelector("#proCodeStatus");
+const adminPromptsLabel = document.querySelector("#adminPromptsLabel");
+const adminPromptsBody = document.querySelector("#adminPromptsBody");
+const promptAdminForm = document.querySelector("#promptAdminForm");
+const promptEditId = document.querySelector("#promptEditId");
+const promptTitleInput = document.querySelector("#promptTitleInput");
+const promptCategoryInput = document.querySelector("#promptCategoryInput");
+const promptBusinessInput = document.querySelector("#promptBusinessInput");
+const promptTagsInput = document.querySelector("#promptTagsInput");
+const promptSummaryInput = document.querySelector("#promptSummaryInput");
+const promptTextInput = document.querySelector("#promptTextInput");
+const promptCoverInput = document.querySelector("#promptCoverInput");
+const promptCoverPreview = document.querySelector("#promptCoverPreview");
+const promptRatingInput = document.querySelector("#promptRatingInput");
+const promptUsesInput = document.querySelector("#promptUsesInput");
+const promptFeaturedInput = document.querySelector("#promptFeaturedInput");
+const newPromptButton = document.querySelector("#newPromptButton");
+const deletePromptButton = document.querySelector("#deletePromptButton");
+const promptAdminStatus = document.querySelector("#promptAdminStatus");
 
 let allUsers = [];
 let allHistory = [];
 let allProCodes = [];
+let allPrompts = [];
+let remotePromptMap = new Map();
 let currentAdmin = null;
 
 function isAdminUser(user) {
@@ -102,6 +125,12 @@ function setProCodeStatus(message, tone = "muted") {
   proCodeStatus.dataset.tone = tone;
 }
 
+function setPromptAdminStatus(message, tone = "muted") {
+  if (!promptAdminStatus) return;
+  promptAdminStatus.textContent = message;
+  promptAdminStatus.dataset.tone = tone;
+}
+
 function setEmptyTable(body, message, columnCount = 6) {
   if (!body) return;
   body.innerHTML = `<tr><td colspan="${columnCount}">${escapeHtml(message)}</td></tr>`;
@@ -110,7 +139,7 @@ function setEmptyTable(body, message, columnCount = 6) {
 function filterData() {
   const keyword = adminSearchInput?.value?.trim().toLowerCase() || "";
   if (!keyword) {
-    return { users: allUsers, history: allHistory, proCodes: allProCodes };
+    return { users: allUsers, history: allHistory, proCodes: allProCodes, prompts: allPrompts };
   }
 
   const users = allUsers.filter((item) => {
@@ -129,7 +158,12 @@ function filterData() {
     return haystack.includes(keyword);
   });
 
-  return { users, history, proCodes };
+  const prompts = allPrompts.filter((item) => {
+    const haystack = `${item.id} ${item.title} ${item.category} ${item.businessType} ${item.summary}`.toLowerCase();
+    return haystack.includes(keyword);
+  });
+
+  return { users, history, proCodes, prompts };
 }
 
 function renderUsers(users) {
@@ -209,15 +243,99 @@ function renderProCodes(codes) {
     .join("");
 }
 
+function renderPromptCategories() {
+  if (!promptCategoryInput) return;
+  const categories = window.GIVEME_PROMPT_CATEGORIES || [];
+  promptCategoryInput.innerHTML = categories
+    .map((category) => `<option value="${escapeHtml(category.id)}">${escapeHtml(category.name)}</option>`)
+    .join("");
+}
+
+function renderAdminPrompts(prompts) {
+  if (adminPromptsLabel) adminPromptsLabel.textContent = `${prompts.length} prompts`;
+
+  if (!adminPromptsBody) return;
+  if (!prompts.length) {
+    setEmptyTable(adminPromptsBody, "ยังไม่มี Prompt", 5);
+    return;
+  }
+
+  adminPromptsBody.innerHTML = prompts
+    .map(
+      (prompt) => `
+        <tr>
+          <td>
+            <strong>${escapeHtml(prompt.title)}</strong>
+            <small>${escapeHtml(prompt.id)}</small>
+          </td>
+          <td>${escapeHtml(prompt.categoryName || prompt.category || "-")}</td>
+          <td><img class="admin-prompt-thumb" src="${escapeHtml(prompt.cover || "")}" alt="" /></td>
+          <td>${prompt.deleted ? "ซ่อนแล้ว" : prompt.source === "firestore" ? "แก้ไขแล้ว" : "ค่าเริ่มต้น"}</td>
+          <td><button class="soft-button admin-small-button" type="button" data-edit-prompt="${escapeHtml(prompt.id)}">แก้ไข</button></td>
+        </tr>
+      `,
+    )
+    .join("");
+}
+
 function renderAll() {
-  const { users, history, proCodes } = filterData();
+  const { users, history, proCodes, prompts } = filterData();
   renderUsers(users);
   renderHistory(history);
   renderProCodes(proCodes);
+  renderAdminPrompts(prompts);
 
   if (adminUserCount) adminUserCount.textContent = String(allUsers.length);
   if (adminCheckCount) adminCheckCount.textContent = String(allHistory.length);
   if (adminLatestTime) adminLatestTime.textContent = formatDate(allHistory[0]?.checkedAt);
+}
+
+function slugifyPromptId(title) {
+  const text = String(title || "prompt")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9ก-๙]+/gi, "-")
+    .replace(/^-+|-+$/g, "");
+  return text || `prompt-${Date.now()}`;
+}
+
+function normalizePromptDoc(entry) {
+  const data = entry.data() || {};
+  return {
+    id: entry.id,
+    ...data,
+    source: "firestore",
+  };
+}
+
+function buildPromptList(remotePrompts) {
+  const categories = new Map((window.GIVEME_PROMPT_CATEGORIES || []).map((category) => [category.id, category.name]));
+  const map = new Map(
+    (window.GIVEME_PROMPTS || []).map((prompt) => [
+      prompt.id,
+      {
+        ...prompt,
+        source: "static",
+      },
+    ]),
+  );
+
+  remotePrompts.forEach((prompt) => {
+    if (!prompt.id) return;
+    map.set(prompt.id, {
+      ...(map.get(prompt.id) || {}),
+      ...prompt,
+      source: "firestore",
+    });
+  });
+
+  return [...map.values()]
+    .filter((prompt) => !prompt.deleted)
+    .map((prompt) => ({
+      ...prompt,
+      categoryName: categories.get(prompt.category) || prompt.category,
+    }))
+    .sort((a, b) => String(a.title || "").localeCompare(String(b.title || ""), "th"));
 }
 
 function normalizeUserDoc(entry) {
@@ -284,18 +402,144 @@ async function loadAdminData() {
 
   setAdminStatus("กำลังโหลดข้อมูลหลังบ้าน...", "loading");
 
-  const [usersSnapshot, historySnapshot, proCodesSnapshot] = await Promise.all([
+  const [usersSnapshot, historySnapshot, proCodesSnapshot, promptSnapshot] = await Promise.all([
     getDocs(usersQuery),
     getDocs(historyQuery),
     getDocs(proCodesQuery),
+    getDocs(collection(services.db, "promptLibrary")),
   ]);
 
   allUsers = usersSnapshot.docs.map(normalizeUserDoc);
   allHistory = historySnapshot.docs.map(normalizeHistoryDoc);
   allProCodes = proCodesSnapshot.docs.map(normalizeProCodeDoc);
+  const remotePrompts = promptSnapshot.docs.map(normalizePromptDoc);
+  remotePromptMap = new Map(remotePrompts.map((prompt) => [prompt.id, prompt]));
+  allPrompts = buildPromptList(remotePrompts);
 
   renderAll();
   setAdminStatus("โหลดข้อมูล Admin สำเร็จ", "success");
+}
+
+function resetPromptForm() {
+  promptAdminForm?.reset();
+  if (promptEditId) promptEditId.value = "";
+  if (promptCoverInput) promptCoverInput.value = "assets/banners/สร้างภาพโปรโมท.png";
+  updatePromptPreview();
+  if (deletePromptButton) deletePromptButton.disabled = true;
+  setPromptAdminStatus("กรอกข้อมูลเพื่อเพิ่ม Prompt ใหม่ หรือเลือกจากตารางเพื่อแก้ไข", "muted");
+}
+
+function updatePromptPreview() {
+  if (!promptCoverPreview) return;
+  const src = promptCoverInput?.value?.trim() || "assets/banners/สร้างภาพโปรโมท.png";
+  promptCoverPreview.src = src;
+}
+
+function fillPromptForm(prompt) {
+  if (!prompt) return;
+  if (promptEditId) promptEditId.value = prompt.id || "";
+  if (promptTitleInput) promptTitleInput.value = prompt.title || "";
+  if (promptCategoryInput) promptCategoryInput.value = prompt.category || "restaurant";
+  if (promptBusinessInput) promptBusinessInput.value = prompt.businessType || "";
+  if (promptTagsInput) promptTagsInput.value = (prompt.tags || []).join(", ");
+  if (promptSummaryInput) promptSummaryInput.value = prompt.summary || "";
+  if (promptTextInput) promptTextInput.value = prompt.prompt || "";
+  if (promptCoverInput) promptCoverInput.value = prompt.cover || "assets/banners/สร้างภาพโปรโมท.png";
+  if (promptRatingInput) promptRatingInput.value = prompt.rating || 4.8;
+  if (promptUsesInput) promptUsesInput.value = prompt.uses || 0;
+  if (promptFeaturedInput) promptFeaturedInput.checked = Boolean(prompt.featured);
+  if (deletePromptButton) deletePromptButton.disabled = false;
+  updatePromptPreview();
+  setPromptAdminStatus(`กำลังแก้ไข: ${prompt.title}`, "muted");
+}
+
+function getPromptFormData() {
+  const title = promptTitleInput?.value?.trim() || "";
+  const id = promptEditId?.value?.trim() || slugifyPromptId(title);
+  const tags = String(promptTagsInput?.value || "")
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+
+  return {
+    id,
+    title,
+    category: promptCategoryInput?.value || "restaurant",
+    businessType: promptBusinessInput?.value?.trim() || "",
+    summary: promptSummaryInput?.value?.trim() || "",
+    prompt: promptTextInput?.value?.trim() || "",
+    tags,
+    rating: Number(promptRatingInput?.value || 4.8),
+    uses: Number(promptUsesInput?.value || 0),
+    cover: promptCoverInput?.value?.trim() || "assets/banners/สร้างภาพโปรโมท.png",
+    featured: Boolean(promptFeaturedInput?.checked),
+    deleted: false,
+  };
+}
+
+async function savePrompt(event) {
+  event?.preventDefault();
+  if (!currentAdmin) {
+    setPromptAdminStatus("กรุณา Login ด้วยบัญชี Admin ก่อน", "error");
+    return;
+  }
+
+  const data = getPromptFormData();
+  if (!data.title || !data.summary || !data.prompt) {
+    setPromptAdminStatus("กรุณากรอกชื่อ คำอธิบาย และ Prompt ให้ครบ", "error");
+    return;
+  }
+
+  try {
+    const services = getFirebaseServices();
+    await setDoc(
+      doc(services.db, "promptLibrary", data.id),
+      {
+        ...data,
+        updatedAt: serverTimestamp(),
+        updatedBy: currentAdmin.email || "",
+      },
+      { merge: true },
+    );
+    setPromptAdminStatus(`บันทึก Prompt "${data.title}" แล้ว`, "success");
+    await loadAdminData();
+    fillPromptForm(allPrompts.find((prompt) => prompt.id === data.id));
+  } catch (error) {
+    setPromptAdminStatus(error.message || "บันทึก Prompt ไม่สำเร็จ", "error");
+  }
+}
+
+async function deletePrompt() {
+  const id = promptEditId?.value?.trim();
+  if (!currentAdmin || !id) return;
+
+  const prompt = allPrompts.find((item) => item.id === id);
+  if (!prompt) return;
+
+  try {
+    const services = getFirebaseServices();
+    if (remotePromptMap.has(id) && prompt.source === "firestore" && !window.GIVEME_PROMPTS?.some((item) => item.id === id)) {
+      await deleteDoc(doc(services.db, "promptLibrary", id));
+    } else {
+      await setDoc(
+        doc(services.db, "promptLibrary", id),
+        {
+          id,
+          title: prompt.title || id,
+          deleted: true,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentAdmin.email || "",
+        },
+        { merge: true },
+      );
+    }
+
+    setPromptAdminStatus(`ลบ Prompt "${prompt.title}" แล้ว`, "success");
+    resetPromptForm();
+    await loadAdminData();
+  } catch (error) {
+    setPromptAdminStatus(error.message || "ลบ Prompt ไม่สำเร็จ", "error");
+  }
 }
 
 async function loadUserProfile(uid) {
@@ -396,11 +640,23 @@ document.addEventListener("click", async (event) => {
     } catch {
       setProCodeStatus("คัดลอก Code ไม่สำเร็จ", "error");
     }
+    return;
+  }
+
+  const promptButton = event.target.closest("[data-edit-prompt]");
+  if (promptButton) {
+    fillPromptForm(allPrompts.find((prompt) => prompt.id === promptButton.dataset.editPrompt));
   }
 });
 
 adminSearchInput?.addEventListener("input", renderAll);
 generateProCodeButton?.addEventListener("click", generateProCode);
+promptAdminForm?.addEventListener("submit", savePrompt);
+newPromptButton?.addEventListener("click", resetPromptForm);
+deletePromptButton?.addEventListener("click", deletePrompt);
+promptCoverInput?.addEventListener("input", updatePromptPreview);
+renderPromptCategories();
+resetPromptForm();
 
 watchAuth(async ({ user, configured }) => {
   currentAdmin = null;

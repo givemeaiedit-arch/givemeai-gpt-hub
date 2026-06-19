@@ -29,7 +29,7 @@ jobs:
           mkdir -p dist
           cp -r assets dist/assets
           cp -r word dist/word
-          cp index.html articles.html tools.html courses.html profile.html leaderboard.html lesson-1.html lesson-2.html lesson-3.html ai-check-ads.html admin.html prompts.html prompt-categories.html app.js articles.js profile.js profile-store.js lesson-data.js lesson-page.js leaderboard.js ai-check-ads.js admin.js prompt-data.js prompts.js auth-shared.js browser-check.js firebase-config.js aihub.css dist/
+          cp index.html articles.html tools.html courses.html profile.html leaderboard.html lesson-1.html lesson-2.html lesson-3.html ai-check-ads.html admin.html prompts.html prompt-categories.html app.js shared-shell.js articles.js profile.js profile-store.js lesson-data.js lesson-page.js leaderboard.js ai-check-ads.js admin.js prompt-data.js prompt-store.js prompts.js auth-shared.js browser-check.js firebase-config.js aihub.css dist/
           touch dist/.nojekyll
 
       - name: Setup Pages

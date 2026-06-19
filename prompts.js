@@ -1,7 +1,7 @@
 (() => {
-  const prompts = window.GIVEME_PROMPTS || [];
-  const categories = window.GIVEME_PROMPT_CATEGORIES || [];
-  const categoryMap = new Map(categories.map((category) => [category.id, category]));
+  let prompts = window.GIVEME_PROMPTS || [];
+  let categories = window.GIVEME_PROMPT_CATEGORIES || [];
+  let categoryMap = new Map(categories.map((category) => [category.id, category]));
   const params = new URLSearchParams(window.location.search);
   const currentPage = window.location.pathname.split("/").pop() || "prompts.html";
 
@@ -241,4 +241,16 @@
     renderChips();
     renderPrompts();
   }
+
+  window.addEventListener("giveme-prompts-ready", () => {
+    prompts = window.GIVEME_PROMPTS || prompts;
+    categories = window.GIVEME_PROMPT_CATEGORIES || categories;
+    categoryMap = new Map(categories.map((category) => [category.id, category]));
+    if (currentPage === "prompt-categories.html") {
+      renderCategories();
+    } else {
+      renderChips();
+      renderPrompts();
+    }
+  });
 })();
