@@ -1,5 +1,3 @@
-import { isFirebaseConfigured, signInWithGoogle, watchAuth } from "./auth-shared.js";
-
 const SUBMIT_TOPUP_ENDPOINT =
   "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/submitTopupSlip";
 
@@ -21,6 +19,12 @@ const planGrid = document.querySelector(".topup-grid");
 let selectedPlan = plans[0] || null;
 let currentUser = null;
 let slipDataUrl = "";
+let authModulePromise = null;
+
+function getAuthModule() {
+  authModulePromise ||= import("./auth-shared.js");
+  return authModulePromise;
+}
 
 function setStatus(message, tone = "muted") {
   if (!status) return;
@@ -109,10 +113,12 @@ async function compressSlip(file) {
 
 async function ensureLogin() {
   if (currentUser) return currentUser;
+  const { isFirebaseConfigured, signInWithGoogle } = await getAuthModule();
   if (!isFirebaseConfigured()) {
     throw new Error("ยังไม่ได้ตั้งค่า Firebase Login");
   }
-  await signInWithGoogle();
+  const credential = await signInWithGoogle();
+  currentUser = credential?.user || currentUser;
   if (!currentUser) {
     throw new Error("กรุณา Login Gmail ก่อนส่งสลิป");
   }
@@ -185,8 +191,14 @@ submitButton?.addEventListener("click", async () => {
 
 changePlanButton?.addEventListener("click", showPlanList);
 
-watchAuth(({ user }) => {
-  currentUser = user;
-});
+getAuthModule()
+  .then(({ watchAuth }) => {
+    watchAuth(({ user }) => {
+      currentUser = user;
+    });
+  })
+  .catch(() => {
+    currentUser = null;
+  });
 
 renderSelectedPlan(selectedPlan);
