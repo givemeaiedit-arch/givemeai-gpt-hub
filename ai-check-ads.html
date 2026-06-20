@@ -98,7 +98,16 @@
           <div>
             <p class="tools-kicker">META CREATIVE AUDIT</p>
             <h1>AI Check Ads</h1>
-            <p>อัปโหลดภาพโฆษณา แล้วส่งไป backend เพื่อรับผลวิเคราะห์แบบ Structured JSON จาก OpenAI ก่อนเติมลงในหน้ารีพอร์ตอัตโนมัติ</p>
+            <div class="audit-howto">
+              <strong>วิธีใช้</strong>
+              <p>อัปโหลดภาพลงในช่องข้างล่าง เพื่อวิเคราะห์ประสิทธิภาพสื่อสำหรับยิง Ads และการคิดวิเคราะห์แบบ Andromeda Meta AI ระบบจะวิเคราะห์ภาพให้อัตโนมัติ ให้คะแนน พร้อมบอกข้อดี ข้อเสีย และแนวทางแก้ไข</p>
+              <div class="audit-score-guide" aria-label="คำอธิบายช่วงคะแนน">
+                <span class="score-bad">ต่ำกว่า 60 = แย่ ไม่ควรเปิด</span>
+                <span class="score-low">61-70 = เปิดได้ คนทักน้อย</span>
+                <span class="score-mid">71-80 = เปิดได้ คนทักปานกลาง</span>
+                <span class="score-high">81-100 = ประสิทธิภาพสูง แนะนำให้ยิง Ads ได้</span>
+              </div>
+            </div>
           </div>
           <div class="audit-hero-actions">
             <div class="audit-guest-notice" id="auditGuestNotice">
@@ -112,9 +121,9 @@
           <input id="adsImageInput" type="file" accept="image/*" hidden />
           <div class="audit-upload-dropzone" id="auditUploadDropzone" role="button" tabindex="0" aria-label="Upload ad image">
             <div class="audit-upload-icon">↑</div>
-            <strong>select your file or drag and drop</strong>
-            <p id="auditUploadHint">png, jpg, webp accepted</p>
-            <label class="audit-upload-browse" id="uploadTrigger" for="adsImageInput" hidden>browse</label>
+            <strong>เลือกรูปโฆษณา หรือลากรูปมาวางที่นี่</strong>
+            <p id="auditUploadHint">รองรับไฟล์ PNG, JPG และ WEBP</p>
+            <button class="audit-upload-browse" id="uploadTrigger" type="button" hidden>เลือกรูป</button>
           </div>
           <div class="audit-upload-preview" id="auditUploadPreview">
             <div class="audit-upload-preview-frame">

@@ -58,6 +58,7 @@ let currentUser = null;
 let usagePill = null;
 let uploadPreviewImage = null;
 let uploadDropzone = null;
+let uploadUiReady = false;
 
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
@@ -143,24 +144,39 @@ function updateAdminUi() {
   updateGuestGate();
 }
 
+function openImagePicker() {
+  if (!currentUser || !adsImageInput) return;
+  adsImageInput.value = "";
+  adsImageInput.click();
+}
+
 function initUploadUi() {
-  if (!auditUploadCard) return;
+  if (!auditUploadCard || uploadUiReady) return;
 
   uploadDropzone = document.querySelector("#auditUploadDropzone");
   uploadPreviewImage = document.querySelector("#auditSelectedImage");
   usagePill = document.querySelector("#auditUsagePill");
 
   if (!uploadDropzone) return;
+  uploadUiReady = true;
 
-  uploadDropzone.addEventListener("click", () => {
-    if (currentUser) adsImageInput?.click();
+  uploadDropzone.addEventListener("click", (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (target?.closest("#uploadTrigger")) return;
+    openImagePicker();
+  });
+
+  uploadTrigger?.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    openImagePicker();
   });
 
   uploadDropzone.addEventListener("keydown", (event) => {
     if (!currentUser) return;
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      adsImageInput?.click();
+      openImagePicker();
     }
   });
 
