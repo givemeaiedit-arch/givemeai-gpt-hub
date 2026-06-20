@@ -13,6 +13,7 @@ const status = document.querySelector("#topupOrderStatus");
 const slipInput = document.querySelector("#topupSlipInput");
 const slipPreview = document.querySelector("#topupSlipPreview");
 const slipImage = document.querySelector("#topupSlipImage");
+const summaryCard = document.querySelector(".topup-summary-card");
 
 let selectedPlan = plans[0] || null;
 let currentUser = null;
@@ -47,6 +48,10 @@ function renderSelectedPlan(plan) {
     qrImage.alt = `QR สำหรับแพ็ก ${payload.price} บาท`;
   }
   setStatus("เลือกแพ็กแล้ว สแกน QR แนบสลิป แล้วกด “โอนแล้ว” เพื่อส่งให้แอดมินตรวจสอบ", "muted");
+}
+
+function focusPaymentPanel() {
+  summaryCard?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function readFileAsDataUrl(file) {
@@ -127,7 +132,10 @@ async function submitTopupSlip() {
 }
 
 plans.forEach((plan) => {
-  plan.querySelector("button")?.addEventListener("click", () => renderSelectedPlan(plan));
+  plan.querySelector("button")?.addEventListener("click", () => {
+    renderSelectedPlan(plan);
+    focusPaymentPanel();
+  });
 });
 
 slipInput?.addEventListener("change", async () => {

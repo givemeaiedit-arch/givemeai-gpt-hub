@@ -5429,7 +5429,9 @@ meter::-webkit-meter-optimum-value {
   }
 
   .topup-panel {
-    display: none;
+    display: block;
+    grid-column: 2;
+    padding: 0 34px 60px 0;
   }
 
   .topup-grid {
@@ -5449,7 +5451,12 @@ meter::-webkit-meter-optimum-value {
   }
 
   .topup-main {
-    padding: 18px 18px 118px;
+    padding: 18px 18px 24px;
+  }
+
+  .topup-panel {
+    display: block;
+    padding: 0 18px 118px;
   }
 
   .topup-hero {
