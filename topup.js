@@ -9,11 +9,14 @@ const detail = document.querySelector("#selectedPlanDetail");
 const price = document.querySelector("#selectedPlanPrice");
 const qrImage = document.querySelector("#selectedQrImage");
 const submitButton = document.querySelector("#createTopupOrderButton");
+const changePlanButton = document.querySelector("#changeTopupPlanButton");
 const status = document.querySelector("#topupOrderStatus");
 const slipInput = document.querySelector("#topupSlipInput");
 const slipPreview = document.querySelector("#topupSlipPreview");
 const slipImage = document.querySelector("#topupSlipImage");
 const summaryCard = document.querySelector(".topup-summary-card");
+const shell = document.querySelector(".topup-shell");
+const planGrid = document.querySelector(".topup-grid");
 
 let selectedPlan = plans[0] || null;
 let currentUser = null;
@@ -51,7 +54,13 @@ function renderSelectedPlan(plan) {
 }
 
 function focusPaymentPanel() {
+  shell?.classList.add("is-checkout-mode");
   summaryCard?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function showPlanList() {
+  shell?.classList.remove("is-checkout-mode");
+  planGrid?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function readFileAsDataUrl(file) {
@@ -169,6 +178,8 @@ submitButton?.addEventListener("click", async () => {
     submitButton.disabled = false;
   }
 });
+
+changePlanButton?.addEventListener("click", showPlanList);
 
 watchAuth(({ user }) => {
   currentUser = user;
