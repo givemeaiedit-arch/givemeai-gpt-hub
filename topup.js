@@ -15,6 +15,11 @@ const slipImage = document.querySelector("#topupSlipImage");
 const summaryCard = document.querySelector(".topup-summary-card");
 const shell = document.querySelector(".topup-shell");
 const planGrid = document.querySelector(".topup-grid");
+const pendingNotice = document.querySelector("#topupPendingNotice");
+
+const PENDING_REVIEW_KEY = "givemeaiTopupPendingReview";
+const PENDING_REVIEW_TTL_MS = 30 * 60 * 1000;
+const PENDING_REVIEW_MESSAGE = "ตอนนี้อยู่ในช่วงทดสอบระบบ กรุณารอสักครู่ ให้แอดมินตรวจเช็ค ไม่เกิน 15 นาทีค่ะ";
 
 let selectedPlan = plans[0] || null;
 let currentUser = null;
@@ -30,6 +35,43 @@ function setStatus(message, tone = "muted") {
   if (!status) return;
   status.textContent = message;
   status.dataset.tone = tone;
+}
+
+function getStoredPendingReview() {
+  try {
+    const raw = localStorage.getItem(PENDING_REVIEW_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed?.createdAt || Date.now() - Number(parsed.createdAt) > PENDING_REVIEW_TTL_MS) {
+      localStorage.removeItem(PENDING_REVIEW_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function storePendingReview() {
+  try {
+    localStorage.setItem(
+      PENDING_REVIEW_KEY,
+      JSON.stringify({
+        createdAt: Date.now(),
+        plan: getPlanPayload(),
+      }),
+    );
+  } catch {
+    // localStorage may be blocked in some in-app browsers; the current page still shows pending state.
+  }
+}
+
+function showPendingReview() {
+  shell?.classList.remove("is-checkout-mode");
+  shell?.classList.add("is-pending-mode");
+  if (pendingNotice) pendingNotice.hidden = false;
+  setStatus(PENDING_REVIEW_MESSAGE, "success");
+  window.scrollTo({ top: 0, behavior: "auto" });
 }
 
 function getPlanPayload() {
@@ -178,10 +220,8 @@ submitButton?.addEventListener("click", async () => {
     submitButton.disabled = true;
     setStatus("กำลังส่งคำขอให้แอดมินตรวจสอบ...", "muted");
     await submitTopupSlip();
-    setStatus(
-      "ตอนนี้อยู่ในช่วงทดสอบระบบ กรุณารอสักครู่ ให้แอดมินตรวจเช็ค ไม่เกิน 15 นาทีค่ะ",
-      "success",
-    );
+    storePendingReview();
+    showPendingReview();
   } catch (error) {
     setStatus(error.message || "ส่งคำขอเติมเงินไม่สำเร็จ", "warning");
   } finally {
@@ -202,3 +242,6 @@ getAuthModule()
   });
 
 renderSelectedPlan(selectedPlan);
+if (getStoredPendingReview()) {
+  showPendingReview();
+}
