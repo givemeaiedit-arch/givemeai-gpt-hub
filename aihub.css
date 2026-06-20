@@ -1351,7 +1351,7 @@ meter::-webkit-meter-optimum-value {
 }
 
 .topup-shell.is-checkout-mode .topup-panel {
-  display: block;
+  display: block !important;
   grid-column: 2;
   grid-row: 1;
   max-width: 720px;
@@ -5492,7 +5492,7 @@ meter::-webkit-meter-optimum-value {
     position: fixed;
     inset: 0;
     z-index: 10000;
-    display: block;
+    display: block !important;
     max-width: none;
     overflow-y: auto;
     padding: 14px 14px 112px;
