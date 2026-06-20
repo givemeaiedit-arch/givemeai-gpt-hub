@@ -144,9 +144,9 @@
             <img src="assets/Icon/asset_1x1_cropfix/asset_6-02-bell-silver.png" alt="" />
             <span>3</span>
           </button>
-          <div class="mini-avatar" aria-hidden="true">
+          <a class="mini-avatar" href="profile.html" aria-label="ไปที่โปรไฟล์">
             <img src="assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png" alt="" />
-          </div>
+          </a>
         </div>
       </header>
     `;

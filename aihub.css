@@ -333,6 +333,13 @@ img {
   background: #edf0f4;
 }
 
+.mini-avatar {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  text-decoration: none;
+}
+
 .user-badge strong,
 .user-status-link {
   display: block;
