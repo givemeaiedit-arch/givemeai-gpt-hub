@@ -59,6 +59,7 @@ let usagePill = null;
 let uploadPreviewImage = null;
 let uploadDropzone = null;
 let uploadUiReady = false;
+let freeLimitExhausted = false;
 
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
@@ -89,6 +90,11 @@ function setUpgradeNotice(visible, message = FREE_LIMIT_MESSAGE, url = PRO_UPGRA
   const copy = auditUpgradeNotice.querySelector("p");
   if (copy) copy.textContent = message;
   if (auditUpgradeLink) auditUpgradeLink.href = url || PRO_UPGRADE_URL;
+}
+
+function isFreeLimitExhausted(usage) {
+  if (!usage || usage.plan !== "free") return false;
+  return Number(usage.remaining || 0) <= 0 && Number(usage.credits || 0) <= 0;
 }
 
 function setUsagePill(usage) {
@@ -122,14 +128,18 @@ function setSkeletonVisible(visible) {
 
 function updateGuestGate() {
   const loggedIn = Boolean(currentUser);
-  if (uploadTrigger) uploadTrigger.hidden = !loggedIn;
-  if (runAuditButton) runAuditButton.hidden = !loggedIn;
-  if (clearAdsImageButton) clearAdsImageButton.hidden = !loggedIn;
+  const canUpload = loggedIn && !freeLimitExhausted;
+  if (uploadTrigger) uploadTrigger.hidden = !canUpload;
+  if (runAuditButton) runAuditButton.hidden = !canUpload;
+  if (clearAdsImageButton) clearAdsImageButton.hidden = !canUpload;
   if (auditGuestNotice) auditGuestNotice.hidden = loggedIn;
-  if (auditUploadCard) auditUploadCard.dataset.locked = loggedIn ? "false" : "true";
-  if (uploadDropzone) uploadDropzone.dataset.locked = loggedIn ? "false" : "true";
+  if (auditUploadCard) {
+    auditUploadCard.hidden = freeLimitExhausted;
+    auditUploadCard.dataset.locked = canUpload ? "false" : "true";
+  }
+  if (uploadDropzone) uploadDropzone.dataset.locked = canUpload ? "false" : "true";
   if (auditUploadHint) {
-    auditUploadHint.textContent = loggedIn
+    auditUploadHint.textContent = canUpload
       ? "อัปโหลดรูปโฆษณาแล้วกดวิเคราะห์ได้ทันที"
       : "กรุณา Login Gmail ก่อนใช้งาน";
   }
@@ -233,7 +243,10 @@ function readImage(file) {
 
 async function refreshUsage() {
   if (!currentUser) {
+    freeLimitExhausted = false;
     setUsagePill(null);
+    setUpgradeNotice(false);
+    updateGuestGate();
     return;
   }
 
@@ -247,9 +260,22 @@ async function refreshUsage() {
     });
     const result = await response.json();
     if (!response.ok) throw new Error(result?.error || "usage-failed");
-    setUsagePill(result.usage || null);
+    const usage = result.usage || null;
+    freeLimitExhausted = isFreeLimitExhausted(usage);
+    setUsagePill(usage);
+    setUpgradeNotice(freeLimitExhausted);
+    if (freeLimitExhausted) {
+      setSkeletonVisible(false);
+      setResultPanelsVisible(false);
+      setDefaultPreview();
+      setUpgradeNotice(true);
+      setRequestStatus("ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว", "error");
+    }
+    updateGuestGate();
   } catch {
+    freeLimitExhausted = false;
     setUsagePill(null);
+    updateGuestGate();
   }
 }
 
@@ -532,6 +558,13 @@ async function analyzeWithBackend() {
 }
 
 adsImageInput?.addEventListener("change", async (event) => {
+  if (freeLimitExhausted) {
+    if (adsImageInput) adsImageInput.value = "";
+    setUpgradeNotice(true);
+    updateGuestGate();
+    return;
+  }
+
   const file = event.target.files?.[0];
   if (!file) return;
 
