@@ -17,8 +17,41 @@ const adminDb = getFirestore();
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
 const AD_CHECK_POINTS = 15;
+const TOPUP_PACKAGES = {
+  "credit-50": {
+    price: 49,
+    credits: 8,
+    label: "Credit Check ADS 8 ครั้ง",
+    type: "credit",
+  },
+  "credit-100": {
+    price: 99,
+    credits: 20,
+    label: "Credit Check ADS 20 ครั้ง",
+    type: "credit",
+  },
+  "credit-200": {
+    price: 199,
+    credits: 45,
+    label: "Credit Check ADS 45 ครั้ง",
+    type: "credit",
+  },
+  "pro-monthly": {
+    price: 289,
+    credits: 0,
+    days: 30,
+    label: "Pro รายเดือน",
+    type: "pro-monthly",
+  },
+  "pro-lifetime": {
+    price: 889,
+    credits: 0,
+    label: "Pro ตลอดชีพ",
+    type: "pro-lifetime",
+  },
+};
 const FREE_LIMIT_EXCEEDED_MESSAGE =
-  "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว หากต้องการตรวจสอบเพิ่มเติม ติดต่อ Admin Page เพื่ออัปเกรดเป็น Pro 290 บาทต่อเดือน รับสิทธิ์ใช้เครื่องมือ Check Ads ได้วันละ 10 ครั้ง พร้อมเข้าถึงคอร์สเรียน AI มากกว่า 20 บท และเครื่องมือ AI ใหม่ ๆ ในอนาคต";
+  "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว สามารถเติมเงินเพิ่มในหน้าเติมเงิน หรือสมัคร Pro 289 บาทต่อเดือน เพื่อใช้ Check Ads ได้วันละ 10 ครั้ง พร้อมคอร์สเรียน AI มากกว่า 20 บทและเครื่องมือ AI ใหม่ ๆ ในอนาคต หากต้องการราคาพิเศษสำหรับองค์กร ติดต่อ Admin ได้ค่ะ ที่ page AI ภาพนี้ให้หน่อย";
 
 function setCors(res) {
   res.set("Access-Control-Allow-Origin", "*");
@@ -138,6 +171,11 @@ function isAdminEmail(email) {
 }
 
 function isProProfile(profileData) {
+  const expiresAt = profileData?.proExpiresAt?.toDate?.() || null;
+  if (expiresAt && expiresAt.getTime() < Date.now()) {
+    return false;
+  }
+
   const values = [
     profileData?.plan,
     profileData?.tier,
@@ -159,11 +197,13 @@ async function getUserUsageProfile(user) {
   const userRef = adminDb.collection("users").doc(user.uid);
   const snapshot = await userRef.get();
   const profileData = snapshot.exists ? snapshot.data() || {} : {};
+  const adCheckCredits = Math.max(0, Number(profileData.adCheckCredits || 0));
   const isPrivileged = isAdminEmail(user.email) || isProProfile(profileData);
   return {
     userRef,
     plan: isPrivileged ? "pro" : "free",
     dailyLimit: isPrivileged ? 10 : 1,
+    adCheckCredits,
     isPrivileged,
   };
 }
@@ -180,8 +220,11 @@ async function getAdCheckUsageSummary(user) {
     dailyLimit: usage.dailyLimit,
     usedToday,
     remaining,
+    credits: usage.adCheckCredits,
     label: usage.isPrivileged
       ? `วันนี้ Check ได้อีก ${remaining}/${usage.dailyLimit}`
+      : usage.adCheckCredits > 0
+        ? `มี Credit Check ADS เหลือ ${usage.adCheckCredits} ครั้ง`
       : remaining > 0
         ? "ยังมีสิทธิ์ทดลองใช้ฟรี 1/1"
         : "ใช้สิทธิ์ทดลองใช้ฟรีครบแล้ว",
@@ -307,6 +350,153 @@ async function redeemProCodeForUser(user, rawCode) {
   });
 }
 
+function getTopupPackage(packageId) {
+  const plan = TOPUP_PACKAGES[String(packageId || "")];
+  if (!plan) {
+    const error = new Error("ไม่พบแพ็กเติมเงินที่เลือก");
+    error.statusCode = 400;
+    throw error;
+  }
+  return plan;
+}
+
+function assertAdminUser(user) {
+  if (!isAdminEmail(user.email)) {
+    const error = new Error("บัญชีนี้ไม่มีสิทธิ์จัดการรายการเติมเงิน");
+    error.statusCode = 403;
+    throw error;
+  }
+}
+
+function validateSlipDataUrl(value) {
+  const slipDataUrl = String(value || "");
+  if (!/^data:image\/(png|jpe?g|webp);base64,/i.test(slipDataUrl)) {
+    const error = new Error("กรุณาแนบสลิปเป็นไฟล์รูปภาพ");
+    error.statusCode = 400;
+    throw error;
+  }
+  if (slipDataUrl.length > 950000) {
+    const error = new Error("ไฟล์สลิปใหญ่เกินไป กรุณาย่อรูปแล้วส่งใหม่");
+    error.statusCode = 413;
+    throw error;
+  }
+  return slipDataUrl;
+}
+
+async function createTopupOrderForUser(user, payload) {
+  const packageId = String(payload.packageId || "");
+  const plan = getTopupPackage(packageId);
+  const slipDataUrl = validateSlipDataUrl(payload.slipDataUrl);
+  const orderRef = adminDb.collection("topupOrders").doc();
+
+  await orderRef.set({
+    uid: user.uid,
+    email: user.email,
+    emailLower: normalizeEmail(user.email),
+    displayName: user.displayName,
+    photoURL: user.photoURL,
+    packageId,
+    packageLabel: plan.label,
+    packageType: plan.type,
+    price: plan.price,
+    credits: plan.credits || 0,
+    days: plan.days || 0,
+    status: "pending",
+    slipDataUrl,
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  return {
+    orderId: orderRef.id,
+    packageId,
+    price: plan.price,
+    status: "pending",
+  };
+}
+
+async function approveTopupOrderForAdmin(adminUser, orderId) {
+  assertAdminUser(adminUser);
+  const cleanOrderId = String(orderId || "").trim();
+  if (!cleanOrderId) {
+    const error = new Error("ไม่พบรหัสรายการเติมเงิน");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const orderRef = adminDb.collection("topupOrders").doc(cleanOrderId);
+
+  return adminDb.runTransaction(async (transaction) => {
+    const orderSnapshot = await transaction.get(orderRef);
+    if (!orderSnapshot.exists) {
+      const error = new Error("ไม่พบรายการเติมเงินนี้");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const order = orderSnapshot.data() || {};
+    if (order.status === "approved") {
+      return { orderId: cleanOrderId, alreadyApproved: true };
+    }
+    if (order.status !== "pending") {
+      const error = new Error("รายการนี้ไม่อยู่ในสถานะรอตรวจสอบ");
+      error.statusCode = 409;
+      throw error;
+    }
+
+    const plan = getTopupPackage(order.packageId);
+    const userRef = adminDb.collection("users").doc(order.uid);
+    const userPatch = {
+      email: order.email,
+      emailLower: normalizeEmail(order.email),
+      googleDisplayName: order.displayName || "",
+      googlePhotoURL: order.photoURL || "",
+      updatedAt: FieldValue.serverTimestamp(),
+    };
+
+    if (plan.type === "credit") {
+      userPatch.adCheckCredits = FieldValue.increment(plan.credits);
+    } else {
+      userPatch.plan = "pro";
+      userPatch.tier = "pro";
+      userPatch.memberLevel = "pro";
+      userPatch.subscriptionStatus = "active";
+      userPatch.dailyAdCheckLimit = 10;
+      userPatch.proActivatedAt = FieldValue.serverTimestamp();
+      userPatch.proSource = "topup";
+      userPatch.proTopupOrderId = cleanOrderId;
+      if (plan.type === "pro-monthly") {
+        userPatch.proExpiresAt = Timestamp.fromDate(
+          new Date(Date.now() + plan.days * 24 * 60 * 60 * 1000),
+        );
+      } else {
+        userPatch.proLifetime = true;
+        userPatch.proExpiresAt = FieldValue.delete();
+      }
+    }
+
+    transaction.set(userRef, userPatch, { merge: true });
+    transaction.set(
+      orderRef,
+      {
+        status: "approved",
+        approvedAt: FieldValue.serverTimestamp(),
+        approvedByUid: adminUser.uid,
+        approvedByEmail: adminUser.email,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+
+    return {
+      orderId: cleanOrderId,
+      packageId: order.packageId,
+      price: plan.price,
+      status: "approved",
+    };
+  });
+}
+
 async function hasAnyAdCheck(userRef) {
   const snapshot = await userRef.collection("adCheckHistory").limit(1).get();
   return !snapshot.empty;
@@ -333,6 +523,10 @@ async function enforceAdCheckQuota(user) {
       );
     }
     return usage;
+  }
+
+  if (usage.adCheckCredits > 0) {
+    return { ...usage, usesCredit: true };
   }
 
   if (await hasAnyAdCheck(usage.userRef)) {
@@ -532,10 +726,19 @@ async function analyzeCreativeForUser(req, payload) {
     };
   }
 
-  await enforceAdCheckQuota(user);
+  const quota = await enforceAdCheckQuota(user);
 
   const result = await analyzeCreative(payload);
   const savedHistory = await saveAdCheckHistory(user, payload, result);
+  if (quota.usesCredit) {
+    await quota.userRef.set(
+      {
+        adCheckCredits: FieldValue.increment(-1),
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+  }
   const scoreAward = await awardAdCheckScore(user, savedHistory.fileKey, savedHistory.fileName);
   return {
     ...result,
@@ -795,6 +998,75 @@ export const redeemProCode = onRequest(
           ? `Pro Code ${result.code} ถูกใช้กับบัญชีนี้อยู่แล้ว`
           : `เปิดสิทธิ์ Pro สำเร็จด้วย Code ${result.code}`,
       });
+    } catch (error) {
+      sendJson(res, error.statusCode || 400, {
+        error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  },
+);
+
+export const submitTopupSlip = onRequest(
+  {
+    region: "asia-southeast1",
+    cors: true,
+    timeoutSeconds: 60,
+    memory: "256MiB",
+  },
+  async (req, res) => {
+    setCors(res);
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      const user = await verifySignedInUser(req);
+      await ensureUserProfile(user);
+      const payload = await readJsonBody(req);
+      const result = await createTopupOrderForUser(user, payload);
+      sendJson(res, 200, { ok: true, ...result });
+    } catch (error) {
+      sendJson(res, error.statusCode || 400, {
+        error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  },
+);
+
+export const approveTopupOrder = onRequest(
+  {
+    region: "asia-southeast1",
+    cors: true,
+    timeoutSeconds: 60,
+    memory: "256MiB",
+  },
+  async (req, res) => {
+    setCors(res);
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      const adminUser = await verifySignedInUser(req);
+      const payload = await readJsonBody(req);
+      const result = await approveTopupOrderForAdmin(adminUser, payload.orderId);
+      sendJson(res, 200, { ok: true, ...result });
     } catch (error) {
       sendJson(res, error.statusCode || 400, {
         error: error.message || "Unknown error",

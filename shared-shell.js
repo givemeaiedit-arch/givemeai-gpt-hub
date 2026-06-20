@@ -39,6 +39,12 @@
       searchLabel: "ค้นหาเครื่องมือ",
       active: "tools",
     },
+    "topup.html": {
+      searchId: "topupSearch",
+      searchPlaceholder: "ค้นหาแพ็กเติมเงิน, Credit, Pro...",
+      searchLabel: "ค้นหาแพ็กเติมเงิน",
+      active: "topup",
+    },
     "ai-check-ads.html": {
       searchId: "toolSearch",
       searchPlaceholder: "ค้นหาหน้าอื่นใน AI Hub...",
@@ -189,6 +195,16 @@
 
   const main = document.querySelector(".main-content");
   if (!main) return;
+
+  document.querySelectorAll(".side-nav").forEach((nav) => {
+    if (nav.querySelector('a[href="topup.html"]')) return;
+    const adminLink = nav.querySelector(".admin-only");
+    const link = document.createElement("a");
+    link.className = `nav-item${isActive("topup")}`;
+    link.href = "topup.html";
+    link.innerHTML = '<span class="nav-icon">฿</span>เติมเงิน';
+    nav.insertBefore(link, adminLink || null);
+  });
 
   const existingMobileHeader = main.querySelector(".mobile-header");
   if (existingMobileHeader) {

@@ -16,6 +16,8 @@ const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 const fallbackAvatar = "assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png";
 const GENERATE_PRO_CODE_ENDPOINT =
   "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/generateProCode";
+const APPROVE_TOPUP_ENDPOINT =
+  "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/approveTopupOrder";
 
 const adminStatus = document.querySelector("#adminStatus");
 const adminUserCount = document.querySelector("#adminUserCount");
@@ -30,6 +32,8 @@ const adminHistoryLabel = document.querySelector("#adminHistoryLabel");
 const adminSearchInput = document.querySelector("#adminSearchInput");
 const proCodesLabel = document.querySelector("#proCodesLabel");
 const proCodesBody = document.querySelector("#proCodesBody");
+const topupOrdersLabel = document.querySelector("#topupOrdersLabel");
+const topupOrdersBody = document.querySelector("#topupOrdersBody");
 const generateProCodeButton = document.querySelector("#generateProCodeButton");
 const proCodeStatus = document.querySelector("#proCodeStatus");
 const adminPromptsLabel = document.querySelector("#adminPromptsLabel");
@@ -54,6 +58,7 @@ const promptAdminStatus = document.querySelector("#promptAdminStatus");
 let allUsers = [];
 let allHistory = [];
 let allProCodes = [];
+let allTopupOrders = [];
 let allPrompts = [];
 let remotePromptMap = new Map();
 let currentAdmin = null;
@@ -243,6 +248,47 @@ function renderProCodes(codes) {
     .join("");
 }
 
+function renderTopupOrders(orders) {
+  if (topupOrdersLabel) topupOrdersLabel.textContent = `${orders.length} orders`;
+  if (!topupOrdersBody) return;
+
+  if (!orders.length) {
+    setEmptyTable(topupOrdersBody, "ยังไม่มีคำขอเติมเงิน", 7);
+    return;
+  }
+
+  topupOrdersBody.innerHTML = orders
+    .map(
+      (item) => `
+        <tr>
+          <td>${formatDate(item.createdAt)}</td>
+          <td>
+            <strong>${escapeHtml(item.displayName || item.email || "-")}</strong>
+            <small>${escapeHtml(item.email || "-")}</small>
+          </td>
+          <td>${escapeHtml(item.packageLabel || item.packageId || "-")}</td>
+          <td>${item.price} บาท</td>
+          <td>${escapeHtml(item.status)}</td>
+          <td>
+            ${
+              item.slipDataUrl
+                ? `<a class="admin-slip-link" href="${escapeHtml(item.slipDataUrl)}" target="_blank" rel="noopener"><img src="${escapeHtml(item.slipDataUrl)}" alt="สลิป" /></a>`
+                : "-"
+            }
+          </td>
+          <td>
+            ${
+              item.status === "pending"
+                ? `<button class="orange-button admin-small-button" type="button" data-approve-topup="${escapeHtml(item.id)}">อนุมัติ</button>`
+                : `<small>${escapeHtml(item.approvedByEmail || "-")}</small>`
+            }
+          </td>
+        </tr>
+      `,
+    )
+    .join("");
+}
+
 function renderPromptCategories() {
   if (!promptCategoryInput) return;
   const categories = window.GIVEME_PROMPT_CATEGORIES || [];
@@ -283,6 +329,7 @@ function renderAll() {
   renderUsers(users);
   renderHistory(history);
   renderProCodes(proCodes);
+  renderTopupOrders(allTopupOrders);
   renderAdminPrompts(prompts);
 
   if (adminUserCount) adminUserCount.textContent = String(allUsers.length);
@@ -389,6 +436,25 @@ function normalizeProCodeDoc(entry) {
   };
 }
 
+function normalizeTopupOrderDoc(entry) {
+  const data = entry.data() || {};
+  return {
+    id: entry.id,
+    uid: data.uid || "",
+    email: data.email || "",
+    displayName: data.displayName || data.email || "",
+    packageLabel: data.packageLabel || data.packageId || "",
+    packageId: data.packageId || "",
+    price: Number(data.price || 0),
+    credits: Number(data.credits || 0),
+    status: String(data.status || "pending").toLowerCase(),
+    slipDataUrl: data.slipDataUrl || "",
+    createdAt: data.createdAt,
+    approvedAt: data.approvedAt,
+    approvedByEmail: data.approvedByEmail || "",
+  };
+}
+
 async function loadAdminData() {
   if (!isFirebaseConfigured()) {
     setAdminStatus("ยังไม่ได้ตั้งค่า Firebase", "error");
@@ -399,19 +465,22 @@ async function loadAdminData() {
   const usersQuery = query(collection(services.db, "users"), orderBy("updatedAt", "desc"), limit(100));
   const historyQuery = query(collection(services.db, "adCheckHistory"), orderBy("checkedAt", "desc"), limit(200));
   const proCodesQuery = query(collection(services.db, "proCodes"), orderBy("createdAt", "desc"), limit(200));
+  const topupOrdersQuery = query(collection(services.db, "topupOrders"), orderBy("createdAt", "desc"), limit(50));
 
   setAdminStatus("กำลังโหลดข้อมูลหลังบ้าน...", "loading");
 
-  const [usersSnapshot, historySnapshot, proCodesSnapshot, promptSnapshot] = await Promise.all([
+  const [usersSnapshot, historySnapshot, proCodesSnapshot, topupOrdersSnapshot, promptSnapshot] = await Promise.all([
     getDocs(usersQuery),
     getDocs(historyQuery),
     getDocs(proCodesQuery),
+    getDocs(topupOrdersQuery),
     getDocs(collection(services.db, "promptLibrary")),
   ]);
 
   allUsers = usersSnapshot.docs.map(normalizeUserDoc);
   allHistory = historySnapshot.docs.map(normalizeHistoryDoc);
   allProCodes = proCodesSnapshot.docs.map(normalizeProCodeDoc);
+  allTopupOrders = topupOrdersSnapshot.docs.map(normalizeTopupOrderDoc);
   const remotePrompts = promptSnapshot.docs.map(normalizePromptDoc);
   remotePromptMap = new Map(remotePrompts.map((prompt) => [prompt.id, prompt]));
   allPrompts = buildPromptList(remotePrompts);
@@ -625,6 +694,37 @@ async function generateProCode() {
   }
 }
 
+async function approveTopupOrder(orderId, button) {
+  if (!currentAdmin || !orderId) {
+    setAdminStatus("กรุณา Login ด้วยบัญชี Admin ก่อนอนุมัติรายการเติมเงิน", "error");
+    return;
+  }
+
+  try {
+    if (button) button.disabled = true;
+    setAdminStatus("กำลังอนุมัติรายการเติมเงิน...", "loading");
+    const idToken = await currentAdmin.getIdToken();
+    const response = await fetch(APPROVE_TOPUP_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({ orderId }),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result?.error || "อนุมัติรายการเติมเงินไม่สำเร็จ");
+    }
+    setAdminStatus("อนุมัติรายการเติมเงินสำเร็จ ระบบเติมสิทธิ์ให้ผู้ใช้แล้ว", "success");
+    await loadAdminData();
+  } catch (error) {
+    setAdminStatus(error.message || "อนุมัติรายการเติมเงินไม่สำเร็จ", "error");
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
 document.addEventListener("click", async (event) => {
   const userButton = event.target.closest("[data-admin-user]");
   if (userButton) {
@@ -640,6 +740,12 @@ document.addEventListener("click", async (event) => {
     } catch {
       setProCodeStatus("คัดลอก Code ไม่สำเร็จ", "error");
     }
+    return;
+  }
+
+  const topupButton = event.target.closest("[data-approve-topup]");
+  if (topupButton) {
+    await approveTopupOrder(topupButton.dataset.approveTopup, topupButton);
     return;
   }
 
