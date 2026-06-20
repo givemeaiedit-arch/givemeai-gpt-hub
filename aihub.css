@@ -1341,17 +1341,20 @@ meter::-webkit-meter-optimum-value {
   justify-self: start;
 }
 
-.topup-shell.is-checkout-mode .topup-hero,
-.topup-shell.is-checkout-mode .topup-grid,
-.topup-shell.is-checkout-mode .topup-main > .system-message {
+.topup-shell.is-checkout-mode {
+  grid-template-columns: 236px minmax(0, 760px) minmax(0, 1fr);
+}
+
+.topup-shell.is-checkout-mode .topup-main {
   display: none;
 }
 
 .topup-shell.is-checkout-mode .topup-panel {
   display: block;
   grid-column: 2;
+  grid-row: 1;
   max-width: 720px;
-  padding: 122px 34px 60px 0;
+  padding: 34px 34px 60px 0;
 }
 
 .topup-shell.is-checkout-mode .topup-summary-card {
