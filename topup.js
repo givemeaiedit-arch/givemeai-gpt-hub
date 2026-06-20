@@ -55,6 +55,10 @@ function renderSelectedPlan(plan) {
 
 function focusPaymentPanel() {
   shell?.classList.add("is-checkout-mode");
+  if (window.matchMedia("(max-width: 760px)").matches) {
+    window.scrollTo({ top: 0, behavior: "auto" });
+    return;
+  }
   summaryCard?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
