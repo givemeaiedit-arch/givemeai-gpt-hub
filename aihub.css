@@ -1275,6 +1275,7 @@ meter::-webkit-meter-optimum-value {
   gap: 12px;
   align-content: start;
   min-height: 270px;
+  cursor: pointer;
   border: 1px solid var(--faint);
   border-radius: 22px;
   padding: 22px;
@@ -1359,6 +1360,10 @@ meter::-webkit-meter-optimum-value {
 
 .topup-shell.is-checkout-mode .topup-summary-card {
   box-shadow: 0 24px 70px rgba(15, 23, 42, 0.14);
+}
+
+.topup-shell.is-checkout-mode .topup-panel .side-card:not(.topup-summary-card) {
+  display: none;
 }
 
 .topup-summary {
@@ -5475,30 +5480,109 @@ meter::-webkit-meter-optimum-value {
   }
 
   .topup-main {
-    padding: 18px 18px 24px;
+    padding: 14px 14px 112px;
   }
 
   .topup-panel {
-    display: block;
-    padding: 0 18px 118px;
+    display: none;
+    padding: 0 14px 112px;
   }
 
   .topup-shell.is-checkout-mode .topup-panel {
+    display: block;
     max-width: none;
-    padding: 18px 18px 118px;
+    padding: 14px 14px 112px;
   }
 
   .topup-hero {
     margin-top: 14px;
-    border-radius: 24px;
-    padding: 24px 18px;
+    border-radius: 22px;
+    padding: 22px 16px;
+  }
+
+  .topup-hero h1 {
+    font-size: 2rem;
+  }
+
+  .topup-hero p:not(.tools-kicker) {
+    font-size: 0.96rem;
+    line-height: 1.65;
+  }
+
+  .topup-hero-card {
+    padding: 16px;
   }
 
   .topup-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 14px;
   }
 
   .topup-plan {
     min-height: auto;
+    gap: 8px;
+    border-radius: 18px;
+    padding: 16px;
+  }
+
+  .topup-plan h2 {
+    font-size: 2.15rem;
+  }
+
+  .topup-plan p {
+    font-size: 0.98rem;
+    line-height: 1.45;
+  }
+
+  .topup-plan strong {
+    font-size: 0.88rem;
+  }
+
+  .topup-summary-card {
+    gap: 12px;
+    margin-bottom: 0;
+    border-radius: 22px;
+    padding: 16px;
+  }
+
+  .topup-summary {
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .topup-price b {
+    font-size: 2.5rem;
+  }
+
+  .topup-qr-box {
+    min-height: auto;
+    border-radius: 18px;
+    padding: 8px;
+  }
+
+  .topup-qr-box img {
+    width: 100%;
+    max-height: 58vh;
+    border-radius: 14px;
+  }
+
+  .topup-slip-upload {
+    border-radius: 14px;
+    padding: 12px;
+  }
+
+  .topup-slip-preview img {
+    max-height: 180px;
+  }
+
+  .topup-change-plan,
+  .topup-summary-card .orange-button {
+    width: 100%;
+  }
+
+  .topup-note {
+    padding: 10px 12px;
+    font-size: 0.92rem;
   }
 }

@@ -141,7 +141,7 @@ async function submitTopupSlip() {
 }
 
 plans.forEach((plan) => {
-  plan.querySelector("button")?.addEventListener("click", () => {
+  plan.addEventListener("click", () => {
     renderSelectedPlan(plan);
     focusPaymentPanel();
   });
