@@ -147,6 +147,7 @@
           <a class="mini-avatar" href="profile.html" aria-label="ไปที่โปรไฟล์">
             <img src="assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png" alt="" />
           </a>
+          <button class="logout-chip mobile-logout" id="mobileLogoutButton" type="button" hidden>ออก</button>
         </div>
       </header>
     `;

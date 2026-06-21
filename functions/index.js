@@ -8,6 +8,9 @@ import { defineSecret } from "firebase-functions/params";
 initializeApp();
 
 const openAiApiKey = defineSecret("OPENAI_API_KEY");
+const telegramBotToken = defineSecret("TELEGRAM_BOT_TOKEN");
+const telegramAdminChatId = defineSecret("TELEGRAM_ADMIN_CHAT_ID");
+const telegramWebhookSecret = defineSecret("TELEGRAM_WEBHOOK_SECRET");
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.4-mini";
 const OPENAI_FAST_MODEL = process.env.OPENAI_FAST_MODEL || "gpt-5.4-mini";
 const promptUrl = new URL("./openai/ai-check-ads-prompt.md", import.meta.url);
@@ -15,8 +18,11 @@ const schemaUrl = new URL("./openai/ai-check-ads-schema.json", import.meta.url);
 const adminAuth = getAuth();
 const adminDb = getFirestore();
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
+const PRIMARY_ADMIN_EMAIL = "givemeai.edit@gmail.com";
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
+const ADMIN_PANEL_URL = "https://givemeaiedit-arch.github.io/givemeai-gpt-hub/admin.html";
 const AD_CHECK_POINTS = 15;
+const TOPUP_REJECT_REASON = "ตรวจสลิปไม่ผ่าน";
 const TOPUP_PACKAGES = {
   "credit-50": {
     price: 49,
@@ -134,6 +140,202 @@ function timestampToIso(value) {
   if (value instanceof Date) return value.toISOString();
   if (typeof value === "string") return value;
   return "";
+}
+
+function getTelegramSecretValue(secretParam) {
+  try {
+    const value = secretParam?.value?.();
+    return String(value || "").trim();
+  } catch {
+    return "";
+  }
+}
+
+function escapeTelegramText(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+async function legacyNotifyTelegramTopupPending(order) {
+  const botToken = getTelegramSecretValue(telegramBotToken);
+  const chatId = getTelegramSecretValue(telegramAdminChatId);
+  if (!botToken || !chatId) {
+    return { ok: false, skipped: true, reason: "missing_telegram_config" };
+  }
+
+  const message = [
+    "มีคำขอเติมเงินใหม่",
+    ``,
+    `แพ็ก: ${order.packageLabel || order.packageId || "-"}`,
+    `ราคา: ${order.price || 0} บาท`,
+    `ผู้ใช้: ${order.displayName || "-"}`,
+    `อีเมล: ${order.email || "-"}`,
+    `เวลา: ${order.createdAtIso || "-"}`,
+    `Order ID: ${order.orderId || "-"}`,
+    ``,
+    `เปิดหลังบ้าน: ${ADMIN_PANEL_URL}`,
+  ]
+    .map(escapeTelegramText)
+    .join("\n");
+
+  const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: message,
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+    }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Telegram notify failed: ${response.status} ${text}`);
+  }
+
+  return response.json();
+}
+
+function formatBangkokDate(value) {
+  const iso = timestampToIso(value);
+  if (!iso) return "-";
+  return new Date(iso).toLocaleString("th-TH", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Bangkok",
+  });
+}
+
+function parseSlipDataUrl(value) {
+  const match = String(value || "").match(/^data:(image\/(?:png|jpeg|jpg|webp));base64,(.+)$/i);
+  if (!match) {
+    const error = new Error("Invalid slip image data");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const mimeType = match[1].toLowerCase() === "image/jpg" ? "image/jpeg" : match[1].toLowerCase();
+  return {
+    mimeType,
+    extension: mimeType.split("/")[1] || "jpg",
+    buffer: Buffer.from(match[2], "base64"),
+  };
+}
+
+function buildTelegramTopupKeyboard(orderId) {
+  return {
+    inline_keyboard: [
+      [
+        { text: "อนุมัติ", callback_data: `topup:approve:${orderId}` },
+        { text: "ปฏิเสธ", callback_data: `topup:reject:${orderId}` },
+      ],
+      [{ text: "เปิด Admin Panel", url: ADMIN_PANEL_URL }],
+    ],
+  };
+}
+
+function getTopupStatusLabel(status) {
+  if (status === "approved") return "อนุมัติแล้ว";
+  if (status === "rejected") return "ปฏิเสธแล้ว";
+  return "รอตรวจสลิป";
+}
+
+function buildTelegramTopupCaption(order) {
+  const lines = [
+    `<b>${escapeTelegramText(getTopupStatusLabel(order.status || "pending"))}</b>`,
+    "",
+    `แพ็ก: ${escapeTelegramText(order.packageLabel || order.packageId || "-")}`,
+    `ราคา: ${escapeTelegramText(order.price || 0)} บาท`,
+    `ผู้ใช้: ${escapeTelegramText(order.displayName || "-")}`,
+    `อีเมล: ${escapeTelegramText(order.email || "-")}`,
+    `เวลา: ${escapeTelegramText(order.createdAtIso || "-")}`,
+    `Order ID: <code>${escapeTelegramText(order.orderId || "-")}</code>`,
+  ];
+
+  if (order.status === "approved") {
+    lines.push(`อนุมัติโดย: ${escapeTelegramText(order.reviewedByEmail || "-")}`);
+  }
+  if (order.status === "rejected") {
+    lines.push(`ปฏิเสธโดย: ${escapeTelegramText(order.reviewedByEmail || "-")}`);
+    lines.push(`เหตุผล: ${escapeTelegramText(order.rejectReason || TOPUP_REJECT_REASON)}`);
+  }
+
+  lines.push("", `เปิดหลังบ้าน: ${escapeTelegramText(ADMIN_PANEL_URL)}`);
+  return lines.join("\n");
+}
+
+async function callTelegramApi(method, payload, options = {}) {
+  const botToken = getTelegramSecretValue(telegramBotToken);
+  if (!botToken) {
+    throw new Error("Missing TELEGRAM_BOT_TOKEN secret");
+  }
+
+  const response = await fetch(`https://api.telegram.org/bot${botToken}/${method}`, {
+    method: "POST",
+    body: options.formData ? payload : JSON.stringify(payload),
+    headers: options.formData
+      ? undefined
+      : {
+          "Content-Type": "application/json",
+        },
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Telegram ${method} failed: ${response.status} ${text}`);
+  }
+
+  return response.json();
+}
+
+async function notifyTelegramTopupPending(order) {
+  const chatId = getTelegramSecretValue(telegramAdminChatId);
+  if (!getTelegramSecretValue(telegramBotToken) || !chatId) {
+    return { ok: false, skipped: true, reason: "missing_telegram_config" };
+  }
+
+  const slip = parseSlipDataUrl(order.slipDataUrl);
+  const form = new FormData();
+  form.set("chat_id", chatId);
+  form.set("caption", buildTelegramTopupCaption({ ...order, status: "pending" }));
+  form.set("parse_mode", "HTML");
+  form.set("reply_markup", JSON.stringify(buildTelegramTopupKeyboard(order.orderId)));
+  form.set(
+    "photo",
+    new Blob([slip.buffer], { type: slip.mimeType }),
+    `slip-${order.orderId}.${slip.extension}`,
+  );
+  return callTelegramApi("sendPhoto", form, { formData: true });
+}
+
+async function answerTelegramCallbackQuery(callbackQueryId, text, showAlert = false) {
+  if (!callbackQueryId) return;
+  await callTelegramApi("answerCallbackQuery", {
+    callback_query_id: callbackQueryId,
+    text: String(text || "").slice(0, 180),
+    show_alert: Boolean(showAlert),
+  });
+}
+
+async function updateTelegramTopupMessage(order, messageContext = null) {
+  const chatId = messageContext?.chatId || order.telegramChatId;
+  const messageId = messageContext?.messageId || order.telegramMessageId;
+  if (!chatId || !messageId || !getTelegramSecretValue(telegramBotToken)) {
+    return { ok: false, skipped: true, reason: "missing_message_context" };
+  }
+
+  return callTelegramApi("editMessageCaption", {
+    chat_id: chatId,
+    message_id: messageId,
+    caption: buildTelegramTopupCaption(order),
+    parse_mode: "HTML",
+    reply_markup: { inline_keyboard: [] },
+  });
 }
 
 async function verifySignedInUser(req) {
@@ -388,6 +590,7 @@ async function createTopupOrderForUser(user, payload) {
   const plan = getTopupPackage(packageId);
   const slipDataUrl = validateSlipDataUrl(payload.slipDataUrl);
   const orderRef = adminDb.collection("topupOrders").doc();
+  const createdAt = new Date();
 
   await orderRef.set({
     uid: user.uid,
@@ -407,6 +610,35 @@ async function createTopupOrderForUser(user, payload) {
     updatedAt: FieldValue.serverTimestamp(),
   });
 
+  try {
+    const notifyResult = await notifyTelegramTopupPending({
+      orderId: orderRef.id,
+      packageId,
+      packageLabel: plan.label,
+      price: plan.price,
+      displayName: user.displayName,
+      email: user.email,
+      slipDataUrl,
+      createdAtIso: createdAt.toLocaleString("th-TH", {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone: "Asia/Bangkok",
+      }),
+    });
+    const message = notifyResult?.result;
+    if (message?.message_id) {
+      await orderRef.set(
+        {
+          telegramChatId: String(message.chat?.id || ""),
+          telegramMessageId: String(message.message_id || ""),
+        },
+        { merge: true },
+      );
+    }
+  } catch (error) {
+    console.error("Telegram topup notify failed", error);
+  }
+
   return {
     orderId: orderRef.id,
     packageId,
@@ -415,7 +647,7 @@ async function createTopupOrderForUser(user, payload) {
   };
 }
 
-async function approveTopupOrderForAdmin(adminUser, orderId) {
+async function legacyApproveTopupOrderForAdmin(adminUser, orderId) {
   assertAdminUser(adminUser);
   const cleanOrderId = String(orderId || "").trim();
   if (!cleanOrderId) {
@@ -495,6 +727,192 @@ async function approveTopupOrderForAdmin(adminUser, orderId) {
       status: "approved",
     };
   });
+}
+
+async function reviewTopupOrder(decision, actor, orderId) {
+  const cleanDecision = String(decision || "").trim().toLowerCase();
+  const cleanOrderId = String(orderId || "").trim();
+  if (!["approve", "reject"].includes(cleanDecision)) {
+    const error = new Error("Invalid topup review action");
+    error.statusCode = 400;
+    throw error;
+  }
+  if (!cleanOrderId) {
+    const error = new Error("ไม่พบรหัสรายการเติมเงิน");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const orderRef = adminDb.collection("topupOrders").doc(cleanOrderId);
+  return adminDb.runTransaction(async (transaction) => {
+    const orderSnapshot = await transaction.get(orderRef);
+    if (!orderSnapshot.exists) {
+      const error = new Error("ไม่พบรายการเติมเงินนี้");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const order = orderSnapshot.data() || {};
+    if (String(order.status || "pending").toLowerCase() !== "pending") {
+      return {
+        orderId: cleanOrderId,
+        packageId: order.packageId || "",
+        packageLabel: order.packageLabel || order.packageId || "",
+        price: Number(order.price || 0),
+        status: String(order.status || "pending").toLowerCase(),
+        alreadyProcessed: true,
+        displayName: order.displayName || "",
+        email: order.email || "",
+        createdAtIso: formatBangkokDate(order.createdAt),
+        reviewedByEmail:
+          order.approvedByEmail || order.rejectedByEmail || actor.email || PRIMARY_ADMIN_EMAIL,
+        rejectReason: order.rejectedReason || TOPUP_REJECT_REASON,
+        telegramChatId: String(order.telegramChatId || ""),
+        telegramMessageId: String(order.telegramMessageId || ""),
+      };
+    }
+
+    const plan = getTopupPackage(order.packageId);
+    if (cleanDecision === "approve") {
+      const userRef = adminDb.collection("users").doc(order.uid);
+      const userPatch = {
+        email: order.email,
+        emailLower: normalizeEmail(order.email),
+        googleDisplayName: order.displayName || "",
+        googlePhotoURL: order.photoURL || "",
+        updatedAt: FieldValue.serverTimestamp(),
+      };
+
+      if (plan.type === "credit") {
+        userPatch.adCheckCredits = FieldValue.increment(plan.credits);
+      } else {
+        userPatch.plan = "pro";
+        userPatch.tier = "pro";
+        userPatch.memberLevel = "pro";
+        userPatch.subscriptionStatus = "active";
+        userPatch.dailyAdCheckLimit = 10;
+        userPatch.proActivatedAt = FieldValue.serverTimestamp();
+        userPatch.proSource = "topup";
+        userPatch.proTopupOrderId = cleanOrderId;
+        if (plan.type === "pro-monthly") {
+          userPatch.proExpiresAt = Timestamp.fromDate(
+            new Date(Date.now() + plan.days * 24 * 60 * 60 * 1000),
+          );
+        } else {
+          userPatch.proLifetime = true;
+          userPatch.proExpiresAt = FieldValue.delete();
+        }
+      }
+
+      transaction.set(userRef, userPatch, { merge: true });
+    }
+
+    transaction.set(
+      orderRef,
+      cleanDecision === "approve"
+        ? {
+            status: "approved",
+            approvedAt: FieldValue.serverTimestamp(),
+            approvedByUid: actor.uid || "",
+            approvedByEmail: actor.email || PRIMARY_ADMIN_EMAIL,
+            reviewSource: actor.source || "admin",
+            updatedAt: FieldValue.serverTimestamp(),
+          }
+        : {
+            status: "rejected",
+            rejectedAt: FieldValue.serverTimestamp(),
+            rejectedByUid: actor.uid || "",
+            rejectedByEmail: actor.email || PRIMARY_ADMIN_EMAIL,
+            rejectedReason: TOPUP_REJECT_REASON,
+            reviewSource: actor.source || "admin",
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+      { merge: true },
+    );
+
+    return {
+      orderId: cleanOrderId,
+      packageId: order.packageId || "",
+      packageLabel: order.packageLabel || order.packageId || "",
+      price: plan.price,
+      status: cleanDecision === "approve" ? "approved" : "rejected",
+      displayName: order.displayName || "",
+      email: order.email || "",
+      createdAtIso: formatBangkokDate(order.createdAt),
+      reviewedByEmail: actor.email || PRIMARY_ADMIN_EMAIL,
+      rejectReason: TOPUP_REJECT_REASON,
+      telegramChatId: String(order.telegramChatId || ""),
+      telegramMessageId: String(order.telegramMessageId || ""),
+    };
+  });
+}
+
+async function approveTopupOrderForAdmin(adminUser, orderId) {
+  assertAdminUser(adminUser);
+  const result = await reviewTopupOrder(
+    "approve",
+    { uid: adminUser.uid, email: adminUser.email, source: "admin_panel" },
+    orderId,
+  );
+  await updateTelegramTopupMessage(result);
+  return result;
+}
+
+async function rejectTopupOrderForAdmin(adminUser, orderId) {
+  assertAdminUser(adminUser);
+  const result = await reviewTopupOrder(
+    "reject",
+    { uid: adminUser.uid, email: adminUser.email, source: "admin_panel" },
+    orderId,
+  );
+  await updateTelegramTopupMessage(result);
+  return result;
+}
+
+async function processTelegramTopupAction(callbackQuery) {
+  const callbackData = String(callbackQuery?.data || "");
+  const callbackQueryId = callbackQuery?.id || "";
+  const chatId = String(callbackQuery?.message?.chat?.id || "");
+  const messageId = String(callbackQuery?.message?.message_id || "");
+  const match = callbackData.match(/^topup:(approve|reject):([A-Za-z0-9_-]+)$/);
+
+  if (!match) {
+    await answerTelegramCallbackQuery(callbackQueryId, "รูปแบบคำสั่งไม่ถูกต้อง", true);
+    return;
+  }
+  if (chatId !== getTelegramSecretValue(telegramAdminChatId)) {
+    await answerTelegramCallbackQuery(callbackQueryId, "ไม่มีสิทธิ์ใช้งานปุ่มนี้", true);
+    return;
+  }
+
+  const [, decision, orderId] = match;
+  try {
+    const result = await reviewTopupOrder(
+      decision,
+      {
+        uid: `telegram:${chatId}`,
+        email: `${PRIMARY_ADMIN_EMAIL} (telegram)`,
+        source: "telegram",
+      },
+      orderId,
+    );
+    await updateTelegramTopupMessage(result, { chatId, messageId });
+    await answerTelegramCallbackQuery(
+      callbackQueryId,
+      result.alreadyProcessed
+        ? `รายการนี้${getTopupStatusLabel(result.status)}ไปแล้ว`
+        : decision === "approve"
+          ? "อนุมัติรายการเรียบร้อย"
+          : "ปฏิเสธรายการเรียบร้อย",
+    );
+  } catch (error) {
+    console.error("Telegram topup action failed", error);
+    await answerTelegramCallbackQuery(
+      callbackQueryId,
+      error.message || "จัดการรายการไม่สำเร็จ",
+      true,
+    );
+  }
 }
 
 async function hasAnyAdCheck(userRef) {
@@ -1011,6 +1429,7 @@ export const submitTopupSlip = onRequest(
   {
     region: "asia-southeast1",
     cors: true,
+    secrets: [telegramBotToken, telegramAdminChatId],
     timeoutSeconds: 60,
     memory: "256MiB",
   },
@@ -1046,6 +1465,7 @@ export const approveTopupOrder = onRequest(
   {
     region: "asia-southeast1",
     cors: true,
+    secrets: [telegramBotToken],
     timeoutSeconds: 60,
     memory: "256MiB",
   },
@@ -1072,6 +1492,75 @@ export const approveTopupOrder = onRequest(
         error: error.message || "Unknown error",
         code: error.code || "UNKNOWN_ERROR",
       });
+    }
+  },
+);
+
+export const rejectTopupOrder = onRequest(
+  {
+    region: "asia-southeast1",
+    cors: true,
+    secrets: [telegramBotToken],
+    timeoutSeconds: 60,
+    memory: "256MiB",
+  },
+  async (req, res) => {
+    setCors(res);
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      const adminUser = await verifySignedInUser(req);
+      const payload = await readJsonBody(req);
+      const result = await rejectTopupOrderForAdmin(adminUser, payload.orderId);
+      sendJson(res, 200, { ok: true, ...result });
+    } catch (error) {
+      sendJson(res, error.statusCode || 400, {
+        error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  },
+);
+
+export const telegramTopupWebhook = onRequest(
+  {
+    region: "asia-southeast1",
+    cors: false,
+    secrets: [telegramBotToken, telegramAdminChatId, telegramWebhookSecret],
+    timeoutSeconds: 60,
+    memory: "256MiB",
+  },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).send("Method not allowed");
+      return;
+    }
+
+    const expectedSecret = getTelegramSecretValue(telegramWebhookSecret);
+    const headerSecret = String(req.get("x-telegram-bot-api-secret-token") || "");
+    if (!expectedSecret || headerSecret !== expectedSecret) {
+      res.status(403).send("Forbidden");
+      return;
+    }
+
+    try {
+      const payload = await readJsonBody(req);
+      if (payload?.callback_query) {
+        await processTelegramTopupAction(payload.callback_query);
+      }
+      res.status(200).json({ ok: true });
+    } catch (error) {
+      console.error("telegramTopupWebhook failed", error);
+      res.status(200).json({ ok: false });
     }
   },
 );

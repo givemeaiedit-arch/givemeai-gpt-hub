@@ -12,6 +12,7 @@ import {
 
 const loginButton = document.querySelector("#loginButton");
 const logoutButton = document.querySelector("#logoutButton");
+const mobileLogoutButton = document.querySelector("#mobileLogoutButton");
 const userBadge = document.querySelector("#userBadge");
 const userAvatar = document.querySelector("#userAvatar");
 const userName = document.querySelector("#userName");
@@ -221,6 +222,7 @@ async function setAuthUi(user) {
 
   if (loginButton) loginButton.hidden = Boolean(user);
   if (logoutButton) logoutButton.hidden = !user;
+  if (mobileLogoutButton) mobileLogoutButton.hidden = !user;
   if (userBadge) userBadge.hidden = !user;
 
   if (userAvatar) userAvatar.src = profile.photoURL || fallbackAvatar;
@@ -413,6 +415,11 @@ loginButton?.addEventListener("click", async () => {
 logoutButton?.addEventListener("click", async () => {
   await signOutUser();
   setMessage("ออกจากระบบแล้ว");
+});
+
+mobileLogoutButton?.addEventListener("click", async () => {
+  await signOutUser();
+  setMessage("เธญเธญเธเธเธฒเธเธฃเธฐเธเธเนเธฅเนเธง");
 });
 
 if (!isFirebaseConfigured()) {

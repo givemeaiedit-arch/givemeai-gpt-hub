@@ -54,7 +54,7 @@
 
         <p class="system-message" id="systemMessage">Admin Dashboard สำหรับดูผู้ใช้และประวัติ AI Check Ads</p>
 
-        <section class="leaderboard-hero admin-hero">
+        <section class="leaderboard-hero admin-hero admin-anchor-section" id="adminOverviewSection">
           <div>
             <p class="tools-kicker">ADMIN DASHBOARD</p>
             <h1>หลังบ้าน GivemeAI</h1>
@@ -66,7 +66,7 @@
           </div>
         </section>
 
-        <section class="admin-stat-grid" aria-label="ภาพรวม Admin">
+        <section class="admin-stat-grid admin-anchor-section" aria-label="ภาพรวม Admin">
           <article>
             <span>ผู้ใช้ทั้งหมด</span>
             <strong id="adminUserCount">0</strong>
@@ -81,8 +81,18 @@
           </article>
         </section>
 
+        <nav class="admin-head-menu" aria-label="เมนูหัวข้อแอดมิน">
+          <a class="admin-head-link" href="#adminOverviewSection">ภาพรวม</a>
+          <a class="admin-head-link" href="#adminUsersSection">สมาชิก</a>
+          <a class="admin-head-link" href="#adminHistorySection">ประวัติ Check Ads</a>
+          <a class="admin-head-link" href="#adminProCodeSection">Pro Code</a>
+          <a class="admin-head-link" href="#adminTopupSection">ตรวจสลิป</a>
+          <a class="admin-head-link" href="#adminPromptSection">จัดการ Prompt</a>
+          <a class="admin-head-link" href="#adminProfileSection">โปรไฟล์ผู้ใช้</a>
+        </nav>
+
         <section class="admin-grid">
-          <article class="leaderboard-table-card admin-card">
+          <article class="leaderboard-table-card admin-card admin-anchor-section" id="adminUsersSection">
             <div class="panel-heading">
               <h2>รายชื่อผู้ใช้</h2>
               <span id="adminUsersLabel">-</span>
@@ -103,7 +113,7 @@
             </div>
           </article>
 
-          <article class="leaderboard-table-card admin-card">
+          <article class="leaderboard-table-card admin-card admin-anchor-section" id="adminHistorySection">
             <div class="panel-heading">
               <h2>ประวัติ AI Check Ads</h2>
               <span id="adminHistoryLabel">-</span>
@@ -126,7 +136,7 @@
           </article>
         </section>
 
-        <section class="leaderboard-table-card admin-card">
+        <section class="leaderboard-table-card admin-card admin-anchor-section" id="adminProCodeSection">
           <div class="panel-heading">
             <h2>Pro Code</h2>
             <span id="proCodesLabel">-</span>
@@ -151,7 +161,7 @@
           </div>
         </section>
 
-        <section class="leaderboard-table-card admin-card">
+        <section class="leaderboard-table-card admin-card admin-anchor-section" id="adminTopupSection">
           <div class="panel-heading">
             <h2>คำขอเติมเงิน / ตรวจสลิป</h2>
             <span id="topupOrdersLabel">-</span>
@@ -174,7 +184,7 @@
           </div>
         </section>
 
-        <section class="leaderboard-table-card admin-card prompt-admin-card">
+        <section class="leaderboard-table-card admin-card prompt-admin-card admin-anchor-section" id="adminPromptSection">
           <div class="panel-heading">
             <h2>จัดการ Prompt</h2>
             <span id="adminPromptsLabel">แก้ไข เพิ่ม ลบ และตั้งรูปตัวอย่าง</span>
@@ -250,7 +260,7 @@
           </div>
         </section>
 
-        <section class="profile-card admin-profile-card" id="adminProfilePanel">
+        <section class="profile-card admin-profile-card admin-anchor-section" id="adminProfileSection">
           <div class="panel-heading">
             <h2>โปรไฟล์และประวัติรายคน</h2>
             <span>เลือกผู้ใช้จากตารางเพื่อดูรายละเอียด</span>
@@ -273,6 +283,22 @@
             </table>
           </div>
         </section>
+        <dialog class="prompt-dialog admin-slip-dialog" id="adminSlipDialog">
+          <button class="prompt-dialog-close" id="adminSlipDialogClose" type="button" aria-label="ปิด">×</button>
+          <div class="prompt-dialog-head">
+            <span>สลิปการโอนเงิน</span>
+            <h2 id="adminSlipDialogTitle">ดูสลิปเต็ม</h2>
+            <p id="adminSlipDialogMeta">ตรวจสอบหลักฐานการโอนและแพ็กเกจที่ผู้ใช้เลือก</p>
+          </div>
+          <div class="prompt-dialog-copy admin-slip-dialog-body">
+            <div class="admin-slip-dialog-frame">
+              <img id="adminSlipDialogImage" src="" alt="สลิปโอนเงิน" />
+            </div>
+          </div>
+          <div class="prompt-dialog-actions">
+            <button class="soft-button" id="adminSlipDialogDone" type="button">ปิด</button>
+          </div>
+        </dialog>
       </main>
     </div>
 
