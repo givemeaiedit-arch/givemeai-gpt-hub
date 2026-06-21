@@ -1815,7 +1815,7 @@ export const submitTopupSlip = onRequest(
   {
     region: "asia-southeast1",
     cors: true,
-    secrets: [telegramBotToken, telegramAdminChatId],
+    secrets: [telegramBotToken, telegramAdminChatId, thunderApiKey],
     timeoutSeconds: 60,
     memory: "256MiB",
   },
