@@ -4298,6 +4298,7 @@ meter::-webkit-meter-optimum-value {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  align-items: flex-start;
 }
 
 .audit-upload-card,
@@ -5767,6 +5768,11 @@ meter::-webkit-meter-optimum-value {
   text-decoration: none;
 }
 
+.audit-hero-topup {
+  min-width: 168px;
+  justify-content: center;
+}
+
 .audit-skeleton-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -5806,6 +5812,10 @@ meter::-webkit-meter-optimum-value {
 @media (max-width: 760px) {
   .green-button,
   .audit-guest-notice {
+    width: 100%;
+  }
+
+  .audit-hero-topup {
     width: 100%;
   }
 
