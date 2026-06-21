@@ -109,7 +109,7 @@ function setUsagePill(usage) {
 
   usagePill.hidden = false;
   usagePill.dataset.plan = usage.plan || "free";
-  usagePill.textContent = usage.label || "";
+  usagePill.textContent = String(usage.label || "").replace("วันนี้ Check ได้อีก", "วันนี้วิเคราะห์ได้อีก");
 }
 
 function isAdminUser(user) {
