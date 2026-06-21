@@ -119,7 +119,34 @@
           <details class="topup-history-panel" id="topupHistoryBox" hidden>
             <summary>ดูรายการย้อนหลัง <small id="topupHistoryCount"></small></summary>
             <div class="topup-history-body">
-              <ul class="history-list" id="topupHistoryList"></ul>
+              <div class="topup-history-stats" id="topupHistoryStats">
+                <div class="topup-history-stat" data-status="pending">
+                  <span>รออนุมัติ</span>
+                  <strong id="topupPendingCount">0</strong>
+                </div>
+                <div class="topup-history-stat" data-status="approved">
+                  <span>อนุมัติแล้ว</span>
+                  <strong id="topupApprovedCount">0</strong>
+                </div>
+                <div class="topup-history-stat" data-status="rejected">
+                  <span>ปฏิเสธ</span>
+                  <strong id="topupRejectedCount">0</strong>
+                </div>
+              </div>
+              <div class="topup-history-table-wrap">
+                <table class="topup-history-table">
+                  <thead>
+                    <tr>
+                      <th>แพ็กเกจ</th>
+                      <th>ราคา</th>
+                      <th>วันที่ส่ง</th>
+                      <th>สถานะ</th>
+                      <th>อัปเดตล่าสุด</th>
+                    </tr>
+                  </thead>
+                  <tbody id="topupHistoryTableBody"></tbody>
+                </table>
+              </div>
             </div>
           </details>
         </section>

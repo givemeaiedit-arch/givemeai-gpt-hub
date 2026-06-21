@@ -41,7 +41,10 @@ const liveNoticeText = document.querySelector("#topupLiveNoticeText");
 const historyButton = document.querySelector("#topupHistoryButton");
 const historyBox = document.querySelector("#topupHistoryBox");
 const historyCount = document.querySelector("#topupHistoryCount");
-const historyList = document.querySelector("#topupHistoryList");
+const historyTableBody = document.querySelector("#topupHistoryTableBody");
+const pendingCount = document.querySelector("#topupPendingCount");
+const approvedCount = document.querySelector("#topupApprovedCount");
+const rejectedCount = document.querySelector("#topupRejectedCount");
 const accountState = document.querySelector("#topupAccountState");
 
 let selectedPlan = plans[0] || null;
@@ -305,17 +308,34 @@ function renderLiveNotice() {
 }
 
 function renderOrderHistory() {
-  if (!historyBox || !historyList || !historyCount) return;
+  if (!historyBox || !historyTableBody || !historyCount) return;
   if (!currentUser || !currentOrders.length) {
     historyBox.hidden = true;
     historyCount.textContent = "";
-    historyList.innerHTML = "";
+    historyTableBody.innerHTML = "";
+    if (pendingCount) pendingCount.textContent = "0";
+    if (approvedCount) approvedCount.textContent = "0";
+    if (rejectedCount) rejectedCount.textContent = "0";
     return;
   }
 
   historyBox.hidden = false;
   historyCount.textContent = `(${currentOrders.length} รายการ)`;
-  historyList.innerHTML = currentOrders
+  const counts = currentOrders.reduce(
+    (accumulator, order) => {
+      if (order.status === "approved") accumulator.approved += 1;
+      else if (order.status === "rejected") accumulator.rejected += 1;
+      else accumulator.pending += 1;
+      return accumulator;
+    },
+    { pending: 0, approved: 0, rejected: 0 },
+  );
+
+  if (pendingCount) pendingCount.textContent = String(counts.pending);
+  if (approvedCount) approvedCount.textContent = String(counts.approved);
+  if (rejectedCount) rejectedCount.textContent = String(counts.rejected);
+
+  historyTableBody.innerHTML = currentOrders
     .map((order) => {
       const reviewedAt =
         order.status === "approved"
@@ -325,17 +345,18 @@ function renderOrderHistory() {
             : "รอแอดมินตรวจสลิป";
 
       return `
-        <li class="history-item">
-          <div class="history-copy">
-            <strong>${escapeHtml(order.packageLabel || order.packageId || "-")}</strong>
-            <p>${escapeHtml(String(order.price || 0))} บาท</p>
-            <small>ส่งเมื่อ ${escapeHtml(formatDate(order.createdAt))}</small>
-          </div>
-          <div class="history-meta">
-            <b class="topup-order-status" data-status="${escapeHtml(order.status)}">${escapeHtml(getOrderStatusLabel(order))}</b>
-            <span>${escapeHtml(reviewedAt)}</span>
-          </div>
-        </li>
+        <tr>
+          <td>
+            <div class="topup-history-package">
+              <strong>${escapeHtml(order.packageLabel || order.packageId || "-")}</strong>
+              <small>${escapeHtml(order.packageId || "-")}</small>
+            </div>
+          </td>
+          <td><strong>${escapeHtml(String(order.price || 0))} บาท</strong></td>
+          <td>${escapeHtml(formatDate(order.createdAt))}</td>
+          <td><span class="topup-order-status-pill" data-status="${escapeHtml(order.status)}">${escapeHtml(getOrderStatusLabel(order))}</span></td>
+          <td>${escapeHtml(reviewedAt)}</td>
+        </tr>
       `;
     })
     .join("");
