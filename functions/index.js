@@ -201,6 +201,21 @@ function buildThunderVerificationSummary(result) {
   return "ตรวจสลิปแล้ว แต่ยังควรให้แอดมินตรวจทานอีกครั้ง";
 }
 
+function extractThunderErrorPayload(responseJson, fallbackStatus) {
+  const message =
+    normalizeText(responseJson?.error?.message) ||
+    normalizeText(responseJson?.message) ||
+    normalizeText(responseJson?.error) ||
+    "Thunder ตรวจสลิปไม่สำเร็จ";
+  const code =
+    normalizeText(responseJson?.error?.code) ||
+    normalizeText(responseJson?.code) ||
+    normalizeText(responseJson?.status) ||
+    normalizeText(fallbackStatus) ||
+    "THUNDER_VERIFY_FAILED";
+  return { message, code };
+}
+
 function toFileKey(fileName) {
   const normalized = String(fileName || "unnamed-file")
     .trim()
@@ -727,15 +742,13 @@ async function callThunderVerifySlip(order) {
     responseJson = {};
   }
 
-  if (!response.ok) {
-    const error =
-      normalizeText(responseJson?.message) ||
-      normalizeText(responseJson?.error) ||
-      "Thunder ตรวจสลิปไม่สำเร็จ";
-    const detailCode = normalizeText(responseJson?.code || responseJson?.status || response.status);
-    const wrapped = new Error(detailCode ? `${error} (${detailCode})` : error);
+  if (!response.ok || responseJson?.success === false) {
+    const thunderError = extractThunderErrorPayload(responseJson, response.status);
+    const wrapped = new Error(
+      thunderError.code ? `${thunderError.message} (${thunderError.code})` : thunderError.message,
+    );
     wrapped.statusCode = response.status;
-    wrapped.code = detailCode || "THUNDER_VERIFY_FAILED";
+    wrapped.code = thunderError.code || "THUNDER_VERIFY_FAILED";
     throw wrapped;
   }
 
@@ -745,6 +758,7 @@ async function callThunderVerifySlip(order) {
       "amountInSlip",
       "amount",
       "slipAmount",
+      "rawSlip.amount.amount",
       "data.amount",
       "rawSlip.amount",
     ]),
@@ -764,14 +778,15 @@ async function callThunderVerifySlip(order) {
   const duplicate = normalizeBoolean(
     pickFirstValue(payload, ["isDuplicate", "duplicate", "rawSlip.isDuplicate"]),
   );
-  const matchedAccount = normalizeBoolean(
-    pickFirstValue(payload, [
-      "matchedAccount",
-      "isAccountMatched",
-      "accountMatched",
-      "rawSlip.matchedAccount",
-    ]),
-  );
+  const matchedAccountRaw = pickFirstValue(payload, [
+    "matchedAccount",
+    "isAccountMatched",
+    "accountMatched",
+    "rawSlip.matchedAccount",
+  ]);
+  const matchedAccount =
+    normalizeBoolean(matchedAccountRaw) ??
+    (matchedAccountRaw && typeof matchedAccountRaw === "object" ? true : null);
 
   const result = {
     provider: "thunder",
@@ -789,6 +804,8 @@ async function callThunderVerifySlip(order) {
         "receiver.name",
         "accountName",
         "bankAccountName",
+        "rawSlip.receiver.account.name.th",
+        "rawSlip.receiver.account.name.en",
         "rawSlip.receiverName",
       ]),
     ),
@@ -807,6 +824,7 @@ async function callThunderVerifySlip(order) {
         "transDate",
         "transactionDate",
         "date",
+        "rawSlip.date",
         "rawSlip.transDate",
       ]),
     ),
