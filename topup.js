@@ -312,41 +312,6 @@ function getOrderStatusLabel(order) {
   return "รอตรวจสลิป";
 }
 
-function renderLiveNotice() {
-  if (!liveNotice || !liveNoticeTitle || !liveNoticeText || !liveNoticeIcon) return;
-  if (!currentUser || !currentOrders.length) {
-    liveNotice.hidden = true;
-    if (historyButton) historyButton.hidden = true;
-    return;
-  }
-
-  const latestOrder = currentOrders[0];
-  const packageLabel = latestOrder.packageLabel || latestOrder.packageId || "รายการล่าสุด";
-
-  liveNotice.hidden = false;
-  liveNotice.dataset.state = latestOrder.status || "pending";
-  if (historyButton) historyButton.hidden = false;
-
-  if (latestOrder.status === "approved") {
-    liveNoticeIcon.textContent = "✓";
-    liveNoticeTitle.textContent = `อนุมัติรายการ ${packageLabel} แล้ว`;
-    liveNoticeText.textContent = "ระบบเติมสิทธิ์ให้เรียบร้อยแล้ว สามารถกดดูรายการย้อนหลังได้ด้านล่าง";
-    return;
-  }
-
-  if (latestOrder.status === "rejected") {
-    liveNoticeIcon.textContent = "!";
-    liveNoticeTitle.textContent = `ปฏิเสธรายการ ${packageLabel}`;
-    liveNoticeText.textContent =
-      "แอดมินตรวจสลิปแล้วไม่ผ่าน กรุณาแนบสลิปใหม่อีกครั้ง หรือติดต่อแอดมินเพื่อตรวจสอบ";
-    return;
-  }
-
-  liveNoticeIcon.textContent = "…";
-  liveNoticeTitle.textContent = `รออนุมัติรายการ ${packageLabel}`;
-  liveNoticeText.textContent =
-    "ตอนนี้อยู่ในช่วงทดสอบระบบ กรุณารอสักครู่ ให้แอดมินตรวจเช็ค ไม่เกิน 15 นาทีค่ะ";
-}
 
 function renderLiveNotice() {
   if (!liveNotice || !liveNoticeTitle || !liveNoticeText || !liveNoticeIcon) return;
