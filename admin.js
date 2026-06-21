@@ -21,6 +21,8 @@ const APPROVE_TOPUP_ENDPOINT =
   "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/approveTopupOrder";
 const REJECT_TOPUP_ENDPOINT =
   "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/rejectTopupOrder";
+const VERIFY_TOPUP_SLIP_ENDPOINT =
+  "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/verifyTopupSlip";
 
 const adminStatus = document.querySelector("#adminStatus");
 const adminUserCount = document.querySelector("#adminUserCount");
@@ -282,6 +284,52 @@ function renderProCodes(codes) {
     .join("");
 }
 
+function getSlipVerificationState(verification) {
+  if (!verification) return "idle";
+  const status = String(verification.status || "").toLowerCase();
+  const suggestion = String(verification.suggestion || "").toLowerCase();
+  if (status === "error") return "error";
+  if (suggestion === "approve") return "pass";
+  if (suggestion.startsWith("review")) return "review";
+  return "neutral";
+}
+
+function renderSlipVerification(verification, price) {
+  if (!verification) {
+    return `<small class="admin-slip-result-empty">ยังไม่ได้ตรวจสลิปอัตโนมัติ</small>`;
+  }
+
+  const state = getSlipVerificationState(verification);
+  const meta = [];
+  if (typeof verification.amountInSlip === "number") {
+    meta.push(`ยอดในสลิป ${verification.amountInSlip} บาท`);
+  }
+  if (typeof price === "number" && Number.isFinite(price)) {
+    meta.push(`แพ็ก ${price} บาท`);
+  }
+  if (verification.verifiedByEmail) {
+    meta.push(`โดย ${verification.verifiedByEmail}`);
+  }
+  if (verification.verifiedAt) {
+    meta.push(formatDate(verification.verifiedAt));
+  }
+
+  const flags = [];
+  if (verification.amountMatched === true) flags.push("ยอดตรง");
+  if (verification.amountMatched === false) flags.push("ยอดไม่ตรง");
+  if (verification.duplicate === true) flags.push("สลิปอาจซ้ำ");
+  if (verification.matchedAccount === true) flags.push("บัญชีตรง");
+  if (verification.matchedAccount === false) flags.push("บัญชีไม่ตรง");
+
+  return `
+    <div class="admin-slip-result" data-state="${escapeHtml(state)}">
+      <strong>${escapeHtml(verification.summary || verification.message || "ตรวจสลิปแล้ว")}</strong>
+      ${meta.length ? `<small>${escapeHtml(meta.join(" • "))}</small>` : ""}
+      ${flags.length ? `<small>${escapeHtml(flags.join(" • "))}</small>` : ""}
+    </div>
+  `;
+}
+
 function renderTopupOrders(orders) {
   if (topupOrdersLabel) topupOrdersLabel.textContent = `${orders.length} รายการ`;
   if (!topupOrdersBody) return;
@@ -316,6 +364,8 @@ function renderTopupOrders(orders) {
                 ? `<div class="admin-slip-actions">
                     <button class="admin-slip-link" type="button" data-view-slip="${escapeHtml(item.id)}"><img src="${escapeHtml(item.slipDataUrl)}" alt="สลิป" /></button>
                     <button class="soft-button admin-small-button" type="button" data-view-slip="${escapeHtml(item.id)}">ดูสลิปเต็ม</button>
+                    <button class="green-button admin-small-button" type="button" data-verify-slip="${escapeHtml(item.id)}">ตรวจสลิป AI</button>
+                    ${renderSlipVerification(item.slipVerification, item.price)}
                   </div>`
                 : "-"
             }
@@ -327,7 +377,9 @@ function renderTopupOrders(orders) {
                     <button class="orange-button admin-small-button" type="button" data-approve-topup="${escapeHtml(item.id)}">อนุมัติ</button>
                     <button class="soft-button danger-button admin-small-button" type="button" data-reject-topup="${escapeHtml(item.id)}">ปฏิเสธ</button>
                   </div>`
-                : `<small>${escapeHtml(item.approvedByEmail || item.rejectedByEmail || "-")}</small>`
+                : `<div class="admin-topup-actions">
+                    <small>${escapeHtml(item.approvedByEmail || item.rejectedByEmail || "-")}</small>
+                  </div>`
             }
           </td>
         </tr>
@@ -397,7 +449,11 @@ function openSlipDialog(orderId) {
     adminSlipDialogTitle.textContent = `สลิป ${order.packageLabel || order.packageId || "รายการเติมเงิน"}`;
   }
   if (adminSlipDialogMeta) {
-    adminSlipDialogMeta.textContent = `${order.displayName || order.email || "-"} • ${order.price} บาท • ${formatDate(order.createdAt)}`;
+    const detail = [`${order.displayName || order.email || "-"}`, `${order.price} บาท`, formatDate(order.createdAt)];
+    if (order.slipVerification?.summary) {
+      detail.push(`AI: ${order.slipVerification.summary}`);
+    }
+    adminSlipDialogMeta.textContent = detail.join(" • ");
   }
   adminSlipDialog.showModal();
 }
@@ -537,6 +593,7 @@ function normalizeTopupOrderDoc(entry) {
     rejectedAt: data.rejectedAt,
     rejectedByEmail: data.rejectedByEmail || "",
     rejectedReason: data.rejectedReason || "",
+    slipVerification: data.slipVerification || null,
   };
 }
 
@@ -966,6 +1023,39 @@ async function reviewTopupOrder(orderId, decision, button) {
   }
 }
 
+async function verifyTopupSlip(orderId, button) {
+  if (!currentAdmin || !orderId) {
+    setAdminStatus("กรุณา Login ด้วยบัญชี Admin ก่อนตรวจสลิป", "error");
+    return;
+  }
+
+  try {
+    if (button) button.disabled = true;
+    setAdminStatus("กำลังส่งสลิปไปตรวจอัตโนมัติ...", "loading");
+    const idToken = await currentAdmin.getIdToken();
+    const response = await fetch(VERIFY_TOPUP_SLIP_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({ orderId }),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result?.error || "ตรวจสลิปอัตโนมัติไม่สำเร็จ");
+    }
+
+    const summary = result?.summary || "ตรวจสลิปอัตโนมัติสำเร็จ";
+    setAdminStatus(`ตรวจสลิปแล้ว: ${summary}`, result?.suggestion === "approve" ? "success" : "muted");
+    await loadAdminData();
+  } catch (error) {
+    setAdminStatus(error.message || "ตรวจสลิปอัตโนมัติไม่สำเร็จ", "error");
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
 document.addEventListener("click", async (event) => {
   const userButton = event.target.closest("[data-admin-user]");
   if (userButton) {
@@ -987,6 +1077,11 @@ document.addEventListener("click", async (event) => {
   const viewSlipButton = event.target.closest("[data-view-slip]");
   if (viewSlipButton) {
     openSlipDialog(viewSlipButton.dataset.viewSlip);
+    return;
+  }
+  const verifySlipButton = event.target.closest("[data-verify-slip]");
+  if (verifySlipButton) {
+    await verifyTopupSlip(verifySlipButton.dataset.verifySlip, verifySlipButton);
     return;
   }
   const topupButton = event.target.closest("[data-approve-topup]");

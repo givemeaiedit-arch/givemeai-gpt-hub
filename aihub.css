@@ -5251,6 +5251,59 @@ meter::-webkit-meter-optimum-value {
   gap: 8px;
 }
 
+.admin-slip-result {
+  display: grid;
+  gap: 4px;
+  width: min(280px, 100%);
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f8fafc;
+}
+
+.admin-slip-result strong {
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: #0f172a;
+}
+
+.admin-slip-result small,
+.admin-slip-result-empty {
+  display: block;
+  margin: 0;
+  color: #64748b;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.admin-slip-result[data-state="pass"] {
+  border-color: rgba(22, 163, 74, 0.24);
+  background: #f0fdf4;
+}
+
+.admin-slip-result[data-state="review"] {
+  border-color: rgba(245, 158, 11, 0.24);
+  background: #fffbeb;
+}
+
+.admin-slip-result[data-state="error"] {
+  border-color: rgba(220, 38, 38, 0.2);
+  background: #fef2f2;
+}
+
+.admin-slip-result[data-state="pass"] strong {
+  color: #166534;
+}
+
+.admin-slip-result[data-state="review"] strong {
+  color: #b45309;
+}
+
+.admin-slip-result[data-state="error"] strong {
+  color: #b91c1c;
+}
+
 .admin-topup-actions {
   display: grid;
   gap: 8px;

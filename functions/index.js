@@ -8,6 +8,7 @@ import { defineSecret } from "firebase-functions/params";
 initializeApp();
 
 const openAiApiKey = defineSecret("OPENAI_API_KEY");
+const thunderApiKey = defineSecret("THUNDER_API_KEY");
 const telegramBotToken = defineSecret("TELEGRAM_BOT_TOKEN");
 const telegramAdminChatId = defineSecret("TELEGRAM_ADMIN_CHAT_ID");
 const telegramWebhookSecret = defineSecret("TELEGRAM_WEBHOOK_SECRET");
@@ -64,6 +65,8 @@ TOPUP_PACKAGES["pro-lifetime"].label = "Master ตลอดชีพ";
 TOPUP_PACKAGES["pro-lifetime"].type = "master-lifetime";
 const FREE_LIMIT_EXCEEDED_MESSAGE =
   "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว สามารถเติมเงินเพิ่มในหน้าเติมเงิน หรือสมัคร Pro 289 บาทต่อเดือน เพื่อใช้ Check Ads ได้วันละ 10 ครั้ง พร้อมคอร์สเรียน AI มากกว่า 20 บทและเครื่องมือ AI ใหม่ ๆ ในอนาคต หากต้องการราคาพิเศษสำหรับองค์กร ติดต่อ Admin ได้ค่ะ ที่ page AI ภาพนี้ให้หน่อย";
+
+const THUNDER_VERIFY_URL = "https://api.thunder.in.th/v2/verify/bank";
 
 function setCors(res) {
   res.set("Access-Control-Allow-Origin", "*");
@@ -130,6 +133,72 @@ async function readJsonBody(req) {
 
 function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
+}
+
+function readSecretValue(secretParam) {
+  try {
+    return String(secretParam?.value?.() || "").trim();
+  } catch {
+    return "";
+  }
+}
+
+function getNestedValue(source, path) {
+  return String(path || "")
+    .split(".")
+    .filter(Boolean)
+    .reduce((value, key) => (value && typeof value === "object" ? value[key] : undefined), source);
+}
+
+function pickFirstValue(source, paths) {
+  for (const path of paths) {
+    const value = getNestedValue(source, path);
+    if (value !== undefined && value !== null && value !== "") {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function normalizeBoolean(value) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  const text = String(value || "").trim().toLowerCase();
+  if (!text) return null;
+  if (["true", "1", "yes", "ok", "matched", "pass", "success"].includes(text)) return true;
+  if (["false", "0", "no", "mismatch", "fail", "failed"].includes(text)) return false;
+  return null;
+}
+
+function normalizeNumber(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  const text = String(value ?? "")
+    .replace(/[^0-9.\-]/g, "")
+    .trim();
+  if (!text) return null;
+  const parsed = Number(text);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function normalizeText(value) {
+  const text = String(value ?? "").trim();
+  return text || "";
+}
+
+function buildThunderVerificationSummary(result) {
+  if (result.status === "error") {
+    return result.message || "ตรวจสลิปไม่สำเร็จ";
+  }
+  if (result.amountMatched === false) {
+    return `ยอดในสลิปไม่ตรงกับแพ็ก ${result.expectedAmount} บาท`;
+  }
+  if (result.duplicate === true) {
+    return "พบว่าสลิปนี้อาจถูกใช้ซ้ำ ควรตรวจเพิ่มก่อนอนุมัติ";
+  }
+  if (result.amountMatched === true) {
+    return `ยอดตรง ${result.expectedAmount} บาท และไม่พบสลิปซ้ำ`;
+  }
+  return "ตรวจสลิปแล้ว แต่ยังควรให้แอดมินตรวจทานอีกครั้ง";
 }
 
 function toFileKey(fileName) {
@@ -623,6 +692,218 @@ function validateSlipDataUrl(value) {
     throw error;
   }
   return slipDataUrl;
+}
+
+async function callThunderVerifySlip(order) {
+  const apiKey = readSecretValue(thunderApiKey);
+  if (!apiKey) {
+    const error = new Error("ยังไม่ได้ตั้งค่า THUNDER_API_KEY ใน Firebase Functions");
+    error.statusCode = 500;
+    throw error;
+  }
+
+  const slip = parseSlipDataUrl(order.slipDataUrl);
+  const form = new FormData();
+  form.set(
+    "image",
+    new Blob([slip.buffer], { type: slip.mimeType }),
+    `slip-${order.orderId || "topup"}.${slip.extension}`,
+  );
+  form.set("checkDuplicate", "true");
+  form.set("matchAmount", String(Number(order.price || 0)));
+
+  const response = await fetch(THUNDER_VERIFY_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: form,
+  });
+
+  let responseJson = {};
+  try {
+    responseJson = await response.json();
+  } catch {
+    responseJson = {};
+  }
+
+  if (!response.ok) {
+    const error =
+      normalizeText(responseJson?.message) ||
+      normalizeText(responseJson?.error) ||
+      "Thunder ตรวจสลิปไม่สำเร็จ";
+    const detailCode = normalizeText(responseJson?.code || responseJson?.status || response.status);
+    const wrapped = new Error(detailCode ? `${error} (${detailCode})` : error);
+    wrapped.statusCode = response.status;
+    wrapped.code = detailCode || "THUNDER_VERIFY_FAILED";
+    throw wrapped;
+  }
+
+  const payload = responseJson?.data || responseJson?.result || responseJson;
+  const amountInSlip = normalizeNumber(
+    pickFirstValue(payload, [
+      "amountInSlip",
+      "amount",
+      "slipAmount",
+      "data.amount",
+      "rawSlip.amount",
+    ]),
+  );
+  let amountMatched = normalizeBoolean(
+    pickFirstValue(payload, [
+      "isAmountMatched",
+      "amountMatched",
+      "matchedAmount",
+      "rawSlip.isAmountMatched",
+    ]),
+  );
+  if (amountMatched === null && amountInSlip !== null) {
+    amountMatched = Math.abs(amountInSlip - Number(order.price || 0)) < 0.01;
+  }
+
+  const duplicate = normalizeBoolean(
+    pickFirstValue(payload, ["isDuplicate", "duplicate", "rawSlip.isDuplicate"]),
+  );
+  const matchedAccount = normalizeBoolean(
+    pickFirstValue(payload, [
+      "matchedAccount",
+      "isAccountMatched",
+      "accountMatched",
+      "rawSlip.matchedAccount",
+    ]),
+  );
+
+  const result = {
+    provider: "thunder",
+    status: "success",
+    statusCode: normalizeText(responseJson?.code || responseJson?.status || "OK"),
+    message: normalizeText(responseJson?.message || responseJson?.description || ""),
+    expectedAmount: Number(order.price || 0),
+    amountInSlip,
+    amountMatched,
+    duplicate,
+    matchedAccount,
+    receiverName: normalizeText(
+      pickFirstValue(payload, [
+        "receiverName",
+        "receiver.name",
+        "accountName",
+        "bankAccountName",
+        "rawSlip.receiverName",
+      ]),
+    ),
+    transactionRef: normalizeText(
+      pickFirstValue(payload, [
+        "transRef",
+        "reference",
+        "referenceId",
+        "qrTransactionId",
+        "rawSlip.transRef",
+      ]),
+    ),
+    paidAt: normalizeText(
+      pickFirstValue(payload, [
+        "paidAt",
+        "transDate",
+        "transactionDate",
+        "date",
+        "rawSlip.transDate",
+      ]),
+    ),
+  };
+
+  result.suggestion =
+    result.amountMatched === true && result.duplicate !== true
+      ? "approve"
+      : result.amountMatched === false
+        ? "review_amount"
+        : result.duplicate === true
+          ? "review_duplicate"
+          : "manual_review";
+  result.summary = buildThunderVerificationSummary(result);
+  return result;
+}
+
+async function verifyTopupSlipWithThunder(adminUser, orderId) {
+  assertAdminUser(adminUser);
+  const cleanOrderId = String(orderId || "").trim();
+  if (!cleanOrderId) {
+    const error = new Error("ไม่พบรหัสรายการเติมเงิน");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const orderRef = adminDb.collection("topupOrders").doc(cleanOrderId);
+  const snapshot = await orderRef.get();
+  if (!snapshot.exists) {
+    const error = new Error("ไม่พบรายการเติมเงินนี้");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const order = snapshot.data() || {};
+  if (!order.slipDataUrl) {
+    const error = new Error("รายการนี้ยังไม่มีรูปสลิปให้ตรวจ");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  try {
+    const result = await callThunderVerifySlip({
+      ...order,
+      orderId: cleanOrderId,
+    });
+    await orderRef.set(
+      {
+        slipVerification: {
+          provider: result.provider,
+          status: result.status,
+          statusCode: result.statusCode,
+          message: result.message,
+          expectedAmount: result.expectedAmount,
+          amountInSlip: result.amountInSlip,
+          amountMatched: result.amountMatched,
+          duplicate: result.duplicate,
+          matchedAccount: result.matchedAccount,
+          receiverName: result.receiverName,
+          transactionRef: result.transactionRef,
+          paidAt: result.paidAt,
+          suggestion: result.suggestion,
+          summary: result.summary,
+          verifiedAt: FieldValue.serverTimestamp(),
+          verifiedByUid: adminUser.uid,
+          verifiedByEmail: adminUser.email,
+        },
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+
+    return {
+      ok: true,
+      orderId: cleanOrderId,
+      ...result,
+    };
+  } catch (error) {
+    await orderRef.set(
+      {
+        slipVerification: {
+          provider: "thunder",
+          status: "error",
+          statusCode: error.code || "THUNDER_VERIFY_FAILED",
+          message: error.message || "Thunder ตรวจสลิปไม่สำเร็จ",
+          suggestion: "manual_review",
+          summary: error.message || "Thunder ตรวจสลิปไม่สำเร็จ",
+          verifiedAt: FieldValue.serverTimestamp(),
+          verifiedByUid: adminUser.uid,
+          verifiedByEmail: adminUser.email,
+        },
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+    throw error;
+  }
 }
 
 async function createTopupOrderForUser(user, payload) {
@@ -1568,6 +1849,42 @@ export const rejectTopupOrder = onRequest(
       sendJson(res, 200, { ok: true, ...result });
     } catch (error) {
       sendJson(res, error.statusCode || 400, {
+        error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  },
+);
+
+export const verifyTopupSlip = onRequest(
+  {
+    region: "asia-southeast1",
+    cors: true,
+    secrets: [thunderApiKey],
+    timeoutSeconds: 60,
+    memory: "256MiB",
+  },
+  async (req, res) => {
+    setCors(res);
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      const adminUser = await verifySignedInUser(req);
+      const payload = await readJsonBody(req);
+      const result = await verifyTopupSlipWithThunder(adminUser, payload.orderId);
+      sendJson(res, 200, result);
+    } catch (error) {
+      sendJson(res, error.statusCode || 400, {
+        ok: false,
         error: error.message || "Unknown error",
         code: error.code || "UNKNOWN_ERROR",
       });
