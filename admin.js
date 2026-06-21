@@ -406,6 +406,15 @@ function closeSlipDialog() {
   if (!adminSlipDialog?.open) return;
   adminSlipDialog.close();
 }
+
+function confirmTopupDecision(orderId, decision) {
+  const order = allTopupOrders.find((item) => item.id === orderId);
+  const actionText = decision === "approve" ? "อนุมัติ" : "ปฏิเสธ";
+  const packageText = order?.packageLabel || order?.packageId || "รายการเติมเงิน";
+  const buyerText = order?.displayName || order?.email || "ผู้ใช้นี้";
+  return window.confirm(`${actionText} ${packageText} ของ ${buyerText} ใช่หรือไม่?`);
+}
+
 function slugifyPromptId(title) {
   const text = String(title || "prompt")
     .trim()
@@ -982,13 +991,17 @@ document.addEventListener("click", async (event) => {
   }
   const topupButton = event.target.closest("[data-approve-topup]");
   if (topupButton) {
-    await reviewTopupOrder(topupButton.dataset.approveTopup, "approve", topupButton);
+    const orderId = topupButton.dataset.approveTopup;
+    if (!confirmTopupDecision(orderId, "approve")) return;
+    await reviewTopupOrder(orderId, "approve", topupButton);
     return;
   }
 
   const rejectTopupButton = event.target.closest("[data-reject-topup]");
   if (rejectTopupButton) {
-    await reviewTopupOrder(rejectTopupButton.dataset.rejectTopup, "reject", rejectTopupButton);
+    const orderId = rejectTopupButton.dataset.rejectTopup;
+    if (!confirmTopupDecision(orderId, "reject")) return;
+    await reviewTopupOrder(orderId, "reject", rejectTopupButton);
     return;
   }
 
