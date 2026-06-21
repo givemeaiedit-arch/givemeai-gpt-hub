@@ -88,6 +88,7 @@ function getMemberLevel(profile, user) {
   ].map(normalizeAccessValue);
 
   if (values.includes("admin")) return "admin";
+  if (values.includes("master")) return "master";
   if (values.includes("pro") || values.includes("active")) return "pro";
   return "free";
 }
@@ -160,11 +161,23 @@ function updateMembershipUi(user, profile) {
   if (inlinePanel) inlinePanel.hidden = !user || level !== "free";
   if (upgradePanel) upgradePanel.hidden = !user || level !== "free";
 
-  if (userStatus) {
-    const email = profile?.email || "เข้าสู่ระบบแล้ว";
-    userStatus.textContent =
-      level === "admin" ? `Admin • ${email}` : level === "pro" ? `Pro • ${email}` : email;
+  if (!userStatus) return;
+  const email = profile?.email || "Signed in";
+
+  if (level === "admin") {
+    userStatus.textContent = `Admin | ${email}`;
+    return;
   }
+  if (level === "master") {
+    userStatus.textContent = `Master | ${email}`;
+    return;
+  }
+  if (level === "pro") {
+    userStatus.textContent = `Pro | ${email}`;
+    return;
+  }
+
+  userStatus.textContent = email;
 }
 
 async function redeemProCode(inputId, buttonId, panelSelector) {
@@ -226,10 +239,10 @@ async function setAuthUi(user) {
   if (userBadge) userBadge.hidden = !user;
 
   if (userAvatar) userAvatar.src = profile.photoURL || fallbackAvatar;
-  if (userName) userName.textContent = profile.displayName || "ผู้ใช้ Gmail";
-  if (userStatus) userStatus.textContent = profile.email || "เข้าสู่ระบบแล้ว";
+  if (userName) userName.textContent = profile.displayName || "Google user";
+  if (userStatus) userStatus.textContent = profile.email || "Signed in";
 
-  setMessage(user ? "เข้าสู่ระบบเรียบร้อย พร้อมเริ่มใช้งาน AI Hub" : "พร้อมเริ่มเรียนรู้และใช้งาน AI ในเว็บเดียว");
+  setMessage(user ? "Signed in successfully. AI Hub is ready." : "Ready to explore AI Hub.");
   updateMembershipUi(user, profile);
 }
 
@@ -408,23 +421,23 @@ loginButton?.addEventListener("click", async () => {
   try {
     await signInWithGoogle();
   } catch (error) {
-    setMessage(error.message === "Firebase is not configured." ? "ยังไม่ได้ตั้งค่า Firebase" : "เข้าสู่ระบบไม่สำเร็จ");
+    setMessage(error.message === "Firebase is not configured." ? "Firebase is not configured yet." : "Sign-in failed.");
   }
 });
 
 logoutButton?.addEventListener("click", async () => {
   await signOutUser();
-  setMessage("ออกจากระบบแล้ว");
+  setMessage("Signed out.");
 });
 
 mobileLogoutButton?.addEventListener("click", async () => {
   await signOutUser();
-  setMessage("เธญเธญเธเธเธฒเธเธฃเธฐเธเธเนเธฅเนเธง");
+  setMessage("Signed out.");
 });
 
 if (!isFirebaseConfigured()) {
   loginButton?.setAttribute("disabled", "true");
-  setMessage("ยังไม่ได้ตั้งค่า Firebase");
+  setMessage("Firebase is not configured yet.");
 } else {
   watchAuth(async ({ user }) => {
     currentUser = user;

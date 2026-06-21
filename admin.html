@@ -18,16 +18,20 @@
 
         <nav class="side-nav">
           <a class="nav-item" href="index.html"><span class="nav-icon">⌂</span>หน้าหลัก</a>
-          <a class="nav-item" href="tools.html"><span class="nav-icon">✌</span>เครื่องมือทั้งหมด</a>
-          <a class="nav-item" href="ai-check-ads.html"><span class="nav-icon">✓</span>AI Check Ads</a>
-          <a class="nav-item" href="profile.html"><span class="nav-icon">☻</span>โปรไฟล์ของฉัน</a>
+          <a class="nav-item" href="courses.html"><span class="nav-icon">▦</span>คอร์สเรียน</a>
+          <a class="nav-item" href="articles.html"><span class="nav-icon">☰</span>บทความ & เทคนิค</a>
+          <a class="nav-item" href="prompts.html"><span class="nav-icon">▣</span>Prompt ยอดนิยม</a>
+          <a class="nav-item" href="tools.html"><span class="nav-icon">⌘</span>เครื่องมือทั้งหมด</a>
+          <a class="nav-item" href="ai-check-ads.html"><span class="nav-icon">◎</span>AI Check Ads</a>
+          <a class="nav-item" href="topup.html"><span class="nav-icon">◔</span>เติมเงิน</a>
+          <a class="nav-item" href="profile.html"><span class="nav-icon">◉</span>โปรไฟล์</a>
           <a class="nav-item active" href="admin.html"><span class="nav-icon">A</span>Admin Panel</a>
         </nav>
 
-        <section class="upgrade-card" aria-label="Admin">
+        <section class="upgrade-card" aria-label="Admin Only">
           <div class="upgrade-title">Admin Only</div>
-          <p>หน้านี้อ่านข้อมูลผู้ใช้และประวัติ AI Check Ads ได้เฉพาะบัญชี Admin เท่านั้น</p>
-          <a class="orange-button" href="ai-check-ads.html">กลับไป Check Ads <span>→</span></a>
+          <p>จัดการสมาชิก แก้เครดิต ตรวจสลิป เติมสิทธิ์ และดูประวัติการใช้งาน AI Check Ads จากหน้านี้ได้โดยตรง</p>
+          <a class="orange-button" href="ai-check-ads.html">กลับไปหน้า Check Ads <span>→</span></a>
         </section>
       </aside>
 
@@ -35,7 +39,12 @@
         <header class="topbar">
           <label class="search-box">
             <span aria-hidden="true">⌕</span>
-            <input id="adminSearchInput" type="search" placeholder="ค้นหาอีเมล ชื่อไฟล์ หรือชื่อสินค้า..." aria-label="ค้นหาใน Admin Panel" />
+            <input
+              id="adminSearchInput"
+              type="search"
+              placeholder="ค้นหาอีเมล ชื่อผู้ใช้ ชื่อไฟล์ หรือชื่อสินค้า..."
+              aria-label="ค้นหาใน Admin Panel"
+            />
             <kbd>⌘ K</kbd>
           </label>
 
@@ -48,21 +57,21 @@
                 <a id="userStatus" class="user-status-link" href="profile.html">เข้าสู่ระบบแล้ว</a>
               </span>
             </div>
-            <button class="logout-chip" id="logoutButton" type="button" hidden>ออก</button>
+            <button class="logout-chip" id="logoutButton" type="button" hidden>ออกจากระบบ</button>
           </div>
         </header>
 
-        <p class="system-message" id="systemMessage">Admin Dashboard สำหรับดูผู้ใช้และประวัติ AI Check Ads</p>
+        <p class="system-message" id="systemMessage">หลังบ้านสำหรับจัดการสมาชิก เครดิต และประวัติการใช้งาน AI Check Ads</p>
 
         <section class="leaderboard-hero admin-hero admin-anchor-section" id="adminOverviewSection">
           <div>
             <p class="tools-kicker">ADMIN DASHBOARD</p>
             <h1>หลังบ้าน GivemeAI</h1>
-            <p>ดูรายชื่อผู้ใช้ ดูประวัติการ Check Ads และตรวจว่าใครเช็คไฟล์ไหนเมื่อไหร่</p>
+            <p>ดูรายชื่อผู้ใช้ เปลี่ยนสถานะสมาชิก แก้เครดิต ตรวจสลิปเติมเงิน และตรวจประวัติการใช้งานได้ในหน้าเดียว</p>
           </div>
           <div class="leaderboard-status-card">
             <strong id="adminStatus">กรุณา Login ด้วยบัญชี Admin</strong>
-            <span>Admin: Givemeai.edit@gmail.com</span>
+            <span>Admin หลัก: Givemeai.edit@gmail.com</span>
           </div>
         </section>
 
@@ -76,7 +85,7 @@
             <strong id="adminCheckCount">0</strong>
           </article>
           <article>
-            <span>ล่าสุด</span>
+            <span>รายการล่าสุด</span>
             <strong id="adminLatestTime">-</strong>
           </article>
         </section>
@@ -103,7 +112,7 @@
                   <tr>
                     <th>ผู้ใช้</th>
                     <th>อีเมล</th>
-                    <th>ระดับ</th>
+                    <th>สถานะ</th>
                     <th>อัปเดตล่าสุด</th>
                     <th></th>
                   </tr>
@@ -143,7 +152,7 @@
           </div>
           <div class="profile-actions">
             <button class="orange-button" id="generateProCodeButton" type="button">สร้าง Pro Code</button>
-            <div class="profile-status" id="proCodeStatus" data-tone="muted">สร้าง code 5 หลักแบบตัวอักษรอังกฤษปนตัวเลข และเก็บไว้ใช้ภายหลังได้</div>
+            <div class="profile-status" id="proCodeStatus" data-tone="muted">สร้างโค้ด 5 หลักแบบตัวอักษรอังกฤษปนตัวเลข และเก็บไว้ใช้ภายหลังได้</div>
           </div>
           <div class="leaderboard-table-wrap">
             <table class="leaderboard-table admin-table">
@@ -172,7 +181,7 @@
                 <tr>
                   <th>เวลา</th>
                   <th>ผู้ใช้</th>
-                  <th>แพ็ก</th>
+                  <th>แพ็กเกจ</th>
                   <th>ราคา</th>
                   <th>สถานะ</th>
                   <th>สลิป</th>
@@ -187,7 +196,7 @@
         <section class="leaderboard-table-card admin-card prompt-admin-card admin-anchor-section" id="adminPromptSection">
           <div class="panel-heading">
             <h2>จัดการ Prompt</h2>
-            <span id="adminPromptsLabel">แก้ไข เพิ่ม ลบ และตั้งรูปตัวอย่าง</span>
+            <span id="adminPromptsLabel">แก้ไข เพิ่ม ลบ และตั้งรูปตัวอย่างได้</span>
           </div>
 
           <form class="prompt-admin-form" id="promptAdminForm">
@@ -218,7 +227,7 @@
             </label>
             <label class="prompt-admin-wide">
               <span>รูปตัวอย่าง / Banner URL</span>
-              <input id="promptCoverInput" type="text" placeholder="assets/banners/โปรโมทร้านอาหาร.png หรือ URL รูปภาพ" />
+              <input id="promptCoverInput" type="text" placeholder="assets/banners/example.png หรือ URL รูปภาพ" />
             </label>
             <div class="prompt-admin-preview">
               <img id="promptCoverPreview" src="assets/banners/สร้างภาพโปรโมท.png" alt="ตัวอย่างรูป Prompt" />
@@ -263,11 +272,9 @@
         <section class="profile-card admin-profile-card admin-anchor-section" id="adminProfileSection">
           <div class="panel-heading">
             <h2>โปรไฟล์และประวัติรายคน</h2>
-            <span>เลือกผู้ใช้จากตารางเพื่อดูรายละเอียด</span>
+            <span>เลือกผู้ใช้จากตารางเพื่อดูรายละเอียด แก้สถานะ และแก้เครดิต</span>
           </div>
-          <div id="adminProfileDetail" class="admin-profile-empty">
-            ยังไม่ได้เลือกผู้ใช้
-          </div>
+          <div id="adminProfileDetail" class="admin-profile-empty">ยังไม่ได้เลือกผู้ใช้</div>
           <div class="leaderboard-table-wrap">
             <table class="leaderboard-table admin-table">
               <thead>
@@ -283,6 +290,7 @@
             </table>
           </div>
         </section>
+
         <dialog class="prompt-dialog admin-slip-dialog" id="adminSlipDialog">
           <button class="prompt-dialog-close" id="adminSlipDialogClose" type="button" aria-label="ปิด">×</button>
           <div class="prompt-dialog-head">
@@ -304,13 +312,13 @@
 
     <nav class="bottom-nav" aria-label="เมนูมือถือ">
       <a href="index.html"><span>⌂</span>หน้าหลัก</a>
-      <a href="tools.html"><span>✇</span>เครื่องมือ</a>
-      <a href="ai-check-ads.html"><span>✓</span>Check Ads</a>
-      <a href="profile.html"><span>☻</span>โปรไฟล์</a>
+      <a href="courses.html"><span>▦</span>คอร์ส</a>
+      <a href="articles.html"><span>☰</span>บทความ</a>
+      <a href="tools.html"><span>⌘</span>เครื่องมือ</a>
+      <a href="profile.html"><span>◉</span>โปรไฟล์</a>
       <a class="active" href="admin.html"><span>A</span>Admin</a>
     </nav>
 
-    <script src="shared-shell.js"></script>
     <script src="prompt-data.js"></script>
     <script type="module" src="app.js"></script>
     <script type="module" src="admin.js"></script>

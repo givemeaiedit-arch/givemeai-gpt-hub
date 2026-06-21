@@ -56,6 +56,12 @@ const TOPUP_PACKAGES = {
     type: "pro-lifetime",
   },
 };
+TOPUP_PACKAGES["credit-50"].label = "Credit Check ADS 8 ครั้ง";
+TOPUP_PACKAGES["credit-100"].label = "Credit Check ADS 20 ครั้ง";
+TOPUP_PACKAGES["credit-200"].label = "Credit Check ADS 45 ครั้ง";
+TOPUP_PACKAGES["pro-monthly"].label = "Pro 30 วัน";
+TOPUP_PACKAGES["pro-lifetime"].label = "Master ตลอดชีพ";
+TOPUP_PACKAGES["pro-lifetime"].type = "master-lifetime";
 const FREE_LIMIT_EXCEEDED_MESSAGE =
   "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว สามารถเติมเงินเพิ่มในหน้าเติมเงิน หรือสมัคร Pro 289 บาทต่อเดือน เพื่อใช้ Check Ads ได้วันละ 10 ครั้ง พร้อมคอร์สเรียน AI มากกว่า 20 บทและเครื่องมือ AI ใหม่ ๆ ในอนาคต หากต้องการราคาพิเศษสำหรับองค์กร ติดต่อ Admin ได้ค่ะ ที่ page AI ภาพนี้ให้หน่อย";
 
@@ -384,7 +390,7 @@ function isProProfile(profileData) {
     profileData?.memberLevel,
     profileData?.subscriptionStatus,
   ].map((value) => normalizeEmail(value));
-  return values.includes("pro") || values.includes("admin");
+  return values.includes("pro") || values.includes("master") || values.includes("admin");
 }
 
 function buildLimitErrorPayload(message) {
@@ -786,9 +792,10 @@ async function reviewTopupOrder(decision, actor, orderId) {
       if (plan.type === "credit") {
         userPatch.adCheckCredits = FieldValue.increment(plan.credits);
       } else {
-        userPatch.plan = "pro";
-        userPatch.tier = "pro";
-        userPatch.memberLevel = "pro";
+        const accessLevel = plan.type === "master-lifetime" ? "master" : "pro";
+        userPatch.plan = accessLevel;
+        userPatch.tier = accessLevel;
+        userPatch.memberLevel = accessLevel;
         userPatch.subscriptionStatus = "active";
         userPatch.dailyAdCheckLimit = 10;
         userPatch.proActivatedAt = FieldValue.serverTimestamp();

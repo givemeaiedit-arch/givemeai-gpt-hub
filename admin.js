@@ -2,6 +2,7 @@
 import {
   collection,
   deleteDoc,
+  deleteField,
   doc,
   getDoc,
   getDocs,
@@ -70,6 +71,7 @@ let allTopupOrders = [];
 let allPrompts = [];
 let remotePromptMap = new Map();
 let currentAdmin = null;
+let selectedProfileUid = "";
 
 function isAdminUser(user) {
   return ADMIN_EMAILS.has(String(user?.email || "").trim().toLowerCase());
@@ -88,6 +90,7 @@ function getMemberLevel(data) {
   ].map(normalizeAccessValue);
 
   if (values.includes("admin")) return "Admin";
+  if (values.includes("master")) return "Master";
   if (values.includes("pro") || values.includes("active")) return "Pro";
   return "Free";
 }
@@ -118,8 +121,31 @@ function formatDate(value) {
   });
 }
 
+function getMemberKey(data) {
+  if (ADMIN_EMAILS.has(normalizeAccessValue(data?.email))) return "admin";
+  const values = [
+    data?.plan,
+    data?.tier,
+    data?.memberLevel,
+    data?.subscriptionStatus,
+  ].map(normalizeAccessValue);
+
+  if (values.includes("admin")) return "admin";
+  if (values.includes("master")) return "master";
+  if (values.includes("pro") || values.includes("active")) return "pro";
+  return "free";
+}
+
+function getProfileExpiryLabel(profile) {
+  const memberKey = getMemberKey(profile);
+  if (memberKey === "master" || profile?.proLifetime) return "ไม่หมดอายุ";
+  if (memberKey !== "pro") return "-";
+  if (!profile?.proExpiresAt) return "ยังไม่ได้กำหนด";
+  return formatDate(profile.proExpiresAt);
+}
+
 function getProfileName(data) {
-  return data.displayName || data.googleDisplayName || data.email?.split("@")[0] || "เธเธนเนเนเธเน Gmail";
+  return data.displayName || data.googleDisplayName || data.email?.split("@")[0] || "ผู้ใช้ Gmail";
 }
 
 function getProfilePhoto(data) {
@@ -180,10 +206,10 @@ function filterData() {
 }
 
 function renderUsers(users) {
-  if (adminUsersLabel) adminUsersLabel.textContent = `${users.length} users`;
+  if (adminUsersLabel) adminUsersLabel.textContent = `${users.length} บัญชี`;
 
   if (!users.length) {
-    setEmptyTable(adminUsersBody, "เธขเธฑเธเนเธกเนเธกเธตเธเธนเนเนเธเน", 5);
+    setEmptyTable(adminUsersBody, "ยังไม่มีผู้ใช้", 5);
     return;
   }
 
@@ -200,7 +226,7 @@ function renderUsers(users) {
           <td>${escapeHtml(user.email || "-")}</td>
           <td>${escapeHtml(user.memberLevel)}</td>
           <td>${formatDate(user.updatedAt)}</td>
-          <td><button class="soft-button admin-small-button" type="button" data-admin-user="${escapeHtml(user.uid)}">เธ”เธนเนเธเธฃเนเธเธฅเน</button></td>
+          <td><button class="soft-button admin-small-button" type="button" data-admin-user="${escapeHtml(user.uid)}">ดูโปรไฟล์</button></td>
         </tr>
       `,
     )
@@ -208,10 +234,10 @@ function renderUsers(users) {
 }
 
 function renderHistory(history) {
-  if (adminHistoryLabel) adminHistoryLabel.textContent = `${history.length} checks`;
+  if (adminHistoryLabel) adminHistoryLabel.textContent = `${history.length} รายการ`;
 
   if (!history.length) {
-    setEmptyTable(adminHistoryBody, "เธขเธฑเธเนเธกเนเธกเธตเธเธฃเธฐเธงเธฑเธ•เธด Check Ads", 6);
+    setEmptyTable(adminHistoryBody, "ยังไม่มีประวัติ Check Ads", 6);
     return;
   }
 
@@ -224,7 +250,7 @@ function renderHistory(history) {
           <td>${escapeHtml(item.fileName || "-")}</td>
           <td>${escapeHtml(item.productName || "-")}</td>
           <td>${Number(item.score || 0)}/100</td>
-          <td><button class="soft-button admin-small-button" type="button" data-admin-user="${escapeHtml(item.uid)}">เธ”เธนเนเธเธฃเนเธเธฅเน</button></td>
+          <td><button class="soft-button admin-small-button" type="button" data-admin-user="${escapeHtml(item.uid)}">ดูโปรไฟล์</button></td>
         </tr>
       `,
     )
@@ -232,10 +258,10 @@ function renderHistory(history) {
 }
 
 function renderProCodes(codes) {
-  if (proCodesLabel) proCodesLabel.textContent = `${codes.length} codes`;
+  if (proCodesLabel) proCodesLabel.textContent = `${codes.length} โค้ด`;
 
   if (!codes.length) {
-    setEmptyTable(proCodesBody, "เธขเธฑเธเนเธกเนเธกเธต Pro Code", 5);
+    setEmptyTable(proCodesBody, "ยังไม่มี Pro Code", 5);
     return;
   }
 
@@ -257,11 +283,11 @@ function renderProCodes(codes) {
 }
 
 function renderTopupOrders(orders) {
-  if (topupOrdersLabel) topupOrdersLabel.textContent = `${orders.length} orders`;
+  if (topupOrdersLabel) topupOrdersLabel.textContent = `${orders.length} รายการ`;
   if (!topupOrdersBody) return;
 
   if (!orders.length) {
-    setEmptyTable(topupOrdersBody, "เธขเธฑเธเนเธกเนเธกเธตเธเธณเธเธญเน€เธ•เธดเธกเน€เธเธดเธ", 7);
+    setEmptyTable(topupOrdersBody, "ยังไม่มีคำขอเติมเงิน", 7);
     return;
   }
 
@@ -275,7 +301,7 @@ function renderTopupOrders(orders) {
             <small>${escapeHtml(item.email || "-")}</small>
           </td>
           <td>${escapeHtml(item.packageLabel || item.packageId || "-")}</td>
-          <td>${item.price} เธเธฒเธ—</td>
+          <td>${item.price} บาท</td>
           <td>
             <strong>${escapeHtml(item.status)}</strong>
             ${
@@ -319,11 +345,11 @@ function renderPromptCategories() {
 }
 
 function renderAdminPrompts(prompts) {
-  if (adminPromptsLabel) adminPromptsLabel.textContent = `${prompts.length} prompts`;
+  if (adminPromptsLabel) adminPromptsLabel.textContent = `${prompts.length} รายการ`;
 
   if (!adminPromptsBody) return;
   if (!prompts.length) {
-    setEmptyTable(adminPromptsBody, "เธขเธฑเธเนเธกเนเธกเธต Prompt", 5);
+    setEmptyTable(adminPromptsBody, "ยังไม่มี Prompt", 5);
     return;
   }
 
@@ -337,8 +363,8 @@ function renderAdminPrompts(prompts) {
           </td>
           <td>${escapeHtml(prompt.categoryName || prompt.category || "-")}</td>
           <td><img class="admin-prompt-thumb" src="${escapeHtml(prompt.cover || "")}" alt="" /></td>
-          <td>${prompt.deleted ? "เธเนเธญเธเนเธฅเนเธง" : prompt.source === "firestore" ? "เนเธเนเนเธเนเธฅเนเธง" : "เธเนเธฒเน€เธฃเธดเนเธกเธ•เนเธ"}</td>
-          <td><button class="soft-button admin-small-button" type="button" data-edit-prompt="${escapeHtml(prompt.id)}">เนเธเนเนเธ</button></td>
+          <td>${prompt.deleted ? "ซ่อนแล้ว" : prompt.source === "firestore" ? "แก้ไขแล้ว" : "ค่าเริ่มต้น"}</td>
+          <td><button class="soft-button admin-small-button" type="button" data-edit-prompt="${escapeHtml(prompt.id)}">แก้ไข</button></td>
         </tr>
       `,
     )
@@ -384,7 +410,7 @@ function slugifyPromptId(title) {
   const text = String(title || "prompt")
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9เธ-เน]+/gi, "-")
+    .replace(/[^a-z0-9ก-๙]+/gi, "-")
     .replace(/^-+|-+$/g, "");
   return text || `prompt-${Date.now()}`;
 }
@@ -430,18 +456,22 @@ function buildPromptList(remotePrompts) {
 
 function normalizeUserDoc(entry) {
   const data = entry.data() || {};
+  const email = data.email || "";
   return {
     uid: entry.id,
-    email: data.email || "",
+    email,
     displayName: getProfileName(data),
     photoURL: getProfilePhoto(data),
-    memberLevel: getMemberLevel(data),
+    memberLevel: ADMIN_EMAILS.has(normalizeAccessValue(email)) ? "Admin" : getMemberLevel(data),
     updatedAt: data.updatedAt,
     createdAt: data.createdAt,
     plan: data.plan || "",
     tier: data.tier || "",
     subscriptionStatus: data.subscriptionStatus || "",
     proCode: data.proCode || "",
+    adCheckCredits: Number(data.adCheckCredits || 0),
+    proExpiresAt: data.proExpiresAt || null,
+    proLifetime: Boolean(data.proLifetime),
   };
 }
 
@@ -471,7 +501,7 @@ function normalizeProCodeDoc(entry) {
     id: entry.id,
     code: data.code || entry.id,
     status,
-    statusLabel: status === "redeemed" ? "เนเธเนเนเธฅเนเธง" : "เธเธฃเนเธญเธกเนเธเน",
+    statusLabel: status === "redeemed" ? "ใช้แล้ว" : "พร้อมใช้",
     createdAt: data.createdAt,
     createdByEmail: data.createdByEmail || "",
     redeemedByEmail,
@@ -503,7 +533,7 @@ function normalizeTopupOrderDoc(entry) {
 
 async function loadAdminData() {
   if (!isFirebaseConfigured()) {
-    setAdminStatus("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ Firebase", "error");
+    setAdminStatus("ยังไม่ได้ตั้งค่า Firebase", "error");
     return;
   }
 
@@ -513,7 +543,7 @@ async function loadAdminData() {
   const proCodesQuery = query(collection(services.db, "proCodes"), orderBy("createdAt", "desc"), limit(200));
   const topupOrdersQuery = query(collection(services.db, "topupOrders"), orderBy("createdAt", "desc"), limit(50));
 
-  setAdminStatus("เธเธณเธฅเธฑเธเนเธซเธฅเธ”เธเนเธญเธกเธนเธฅเธซเธฅเธฑเธเธเนเธฒเธ...", "loading");
+  setAdminStatus("กำลังโหลดข้อมูลหลังบ้าน...", "loading");
 
   const [usersSnapshot, historySnapshot, proCodesSnapshot, topupOrdersSnapshot, promptSnapshot] = await Promise.all([
     getDocs(usersQuery),
@@ -532,21 +562,21 @@ async function loadAdminData() {
   allPrompts = buildPromptList(remotePrompts);
 
   renderAll();
-  setAdminStatus("เนเธซเธฅเธ”เธเนเธญเธกเธนเธฅ Admin เธชเธณเน€เธฃเนเธ", "success");
+  setAdminStatus("โหลดข้อมูล Admin สำเร็จ", "success");
 }
 
 function resetPromptForm() {
   promptAdminForm?.reset();
   if (promptEditId) promptEditId.value = "";
-  if (promptCoverInput) promptCoverInput.value = "assets/banners/เธชเธฃเนเธฒเธเธ เธฒเธเนเธเธฃเนเธกเธ—.png";
+  if (promptCoverInput) promptCoverInput.value = "assets/banners/สร้างภาพโปรโมท.png";
   updatePromptPreview();
   if (deletePromptButton) deletePromptButton.disabled = true;
-  setPromptAdminStatus("เธเธฃเธญเธเธเนเธญเธกเธนเธฅเน€เธเธทเนเธญเน€เธเธดเนเธก Prompt เนเธซเธกเน เธซเธฃเธทเธญเน€เธฅเธทเธญเธเธเธฒเธเธ•เธฒเธฃเธฒเธเน€เธเธทเนเธญเนเธเนเนเธ", "muted");
+  setPromptAdminStatus("กรอกข้อมูลเพื่อเพิ่ม Prompt ใหม่ หรือเลือกจากตารางเพื่อแก้ไข", "muted");
 }
 
 function updatePromptPreview() {
   if (!promptCoverPreview) return;
-  const src = promptCoverInput?.value?.trim() || "assets/banners/เธชเธฃเนเธฒเธเธ เธฒเธเนเธเธฃเนเธกเธ—.png";
+  const src = promptCoverInput?.value?.trim() || "assets/banners/สร้างภาพโปรโมท.png";
   promptCoverPreview.src = src;
 }
 
@@ -559,13 +589,13 @@ function fillPromptForm(prompt) {
   if (promptTagsInput) promptTagsInput.value = (prompt.tags || []).join(", ");
   if (promptSummaryInput) promptSummaryInput.value = prompt.summary || "";
   if (promptTextInput) promptTextInput.value = prompt.prompt || "";
-  if (promptCoverInput) promptCoverInput.value = prompt.cover || "assets/banners/เธชเธฃเนเธฒเธเธ เธฒเธเนเธเธฃเนเธกเธ—.png";
+  if (promptCoverInput) promptCoverInput.value = prompt.cover || "assets/banners/สร้างภาพโปรโมท.png";
   if (promptRatingInput) promptRatingInput.value = prompt.rating || 4.8;
   if (promptUsesInput) promptUsesInput.value = prompt.uses || 0;
   if (promptFeaturedInput) promptFeaturedInput.checked = Boolean(prompt.featured);
   if (deletePromptButton) deletePromptButton.disabled = false;
   updatePromptPreview();
-  setPromptAdminStatus(`เธเธณเธฅเธฑเธเนเธเนเนเธ: ${prompt.title}`, "muted");
+  setPromptAdminStatus(`กำลังแก้ไข: ${prompt.title}`, "muted");
 }
 
 function getPromptFormData() {
@@ -586,7 +616,7 @@ function getPromptFormData() {
     tags,
     rating: Number(promptRatingInput?.value || 4.8),
     uses: Number(promptUsesInput?.value || 0),
-    cover: promptCoverInput?.value?.trim() || "assets/banners/เธชเธฃเนเธฒเธเธ เธฒเธเนเธเธฃเนเธกเธ—.png",
+    cover: promptCoverInput?.value?.trim() || "assets/banners/สร้างภาพโปรโมท.png",
     featured: Boolean(promptFeaturedInput?.checked),
     deleted: false,
   };
@@ -595,13 +625,13 @@ function getPromptFormData() {
 async function savePrompt(event) {
   event?.preventDefault();
   if (!currentAdmin) {
-    setPromptAdminStatus("เธเธฃเธธเธ“เธฒ Login เธ”เนเธงเธขเธเธฑเธเธเธต Admin เธเนเธญเธ", "error");
+    setPromptAdminStatus("กรุณา Login ด้วยบัญชี Admin ก่อน", "error");
     return;
   }
 
   const data = getPromptFormData();
   if (!data.title || !data.summary || !data.prompt) {
-    setPromptAdminStatus("เธเธฃเธธเธ“เธฒเธเธฃเธญเธเธเธทเนเธญ เธเธณเธญเธเธดเธเธฒเธข เนเธฅเธฐ Prompt เนเธซเนเธเธฃเธ", "error");
+    setPromptAdminStatus("กรุณากรอกชื่อ คำอธิบาย และ Prompt ให้ครบ", "error");
     return;
   }
 
@@ -616,11 +646,11 @@ async function savePrompt(event) {
       },
       { merge: true },
     );
-    setPromptAdminStatus(`เธเธฑเธเธ—เธถเธ Prompt "${data.title}" เนเธฅเนเธง`, "success");
+    setPromptAdminStatus(`บันทึก Prompt "${data.title}" แล้ว`, "success");
     await loadAdminData();
     fillPromptForm(allPrompts.find((prompt) => prompt.id === data.id));
   } catch (error) {
-    setPromptAdminStatus(error.message || "เธเธฑเธเธ—เธถเธ Prompt เนเธกเนเธชเธณเน€เธฃเนเธ", "error");
+    setPromptAdminStatus(error.message || "บันทึก Prompt ไม่สำเร็จ", "error");
   }
 }
 
@@ -649,24 +679,42 @@ async function deletePrompt() {
       );
     }
 
-    setPromptAdminStatus(`เธฅเธ Prompt "${prompt.title}" เนเธฅเนเธง`, "success");
+    setPromptAdminStatus(`ลบ Prompt "${prompt.title}" แล้ว`, "success");
     resetPromptForm();
     await loadAdminData();
   } catch (error) {
-    setPromptAdminStatus(error.message || "เธฅเธ Prompt เนเธกเนเธชเธณเน€เธฃเนเธ", "error");
+    setPromptAdminStatus(error.message || "ลบ Prompt ไม่สำเร็จ", "error");
   }
 }
 
 async function loadUserProfile(uid) {
   if (!uid || !currentAdmin) return;
+  selectedProfileUid = uid;
 
   const services = getFirebaseServices();
   const userSnapshot = await getDoc(doc(services.db, "users", uid));
-  const profile = userSnapshot.exists() ? normalizeUserDoc(userSnapshot) : { uid, displayName: "-", email: "-" };
+  const profile = userSnapshot.exists()
+    ? normalizeUserDoc(userSnapshot)
+    : {
+        uid,
+        displayName: "-",
+        email: "-",
+        photoURL: fallbackAvatar,
+        memberLevel: "Free",
+        adCheckCredits: 0,
+      };
   const historySnapshot = await getDocs(
     query(collection(services.db, "users", uid, "adCheckHistory"), orderBy("checkedAt", "desc"), limit(50)),
   );
   const history = historySnapshot.docs.map(normalizeHistoryDoc);
+  const memberKey = getMemberKey(profile);
+  const isLockedAdmin = memberKey === "admin";
+  const statusOptions = [
+    { value: "admin", label: "Admin หลัก" },
+    { value: "free", label: "Free" },
+    { value: "pro", label: "Pro 289 บาท / 30 วัน" },
+    { value: "master", label: "Master 889 บาท / ไม่หมดอายุ" },
+  ];
 
   if (adminProfileDetail) {
     adminProfileDetail.innerHTML = `
@@ -675,16 +723,59 @@ async function loadUserProfile(uid) {
         <div>
           <strong>${escapeHtml(profile.displayName)}</strong>
           <p>${escapeHtml(profile.email || "-")}</p>
-          <small>เธฃเธฐเธ”เธฑเธเธชเธกเธฒเธเธดเธ: ${escapeHtml(profile.memberLevel || "Free")}</small>
+          <small>ระดับสมาชิก: ${escapeHtml(profile.memberLevel || "Free")}</small>
+          <small>วันหมดอายุ: ${escapeHtml(getProfileExpiryLabel(profile))}</small>
           <small>Pro Code: ${escapeHtml(profile.proCode || "-")}</small>
         </div>
-        <span>${history.length} checks</span>
+        <span>${history.length} รายการ</span>
+      </div>
+      <div class="admin-profile-grid">
+        <div class="admin-profile-fields">
+          <article>
+            <span>เครดิตคงเหลือ</span>
+            <strong>${Number(profile.adCheckCredits || 0).toLocaleString("th-TH")}</strong>
+          </article>
+          <article>
+            <span>สถานะปัจจุบัน</span>
+            <strong>${escapeHtml(profile.memberLevel || "Free")}</strong>
+          </article>
+          <article>
+            <span>สร้างบัญชีเมื่อ</span>
+            <strong>${escapeHtml(formatDate(profile.createdAt))}</strong>
+          </article>
+          <article>
+            <span>อัปเดตล่าสุด</span>
+            <strong>${escapeHtml(formatDate(profile.updatedAt))}</strong>
+          </article>
+        </div>
+        <form class="admin-profile-form" id="adminMemberForm" data-locked="${isLockedAdmin ? "true" : "false"}">
+          <input type="hidden" name="uid" value="${escapeHtml(uid)}" />
+          <label>
+            <span>สถานะผู้ใช้</span>
+            <select name="memberLevel"${isLockedAdmin ? " disabled" : ""}>
+              ${statusOptions
+                .map(
+                  (option) =>
+                    `<option value="${escapeHtml(option.value)}"${memberKey === option.value ? " selected" : ""}>${escapeHtml(option.label)}</option>`,
+                )
+                .join("")}
+            </select>
+          </label>
+          <label>
+            <span>เครดิต Check Ads</span>
+            <input name="adCheckCredits" type="number" min="0" step="1" value="${Number(profile.adCheckCredits || 0)}"${isLockedAdmin ? " disabled" : ""} />
+          </label>
+          <div class="admin-profile-form-actions">
+            <button class="orange-button" type="submit"${isLockedAdmin ? " disabled" : ""}>บันทึกสิทธิ์ผู้ใช้</button>
+          </div>
+          <p class="admin-profile-hint">${isLockedAdmin ? "บัญชี Admin หลักถูกล็อกไว้ ไม่สามารถเปลี่ยนสถานะหรือเครดิตจากหน้านี้ได้" : "Pro จะต่ออายุ 30 วันนับจากเวลาที่บันทึก ส่วน Master จะไม่มีวันหมดอายุ"}</p>
+        </form>
       </div>
     `;
   }
 
   if (!history.length) {
-    setEmptyTable(adminUserHistoryBody, "เธเธนเนเนเธเนเธเธตเนเธขเธฑเธเนเธกเนเธกเธตเธเธฃเธฐเธงเธฑเธ•เธด Check Ads", 5);
+    setEmptyTable(adminUserHistoryBody, "ผู้ใช้นี้ยังไม่มีประวัติ Check Ads", 5);
     return;
   }
 
@@ -703,6 +794,86 @@ async function loadUserProfile(uid) {
     .join("");
 }
 
+async function saveUserAccess(event) {
+  event.preventDefault();
+  if (!currentAdmin || !selectedProfileUid) {
+    setAdminStatus("กรุณาเลือกผู้ใช้ที่ต้องการแก้ไขก่อน", "error");
+    return;
+  }
+
+  const form = event.target?.closest("#adminMemberForm");
+  if (!form) return;
+  if (form.dataset.locked === "true") {
+    setAdminStatus("บัญชี Admin หลักไม่สามารถแก้สถานะหรือเครดิตจากหน้านี้ได้", "error");
+    return;
+  }
+  const memberLevel = normalizeAccessValue(form.memberLevel?.value || "free");
+  const credits = Math.max(0, Number(form.adCheckCredits?.value || 0));
+  const services = getFirebaseServices();
+  const userRef = doc(services.db, "users", selectedProfileUid);
+  const patch = {
+    adCheckCredits: credits,
+    updatedAt: serverTimestamp(),
+  };
+
+  if (memberLevel === "free") {
+    Object.assign(patch, {
+      plan: "free",
+      tier: "free",
+      memberLevel: "free",
+      subscriptionStatus: "inactive",
+      proLifetime: deleteField(),
+      proExpiresAt: deleteField(),
+      dailyAdCheckLimit: deleteField(),
+      proActivatedAt: deleteField(),
+      proSource: deleteField(),
+      proTopupOrderId: deleteField(),
+    });
+  } else if (memberLevel === "pro") {
+    Object.assign(patch, {
+      plan: "pro",
+      tier: "pro",
+      memberLevel: "pro",
+      subscriptionStatus: "active",
+      proLifetime: deleteField(),
+      dailyAdCheckLimit: 10,
+      proActivatedAt: serverTimestamp(),
+      proSource: "admin-panel",
+      proExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+  } else if (memberLevel === "master") {
+    Object.assign(patch, {
+      plan: "master",
+      tier: "master",
+      memberLevel: "master",
+      subscriptionStatus: "active",
+      proLifetime: true,
+      proExpiresAt: deleteField(),
+      dailyAdCheckLimit: 10,
+      proActivatedAt: serverTimestamp(),
+      proSource: "admin-panel",
+    });
+  } else {
+    setAdminStatus("ไม่รู้จักสถานะสมาชิกที่เลือก", "error");
+    return;
+  }
+
+  const submitButton = form.querySelector('button[type="submit"]');
+
+  try {
+    if (submitButton) submitButton.disabled = true;
+    setAdminStatus("กำลังบันทึกสิทธิ์ผู้ใช้...", "loading");
+    await setDoc(userRef, patch, { merge: true });
+    await loadAdminData();
+    await loadUserProfile(selectedProfileUid);
+    setAdminStatus("บันทึกเครดิตและสถานะผู้ใช้เรียบร้อย", "success");
+  } catch (error) {
+    setAdminStatus(error.message || "บันทึกข้อมูลผู้ใช้ไม่สำเร็จ", "error");
+  } finally {
+    if (submitButton) submitButton.disabled = false;
+  }
+}
+
 async function copyText(value) {
   if (!value) return;
   await navigator.clipboard.writeText(value);
@@ -710,13 +881,13 @@ async function copyText(value) {
 
 async function generateProCode() {
   if (!currentAdmin) {
-    setProCodeStatus("เธเธฃเธธเธ“เธฒ Login เธ”เนเธงเธขเธเธฑเธเธเธต Admin", "error");
+    setProCodeStatus("กรุณา Login ด้วยบัญชี Admin", "error");
     return;
   }
 
   try {
     if (generateProCodeButton) generateProCodeButton.disabled = true;
-    setProCodeStatus("เธเธณเธฅเธฑเธเธชเธฃเนเธฒเธ Pro Code...", "loading");
+    setProCodeStatus("กำลังสร้าง Pro Code...", "loading");
     const idToken = await currentAdmin.getIdToken();
     const response = await fetch(GENERATE_PRO_CODE_ENDPOINT, {
       method: "POST",
@@ -728,13 +899,13 @@ async function generateProCode() {
     });
     const result = await response.json();
     if (!response.ok) {
-      throw new Error(result?.error || "เธชเธฃเนเธฒเธ Pro Code เนเธกเนเธชเธณเน€เธฃเนเธ");
+      throw new Error(result?.error || "สร้าง Pro Code ไม่สำเร็จ");
     }
 
-    setProCodeStatus(`เธชเธฃเนเธฒเธ Pro Code เธชเธณเน€เธฃเนเธ: ${result.code}`, "success");
+    setProCodeStatus(`สร้าง Pro Code สำเร็จ: ${result.code}`, "success");
     await loadAdminData();
   } catch (error) {
-    setProCodeStatus(error.message || "เธชเธฃเนเธฒเธ Pro Code เนเธกเนเธชเธณเน€เธฃเนเธ", "error");
+    setProCodeStatus(error.message || "สร้าง Pro Code ไม่สำเร็จ", "error");
   } finally {
     if (generateProCodeButton) generateProCodeButton.disabled = false;
   }
@@ -742,7 +913,7 @@ async function generateProCode() {
 
 async function reviewTopupOrder(orderId, decision, button) {
   if (!currentAdmin || !orderId) {
-    setAdminStatus("เธเธฃเธธเธ“เธฒ Login เธ”เนเธงเธขเธเธฑเธเธเธต Admin เธเนเธญเธเธญเธเธธเธกเธฑเธ•เธดเธฃเธฒเธขเธเธฒเธฃเน€เธ•เธดเธกเน€เธเธดเธ", "error");
+    setAdminStatus("กรุณา Login ด้วยบัญชี Admin ก่อนอนุมัติรายการเติมเงิน", "error");
     return;
   }
 
@@ -797,9 +968,9 @@ document.addEventListener("click", async (event) => {
   if (copyButton) {
     try {
       await copyText(copyButton.dataset.copyCode);
-      setProCodeStatus(`เธเธฑเธ”เธฅเธญเธ Code ${copyButton.dataset.copyCode} เนเธฅเนเธง`, "success");
+      setProCodeStatus(`คัดลอก Code ${copyButton.dataset.copyCode} แล้ว`, "success");
     } catch {
-      setProCodeStatus("เธเธฑเธ”เธฅเธญเธ Code เนเธกเนเธชเธณเน€เธฃเนเธ", "error");
+      setProCodeStatus("คัดลอก Code ไม่สำเร็จ", "error");
     }
     return;
   }
@@ -827,6 +998,13 @@ document.addEventListener("click", async (event) => {
   }
 });
 
+document.addEventListener("submit", async (event) => {
+  const memberForm = event.target.closest("#adminMemberForm");
+  if (memberForm) {
+    await saveUserAccess(event);
+  }
+});
+
 adminSearchInput?.addEventListener("input", renderAll);
 generateProCodeButton?.addEventListener("click", generateProCode);
 promptAdminForm?.addEventListener("submit", savePrompt);
@@ -845,7 +1023,7 @@ watchAuth(async ({ user, configured }) => {
   currentAdmin = null;
 
   if (!configured) {
-    setAdminStatus("เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ Firebase", "error");
+    setAdminStatus("ยังไม่ได้ตั้งค่า Firebase", "error");
     return;
   }
 
@@ -853,9 +1031,14 @@ watchAuth(async ({ user, configured }) => {
     allUsers = [];
     allHistory = [];
     allProCodes = [];
+    allTopupOrders = [];
+    allPrompts = [];
+    remotePromptMap = new Map();
+    selectedProfileUid = "";
     renderAll();
-    setAdminStatus("เธเธฃเธธเธ“เธฒ Login เธ”เนเธงเธขเธเธฑเธเธเธต Admin", "muted");
-    setProCodeStatus("เธเธฃเธธเธ“เธฒ Login เธ”เนเธงเธขเธเธฑเธเธเธต Admin", "muted");
+    if (adminProfileDetail) adminProfileDetail.textContent = "ยังไม่ได้เลือกผู้ใช้";
+    setAdminStatus("กรุณา Login ด้วยบัญชี Admin", "muted");
+    setProCodeStatus("กรุณา Login ด้วยบัญชี Admin", "muted");
     return;
   }
 
@@ -863,9 +1046,14 @@ watchAuth(async ({ user, configured }) => {
     allUsers = [];
     allHistory = [];
     allProCodes = [];
+    allTopupOrders = [];
+    allPrompts = [];
+    remotePromptMap = new Map();
+    selectedProfileUid = "";
     renderAll();
-    setAdminStatus("เธเธฑเธเธเธตเธเธตเนเนเธกเนเนเธเน Admin เธเธถเธเธ”เธนเธเนเธญเธกเธนเธฅเธซเธฅเธฑเธเธเนเธฒเธเนเธกเนเนเธ”เน", "error");
-    setProCodeStatus("เธเธฑเธเธเธตเธเธตเนเนเธกเนเนเธเน Admin", "error");
+    if (adminProfileDetail) adminProfileDetail.textContent = "บัญชีนี้ไม่มีสิทธิ์เข้าหลังบ้าน";
+    setAdminStatus("บัญชีนี้ไม่ใช่ Admin จึงดูข้อมูลหลังบ้านไม่ได้", "error");
+    setProCodeStatus("บัญชีนี้ไม่ใช่ Admin", "error");
     return;
   }
 

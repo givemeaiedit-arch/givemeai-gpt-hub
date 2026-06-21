@@ -25,12 +25,34 @@ service cloud.firestore {
       ];
     }
 
+    function adminWritableUserFields() {
+      return [
+        "plan",
+        "tier",
+        "memberLevel",
+        "subscriptionStatus",
+        "adCheckCredits",
+        "proLifetime",
+        "proExpiresAt",
+        "dailyAdCheckLimit",
+        "proActivatedAt",
+        "proSource",
+        "proTopupOrderId",
+        "updatedAt"
+      ];
+    }
+
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
       allow create: if isOwner(userId)
         && request.resource.data.keys().hasOnly(userWritableFields());
-      allow update: if isOwner(userId)
-        && request.resource.data.diff(resource.data).changedKeys().hasOnly(userWritableFields());
+      allow update: if (
+          isOwner(userId)
+          && request.resource.data.diff(resource.data).changedKeys().hasOnly(userWritableFields())
+        ) || (
+          isAdmin()
+          && request.resource.data.diff(resource.data).changedKeys().hasOnly(adminWritableUserFields())
+        );
       allow delete: if false;
 
       match /learningHistory/{itemId} {

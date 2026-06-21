@@ -4657,6 +4657,96 @@ meter::-webkit-meter-optimum-value {
   padding: 8px 12px;
 }
 
+.admin-profile-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+  gap: 16px;
+}
+
+.admin-profile-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-profile-fields article {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: #ffffff;
+}
+
+.admin-profile-fields span {
+  display: block;
+  margin-bottom: 6px;
+  color: #6b7280;
+  font-size: 0.86rem;
+}
+
+.admin-profile-fields strong {
+  display: block;
+  color: #111827;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.admin-profile-form {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  padding: 18px;
+  background: linear-gradient(135deg, #fffaf5, #ffffff);
+}
+
+.admin-profile-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-profile-form span {
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.admin-profile-form input,
+.admin-profile-form select {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #dbe4f0;
+  border-radius: 14px;
+  padding: 0 14px;
+  outline: 0;
+  background: #f8fbff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.admin-profile-form input:focus,
+.admin-profile-form select:focus {
+  border-color: var(--orange);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 100, 0, 0.1);
+}
+
+.admin-profile-form-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.admin-profile-form-actions .orange-button {
+  width: auto;
+  min-width: 220px;
+}
+
+.admin-profile-hint {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
 @media (max-width: 760px) {
   .admin-stat-grid {
     grid-template-columns: 1fr;
@@ -4674,6 +4764,11 @@ meter::-webkit-meter-optimum-value {
 
   .admin-profile-summary > span {
     margin-left: 0;
+  }
+
+  .admin-profile-grid,
+  .admin-profile-fields {
+    grid-template-columns: 1fr;
   }
 }
 
