@@ -57,6 +57,10 @@ function sanitizePhotoURL(value) {
   return typeof value === "string" && value ? value : "";
 }
 
+function sanitizeImagePreview(value) {
+  return typeof value === "string" && /^data:image\//i.test(value) ? value : "";
+}
+
 async function ensureUserDoc(user) {
   const userRef = getUserDocRef(user);
   if (!userRef) return null;
@@ -86,7 +90,6 @@ function buildFallbackProfile(user, customProfile = {}) {
     tier: customProfile.tier || "free",
     memberLevel: customProfile.memberLevel || "free",
     subscriptionStatus: customProfile.subscriptionStatus || "",
-    proCode: customProfile.proCode || "",
   };
 }
 
@@ -112,6 +115,33 @@ async function fetchHistory(user, name, metricField) {
   });
 }
 
+async function fetchAdCheckHistory(user) {
+  const historyRef = getHistoryCollection(user, "adCheckHistory");
+  if (!historyRef) return [];
+
+  const snapshot = await getDocs(query(historyRef, orderBy("checkedAt", "desc"), limit(24)));
+  return snapshot.docs.map((entry) => {
+    const data = entry.data() || {};
+    return {
+      id: entry.id,
+      fileName: data.fileName || "",
+      fileKey: data.fileKey || entry.id,
+      fileSize: Number(data.fileSize || 0),
+      mimeType: data.mimeType || "",
+      productName: data.productName || "",
+      targetMarket: data.targetMarket || "TH",
+      objective: data.objective || "meta_ads_conversion",
+      notes: data.notes || "",
+      score: Number(data.score || data.result?.overall_score || 0),
+      checkedAt: toIsoString(data.checkedAt),
+      updatedAt: toIsoString(data.updatedAt),
+      duplicateHits: Number(data.duplicateHits || 0),
+      imagePreviewDataUrl: sanitizeImagePreview(data.imagePreviewDataUrl),
+      result: data.result && typeof data.result === "object" ? data.result : {},
+    };
+  });
+}
+
 export async function getResolvedProfile(user) {
   if (!user || !isFirebaseConfigured()) return buildFallbackProfile(user);
 
@@ -126,7 +156,6 @@ export async function getResolvedProfile(user) {
       tier: data.tier,
       memberLevel: data.memberLevel,
       subscriptionStatus: data.subscriptionStatus,
-      proCode: data.proCode,
     });
   } catch {
     return buildFallbackProfile(user);
@@ -355,16 +384,18 @@ export async function getProfileDashboard(user) {
       learningHistory: [],
       toolUsage: [],
       lessonScores: [],
+      adCheckHistory: [],
       totalPoints: 0,
       completedLessons: 0,
     };
   }
 
   try {
-    const [learningHistory, toolUsage, lessonScores] = await Promise.all([
+    const [learningHistory, toolUsage, lessonScores, adCheckHistory] = await Promise.all([
       fetchHistory(user, "learningHistory", "views"),
       fetchHistory(user, "toolUsage", "uses"),
       getUserLessonScores(user),
+      fetchAdCheckHistory(user),
     ]);
 
     return {
@@ -372,6 +403,7 @@ export async function getProfileDashboard(user) {
       learningHistory,
       toolUsage,
       lessonScores,
+      adCheckHistory,
       totalPoints: lessonScores.reduce((sum, item) => sum + Number(item.points || 0), 0),
       completedLessons: lessonScores.length,
     };
@@ -381,6 +413,7 @@ export async function getProfileDashboard(user) {
       learningHistory: [],
       toolUsage: [],
       lessonScores: [],
+      adCheckHistory: [],
       totalPoints: 0,
       completedLessons: 0,
     };

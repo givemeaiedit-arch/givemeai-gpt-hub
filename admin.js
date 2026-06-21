@@ -15,8 +15,6 @@ import {
 
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 const fallbackAvatar = "assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png";
-const GENERATE_PRO_CODE_ENDPOINT =
-  "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/generateProCode";
 const APPROVE_TOPUP_ENDPOINT =
   "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/approveTopupOrder";
 const REJECT_TOPUP_ENDPOINT =
@@ -35,12 +33,8 @@ const adminProfileDetail = document.querySelector("#adminProfileDetail");
 const adminUsersLabel = document.querySelector("#adminUsersLabel");
 const adminHistoryLabel = document.querySelector("#adminHistoryLabel");
 const adminSearchInput = document.querySelector("#adminSearchInput");
-const proCodesLabel = document.querySelector("#proCodesLabel");
-const proCodesBody = document.querySelector("#proCodesBody");
 const topupOrdersLabel = document.querySelector("#topupOrdersLabel");
 const topupOrdersBody = document.querySelector("#topupOrdersBody");
-const generateProCodeButton = document.querySelector("#generateProCodeButton");
-const proCodeStatus = document.querySelector("#proCodeStatus");
 const adminPromptsLabel = document.querySelector("#adminPromptsLabel");
 const adminPromptsBody = document.querySelector("#adminPromptsBody");
 const promptAdminForm = document.querySelector("#promptAdminForm");
@@ -68,7 +62,6 @@ const adminSlipDialogMeta = document.querySelector("#adminSlipDialogMeta");
 
 let allUsers = [];
 let allHistory = [];
-let allProCodes = [];
 let allTopupOrders = [];
 let allPrompts = [];
 let remotePromptMap = new Map();
@@ -160,12 +153,6 @@ function setAdminStatus(message, tone = "muted") {
   adminStatus.dataset.tone = tone;
 }
 
-function setProCodeStatus(message, tone = "muted") {
-  if (!proCodeStatus) return;
-  proCodeStatus.textContent = message;
-  proCodeStatus.dataset.tone = tone;
-}
-
 function setPromptAdminStatus(message, tone = "muted") {
   if (!promptAdminStatus) return;
   promptAdminStatus.textContent = message;
@@ -180,7 +167,7 @@ function setEmptyTable(body, message, columnCount = 6) {
 function filterData() {
   const keyword = adminSearchInput?.value?.trim().toLowerCase() || "";
   if (!keyword) {
-    return { users: allUsers, history: allHistory, proCodes: allProCodes, prompts: allPrompts };
+    return { users: allUsers, history: allHistory, prompts: allPrompts };
   }
 
   const users = allUsers.filter((item) => {
@@ -193,18 +180,12 @@ function filterData() {
     return haystack.includes(keyword);
   });
 
-  const proCodes = allProCodes.filter((item) => {
-    const haystack =
-      `${item.code} ${item.statusLabel} ${item.redeemedByEmail} ${item.createdByEmail}`.toLowerCase();
-    return haystack.includes(keyword);
-  });
-
   const prompts = allPrompts.filter((item) => {
     const haystack = `${item.id} ${item.title} ${item.category} ${item.businessType} ${item.summary}`.toLowerCase();
     return haystack.includes(keyword);
   });
 
-  return { users, history, proCodes, prompts };
+  return { users, history, prompts };
 }
 
 function renderUsers(users) {
@@ -253,31 +234,6 @@ function renderHistory(history) {
           <td>${escapeHtml(item.productName || "-")}</td>
           <td>${Number(item.score || 0)}/100</td>
           <td><button class="soft-button admin-small-button" type="button" data-admin-user="${escapeHtml(item.uid)}">ดูโปรไฟล์</button></td>
-        </tr>
-      `,
-    )
-    .join("");
-}
-
-function renderProCodes(codes) {
-  if (proCodesLabel) proCodesLabel.textContent = `${codes.length} โค้ด`;
-
-  if (!codes.length) {
-    setEmptyTable(proCodesBody, "ยังไม่มี Pro Code", 5);
-    return;
-  }
-
-  proCodesBody.innerHTML = codes
-    .map(
-      (item) => `
-        <tr>
-          <td><strong>${escapeHtml(item.code)}</strong></td>
-          <td>${escapeHtml(item.statusLabel)}</td>
-          <td>${formatDate(item.createdAt)}</td>
-          <td>${escapeHtml(item.redeemedByEmail || "-")}</td>
-          <td>
-            <button class="soft-button admin-small-button" type="button" data-copy-code="${escapeHtml(item.code)}">Copy</button>
-          </td>
         </tr>
       `,
     )
@@ -424,10 +380,9 @@ function renderAdminPrompts(prompts) {
 }
 
 function renderAll() {
-  const { users, history, proCodes, prompts } = filterData();
+  const { users, history, prompts } = filterData();
   renderUsers(users);
   renderHistory(history);
-  renderProCodes(proCodes);
   renderTopupOrders(allTopupOrders);
   renderAdminPrompts(prompts);
 
@@ -533,7 +488,6 @@ function normalizeUserDoc(entry) {
     plan: data.plan || "",
     tier: data.tier || "",
     subscriptionStatus: data.subscriptionStatus || "",
-    proCode: data.proCode || "",
     adCheckCredits: Number(data.adCheckCredits || 0),
     proExpiresAt: data.proExpiresAt || null,
     proLifetime: Boolean(data.proLifetime),
@@ -555,22 +509,6 @@ function normalizeHistoryDoc(entry) {
     checkedAt: data.checkedAt,
     targetMarket: data.targetMarket || "",
     objective: data.objective || "",
-  };
-}
-
-function normalizeProCodeDoc(entry) {
-  const data = entry.data() || {};
-  const redeemedByEmail = data.redeemedByEmail || "";
-  const status = String(data.status || (redeemedByEmail ? "redeemed" : "available")).toLowerCase();
-  return {
-    id: entry.id,
-    code: data.code || entry.id,
-    status,
-    statusLabel: status === "redeemed" ? "ใช้แล้ว" : "พร้อมใช้",
-    createdAt: data.createdAt,
-    createdByEmail: data.createdByEmail || "",
-    redeemedByEmail,
-    redeemedAt: data.redeemedAt,
   };
 }
 
@@ -606,22 +544,19 @@ async function loadAdminData() {
   const services = getFirebaseServices();
   const usersQuery = query(collection(services.db, "users"), orderBy("updatedAt", "desc"), limit(100));
   const historyQuery = query(collection(services.db, "adCheckHistory"), orderBy("checkedAt", "desc"), limit(200));
-  const proCodesQuery = query(collection(services.db, "proCodes"), orderBy("createdAt", "desc"), limit(200));
   const topupOrdersQuery = query(collection(services.db, "topupOrders"), orderBy("createdAt", "desc"), limit(50));
 
   setAdminStatus("กำลังโหลดข้อมูลหลังบ้าน...", "loading");
 
-  const [usersSnapshot, historySnapshot, proCodesSnapshot, topupOrdersSnapshot, promptSnapshot] = await Promise.all([
+  const [usersSnapshot, historySnapshot, topupOrdersSnapshot, promptSnapshot] = await Promise.all([
     getDocs(usersQuery),
     getDocs(historyQuery),
-    getDocs(proCodesQuery),
     getDocs(topupOrdersQuery),
     getDocs(collection(services.db, "promptLibrary")),
   ]);
 
   allUsers = usersSnapshot.docs.map(normalizeUserDoc);
   allHistory = historySnapshot.docs.map(normalizeHistoryDoc);
-  allProCodes = proCodesSnapshot.docs.map(normalizeProCodeDoc);
   allTopupOrders = topupOrdersSnapshot.docs.map(normalizeTopupOrderDoc);
   const remotePrompts = promptSnapshot.docs.map(normalizePromptDoc);
   remotePromptMap = new Map(remotePrompts.map((prompt) => [prompt.id, prompt]));
@@ -791,7 +726,6 @@ async function loadUserProfile(uid) {
           <p>${escapeHtml(profile.email || "-")}</p>
           <small>ระดับสมาชิก: ${escapeHtml(profile.memberLevel || "Free")}</small>
           <small>วันหมดอายุ: ${escapeHtml(getProfileExpiryLabel(profile))}</small>
-          <small>Pro Code: ${escapeHtml(profile.proCode || "-")}</small>
         </div>
         <span>${history.length} รายการ</span>
       </div>
@@ -940,43 +874,6 @@ async function saveUserAccess(event) {
   }
 }
 
-async function copyText(value) {
-  if (!value) return;
-  await navigator.clipboard.writeText(value);
-}
-
-async function generateProCode() {
-  if (!currentAdmin) {
-    setProCodeStatus("กรุณา Login ด้วยบัญชี Admin", "error");
-    return;
-  }
-
-  try {
-    if (generateProCodeButton) generateProCodeButton.disabled = true;
-    setProCodeStatus("กำลังสร้าง Pro Code...", "loading");
-    const idToken = await currentAdmin.getIdToken();
-    const response = await fetch(GENERATE_PRO_CODE_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${idToken}`,
-      },
-      body: JSON.stringify({}),
-    });
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result?.error || "สร้าง Pro Code ไม่สำเร็จ");
-    }
-
-    setProCodeStatus(`สร้าง Pro Code สำเร็จ: ${result.code}`, "success");
-    await loadAdminData();
-  } catch (error) {
-    setProCodeStatus(error.message || "สร้าง Pro Code ไม่สำเร็จ", "error");
-  } finally {
-    if (generateProCodeButton) generateProCodeButton.disabled = false;
-  }
-}
-
 async function reviewTopupOrder(orderId, decision, button) {
   if (!currentAdmin || !orderId) {
     setAdminStatus("กรุณา Login ด้วยบัญชี Admin ก่อนอนุมัติรายการเติมเงิน", "error");
@@ -1063,17 +960,6 @@ document.addEventListener("click", async (event) => {
     return;
   }
 
-  const copyButton = event.target.closest("[data-copy-code]");
-  if (copyButton) {
-    try {
-      await copyText(copyButton.dataset.copyCode);
-      setProCodeStatus(`คัดลอก Code ${copyButton.dataset.copyCode} แล้ว`, "success");
-    } catch {
-      setProCodeStatus("คัดลอก Code ไม่สำเร็จ", "error");
-    }
-    return;
-  }
-
   const viewSlipButton = event.target.closest("[data-view-slip]");
   if (viewSlipButton) {
     openSlipDialog(viewSlipButton.dataset.viewSlip);
@@ -1114,7 +1000,6 @@ document.addEventListener("submit", async (event) => {
 });
 
 adminSearchInput?.addEventListener("input", renderAll);
-generateProCodeButton?.addEventListener("click", generateProCode);
 promptAdminForm?.addEventListener("submit", savePrompt);
 newPromptButton?.addEventListener("click", resetPromptForm);
 deletePromptButton?.addEventListener("click", deletePrompt);
@@ -1138,7 +1023,6 @@ watchAuth(async ({ user, configured }) => {
   if (!user) {
     allUsers = [];
     allHistory = [];
-    allProCodes = [];
     allTopupOrders = [];
     allPrompts = [];
     remotePromptMap = new Map();
@@ -1146,14 +1030,12 @@ watchAuth(async ({ user, configured }) => {
     renderAll();
     if (adminProfileDetail) adminProfileDetail.textContent = "ยังไม่ได้เลือกผู้ใช้";
     setAdminStatus("กรุณา Login ด้วยบัญชี Admin", "muted");
-    setProCodeStatus("กรุณา Login ด้วยบัญชี Admin", "muted");
     return;
   }
 
   if (!isAdminUser(user)) {
     allUsers = [];
     allHistory = [];
-    allProCodes = [];
     allTopupOrders = [];
     allPrompts = [];
     remotePromptMap = new Map();
@@ -1161,7 +1043,6 @@ watchAuth(async ({ user, configured }) => {
     renderAll();
     if (adminProfileDetail) adminProfileDetail.textContent = "บัญชีนี้ไม่มีสิทธิ์เข้าหลังบ้าน";
     setAdminStatus("บัญชีนี้ไม่ใช่ Admin จึงดูข้อมูลหลังบ้านไม่ได้", "error");
-    setProCodeStatus("บัญชีนี้ไม่ใช่ Admin", "error");
     return;
   }
 

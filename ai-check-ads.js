@@ -51,6 +51,7 @@ const AD_CHECK_USAGE_ENDPOINT =
   "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/getAdCheckUsage";
 
 let selectedImageDataUrl = "";
+let selectedImagePreviewDataUrl = "";
 let selectedMimeType = "image/jpeg";
 let selectedFileName = "";
 let selectedFileSize = 0;
@@ -218,6 +219,7 @@ function initUploadUi() {
 
 function setDefaultPreview() {
   selectedImageDataUrl = "";
+  selectedImagePreviewDataUrl = "";
   selectedMimeType = "image/jpeg";
   selectedFileName = "";
   selectedFileSize = 0;
@@ -239,6 +241,30 @@ function readImage(file) {
     reader.onerror = () => reject(new Error("read-failed"));
     reader.readAsDataURL(file);
   });
+}
+
+function loadImageFromDataUrl(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("image-load-failed"));
+    image.src = dataUrl;
+  });
+}
+
+async function createHistoryPreview(dataUrl) {
+  if (!dataUrl || typeof dataUrl !== "string") return "";
+  const image = await loadImageFromDataUrl(dataUrl);
+  const maxSize = 420;
+  const scale = Math.min(maxSize / image.naturalWidth, maxSize / image.naturalHeight, 1);
+  const width = Math.max(1, Math.round(image.naturalWidth * scale));
+  const height = Math.max(1, Math.round(image.naturalHeight * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  context.drawImage(image, 0, 0, width, height);
+  return canvas.toDataURL("image/jpeg", 0.76);
 }
 
 async function refreshUsage() {
@@ -489,6 +515,7 @@ async function analyzeWithBackend() {
 
   const payload = {
     imageBase64: selectedImageDataUrl.split(",")[1],
+    imagePreviewDataUrl: selectedImagePreviewDataUrl || "",
     mimeType: selectedMimeType,
     fileName: selectedFileName,
     fileSize: selectedFileSize,
@@ -571,6 +598,7 @@ adsImageInput?.addEventListener("change", async (event) => {
   try {
     const dataUrl = await readImage(file);
     selectedImageDataUrl = dataUrl;
+    selectedImagePreviewDataUrl = await createHistoryPreview(dataUrl).catch(() => "");
     selectedMimeType = file.type || "image/jpeg";
     selectedFileName = file.name || "";
     selectedFileSize = file.size || 0;

@@ -19,12 +19,10 @@ const userName = document.querySelector("#userName");
 const userStatus = document.querySelector("#userStatus");
 const systemMessage = document.querySelector("#systemMessage");
 const topActions = document.querySelector(".top-actions");
-const auditUpgradeNotice = document.querySelector("#auditUpgradeNotice");
 
 const fallbackAvatar = "assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png";
 const currentPage = window.location.pathname.split("/").pop() || "index.html";
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
-const REDEEM_PRO_CODE_ENDPOINT = "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/redeemProCode";
 let currentUser = null;
 let currentProfile = null;
 let pageTrackedFor = "";
@@ -116,58 +114,11 @@ function ensureTopAdminLink() {
   return link;
 }
 
-function buildRedeemPanel(idPrefix, compact = false) {
-  const wrapper = document.createElement("div");
-  wrapper.className = compact ? "pro-code-inline" : "pro-code-card";
-  wrapper.id = `${idPrefix}Wrapper`;
-  wrapper.hidden = true;
-  wrapper.innerHTML = `
-    <input id="${idPrefix}Input" type="text" maxlength="5" placeholder="Pro Code" aria-label="Pro Code" />
-    <button id="${idPrefix}Button" type="button">${compact ? "ใช้ Code" : "ปลดล็อก Pro"}</button>
-    <small id="${idPrefix}Status"></small>
-  `;
-  return wrapper;
-}
-
-function ensureInlineRedeemPanel() {
-  if (!topActions) return null;
-  let panel = document.querySelector("#proCodeInlineWrapper");
-  if (panel) return panel;
-  panel = buildRedeemPanel("proCodeInline", true);
-  topActions.insertBefore(panel, getTopActionsAnchor(userBadge, logoutButton));
-  return panel;
-}
-
-function ensureUpgradeRedeemPanel() {
-  if (!auditUpgradeNotice) return null;
-  let panel = document.querySelector("#proCodeUpgradeWrapper");
-  if (panel) return panel;
-  panel = buildRedeemPanel("proCodeUpgrade", false);
-  const upgradeAnchor =
-    [...auditUpgradeNotice.children].find((child) =>
-      child.matches?.(".audit-upgrade-actions, a"),
-    ) || null;
-  auditUpgradeNotice.insertBefore(panel, upgradeAnchor);
-  return panel;
-}
-
-function setRedeemPanelState(panel, message = "", tone = "muted") {
-  if (!panel) return;
-  const status = panel.querySelector("small");
-  if (!status) return;
-  status.textContent = message;
-  status.dataset.tone = tone;
-}
-
 function updateMembershipUi(user, profile) {
   const level = getMemberLevel(profile, user);
   const topAdminLink = ensureTopAdminLink();
-  const inlinePanel = ensureInlineRedeemPanel();
-  const upgradePanel = ensureUpgradeRedeemPanel();
 
   if (topAdminLink) topAdminLink.hidden = level !== "admin";
-  if (inlinePanel) inlinePanel.hidden = !user || level !== "free";
-  if (upgradePanel) upgradePanel.hidden = !user || level !== "free";
 
   if (!userStatus) return;
   const email = profile?.email || "Signed in";
@@ -186,55 +137,6 @@ function updateMembershipUi(user, profile) {
   }
 
   userStatus.textContent = email;
-}
-
-async function redeemProCode(inputId, buttonId, panelSelector) {
-  const input = document.querySelector(`#${inputId}`);
-  const button = document.querySelector(`#${buttonId}`);
-  const panel = document.querySelector(panelSelector);
-
-  if (!currentUser) {
-    setRedeemPanelState(panel, "กรุณา Login Gmail ก่อน", "error");
-    return;
-  }
-
-  const code = String(input?.value || "")
-    .trim()
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, "");
-
-  if (code.length !== 5) {
-    setRedeemPanelState(panel, "กรุณากรอก Code 5 หลัก", "error");
-    return;
-  }
-
-  try {
-    if (button) button.disabled = true;
-    setRedeemPanelState(panel, "กำลังตรวจสอบ Code...", "loading");
-    const idToken = await currentUser.getIdToken();
-    const response = await fetch(REDEEM_PRO_CODE_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${idToken}`,
-      },
-      body: JSON.stringify({ code }),
-    });
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result?.error || "ใช้ Code ไม่สำเร็จ");
-    }
-
-    if (input) input.value = "";
-    setRedeemPanelState(panel, result.message || "เปิดสิทธิ์ Pro สำเร็จ", "success");
-    currentProfile = await getResolvedProfile(currentUser);
-    updateMembershipUi(currentUser, currentProfile);
-    await setAuthUi(currentUser);
-  } catch (error) {
-    setRedeemPanelState(panel, error.message || "ใช้ Code ไม่สำเร็จ", "error");
-  } finally {
-    if (button) button.disabled = false;
-  }
 }
 
 async function setAuthUi(user) {
@@ -290,16 +192,6 @@ function initProfileShortcuts() {
 
 function initMembershipControls() {
   ensureTopAdminLink();
-  ensureInlineRedeemPanel();
-  ensureUpgradeRedeemPanel();
-
-  document.querySelector("#proCodeInlineButton")?.addEventListener("click", () => {
-    redeemProCode("proCodeInlineInput", "proCodeInlineButton", "#proCodeInlineWrapper");
-  });
-
-  document.querySelector("#proCodeUpgradeButton")?.addEventListener("click", () => {
-    redeemProCode("proCodeUpgradeInput", "proCodeUpgradeButton", "#proCodeUpgradeWrapper");
-  });
 }
 
 function initTrackingInteractions() {

@@ -19,6 +19,8 @@ const DEFAULT_CHECKOUT_MESSAGE =
   "เลือกแพ็ก สแกน QR แนบสลิป แล้วกด “โอนแล้ว” เพื่อส่งให้แอดมินตรวจสอบ";
 const PENDING_MEMBER_MESSAGE = "รอแอดมินอนุมัติแพ็กสมาชิกอยู่";
 const ADMIN_EMAIL = "givemeai.edit@gmail.com";
+const ADMIN_PAGE_URL = "https://www.facebook.com/AiCreativesN/";
+const AI_CHECK_ADS_URL = "ai-check-ads.html";
 const TOPUP_NOTICE_SEEN_KEY = "givemeai_topup_notice_seen_v1";
 
 const plans = [...document.querySelectorAll(".topup-plan")];
@@ -40,6 +42,7 @@ const liveNoticeIcon = document.querySelector("#topupLiveNoticeIcon");
 const liveNoticeTitle = document.querySelector("#topupLiveNoticeTitle");
 const liveNoticeText = document.querySelector("#topupLiveNoticeText");
 const historyButton = document.querySelector("#topupHistoryButton");
+const primaryActionLink = document.querySelector("#topupPrimaryActionLink");
 const historyBox = document.querySelector("#topupHistoryBox");
 const historyCount = document.querySelector("#topupHistoryCount");
 const historyTableBody = document.querySelector("#topupHistoryTableBody");
@@ -319,6 +322,12 @@ function renderLiveNotice() {
     visibleLiveNoticeSignature = "";
     liveNotice.hidden = true;
     if (historyButton) historyButton.hidden = true;
+    if (primaryActionLink) {
+      primaryActionLink.href = ADMIN_PAGE_URL;
+      primaryActionLink.target = "_blank";
+      primaryActionLink.rel = "noopener";
+      primaryActionLink.textContent = "ติดต่อแอดมิน";
+    }
     return;
   }
 
@@ -337,9 +346,21 @@ function renderLiveNotice() {
   liveNotice.hidden = false;
   liveNotice.dataset.state = latestOrder.status || "pending";
   if (historyButton) historyButton.hidden = false;
+  if (primaryActionLink) {
+    primaryActionLink.href = ADMIN_PAGE_URL;
+    primaryActionLink.target = "_blank";
+    primaryActionLink.rel = "noopener";
+    primaryActionLink.textContent = "ติดต่อแอดมิน";
+  }
 
   if (latestOrder.status === "approved") {
     visibleLiveNoticeSignature = latestSignature;
+    if (primaryActionLink) {
+      primaryActionLink.href = AI_CHECK_ADS_URL;
+      primaryActionLink.target = "_self";
+      primaryActionLink.rel = "";
+      primaryActionLink.textContent = "กลับไป AI Check Ads";
+    }
     if (seenSignature !== latestSignature) rememberSeenLiveNotice(currentUser, latestSignature);
     liveNoticeIcon.textContent = "✓";
     liveNoticeTitle.textContent = `อนุมัติรายการ ${packageLabel} แล้ว`;
