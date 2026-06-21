@@ -1481,18 +1481,55 @@ meter::-webkit-meter-optimum-value {
   text-decoration: none;
 }
 
+.topup-live-notice {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "icon title"
+    "icon text"
+    "icon actions";
+  align-items: start;
+  justify-items: start;
+  gap: 10px 14px;
+  max-width: 520px;
+  margin-inline: auto;
+  border-radius: 24px;
+  padding: 20px 20px 18px;
+  text-align: left;
+}
+
+.topup-live-notice .topup-pending-icon {
+  grid-area: icon;
+  width: 54px;
+  height: 54px;
+  font-size: 1.55rem;
+}
+
+.topup-live-notice strong {
+  grid-area: title;
+  margin-top: 2px;
+  font-size: clamp(1.05rem, 1.7vw, 1.55rem);
+  line-height: 1.2;
+}
+
+.topup-live-notice p {
+  grid-area: text;
+  max-width: none;
+  font-size: clamp(0.92rem, 1.1vw, 1.02rem);
+  line-height: 1.6;
+}
+
 .topup-live-notice[data-state="pending"] {
   border-color: rgba(245, 158, 11, 0.24);
   color: #92400e;
   background:
     radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.16), transparent 16rem),
     linear-gradient(135deg, #fff8eb, #ffffff);
-  box-shadow: 0 28px 80px rgba(245, 158, 11, 0.12);
+  box-shadow: 0 16px 42px rgba(245, 158, 11, 0.1);
 }
 
 .topup-live-notice[data-state="pending"] .topup-pending-icon {
   background: linear-gradient(135deg, #f59e0b, #d97706);
-  box-shadow: 0 18px 38px rgba(245, 158, 11, 0.24);
+  box-shadow: 0 12px 26px rgba(245, 158, 11, 0.2);
 }
 
 .topup-live-notice[data-state="pending"] strong,
@@ -1510,12 +1547,12 @@ meter::-webkit-meter-optimum-value {
   background:
     radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.12), transparent 16rem),
     linear-gradient(135deg, #fff1f2, #ffffff);
-  box-shadow: 0 28px 80px rgba(239, 68, 68, 0.12);
+  box-shadow: 0 16px 42px rgba(239, 68, 68, 0.1);
 }
 
 .topup-live-notice[data-state="rejected"] .topup-pending-icon {
   background: linear-gradient(135deg, #ef4444, #dc2626);
-  box-shadow: 0 18px 38px rgba(239, 68, 68, 0.22);
+  box-shadow: 0 12px 26px rgba(239, 68, 68, 0.18);
 }
 
 .topup-live-notice[data-state="rejected"] strong,
@@ -1524,17 +1561,18 @@ meter::-webkit-meter-optimum-value {
 }
 
 .topup-notice-actions {
+  grid-area: actions;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
+  justify-content: flex-start;
+  gap: 10px;
   width: 100%;
 }
 
 .topup-notice-actions .soft-button,
 .topup-notice-actions .orange-button {
-  flex: 1 1 220px;
-  min-width: min(100%, 220px);
+  flex: 0 1 auto;
+  min-width: min(100%, 170px);
   text-decoration: none;
 }
 
@@ -6152,8 +6190,38 @@ meter::-webkit-meter-optimum-value {
     padding: 16px;
   }
 
+  .topup-live-notice {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "icon"
+      "title"
+      "text"
+      "actions";
+    justify-items: center;
+    gap: 10px;
+    max-width: none;
+    padding: 18px 16px;
+    text-align: center;
+  }
+
+  .topup-live-notice .topup-pending-icon {
+    width: 58px;
+    height: 58px;
+    font-size: 1.65rem;
+  }
+
+  .topup-live-notice strong {
+    font-size: 1.3rem;
+  }
+
+  .topup-live-notice p {
+    font-size: 0.98rem;
+    line-height: 1.55;
+  }
+
   .topup-notice-actions {
     flex-direction: column;
+    justify-content: center;
   }
 
   .topup-summary {
