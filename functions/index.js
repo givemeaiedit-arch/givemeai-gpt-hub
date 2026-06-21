@@ -924,6 +924,38 @@ async function verifyTopupSlipWithThunder(adminUser, orderId) {
   }
 }
 
+async function autoReviewTopupOrder(orderId) {
+  const actor = {
+    uid: "system:auto-thunder",
+    email: PRIMARY_ADMIN_EMAIL,
+    source: "auto_thunder",
+  };
+
+  let verificationResult = null;
+  let decision = "reject";
+  let rejectReason = TOPUP_REJECT_REASON;
+
+  try {
+    verificationResult = await verifyTopupSlipWithThunder(actor, orderId);
+    if (verificationResult.suggestion === "approve") {
+      decision = "approve";
+    } else {
+      rejectReason = verificationResult.summary || verificationResult.message || TOPUP_REJECT_REASON;
+    }
+  } catch (error) {
+    rejectReason = error.message || "ตรวจสลิปอัตโนมัติไม่สำเร็จ";
+  }
+
+  const result = await reviewTopupOrder(decision, actor, orderId, { rejectReason });
+  await updateTelegramTopupMessage(result);
+  await notifyTelegramTopupReviewed(result);
+  return {
+    ...result,
+    autoReviewed: true,
+    verification: verificationResult,
+  };
+}
+
 async function createTopupOrderForUser(user, payload) {
   const packageId = String(payload.packageId || "");
   const plan = getTopupPackage(packageId);
@@ -978,11 +1010,19 @@ async function createTopupOrderForUser(user, payload) {
     console.error("Telegram topup notify failed", error);
   }
 
+  const autoResult = await autoReviewTopupOrder(orderRef.id);
+
   return {
     orderId: orderRef.id,
     packageId,
     price: plan.price,
-    status: "pending",
+    status: autoResult.status,
+    autoReviewed: true,
+    message:
+      autoResult.status === "approved"
+        ? "ระบบตรวจสลิปและอนุมัติรายการให้อัตโนมัติแล้ว"
+        : autoResult.rejectReason || "ระบบตรวจสลิปอัตโนมัติไม่ผ่าน",
+    rejectReason: autoResult.rejectReason || "",
   };
 }
 
@@ -1068,9 +1108,10 @@ async function legacyApproveTopupOrderForAdmin(adminUser, orderId) {
   });
 }
 
-async function reviewTopupOrder(decision, actor, orderId) {
+async function reviewTopupOrder(decision, actor, orderId, options = {}) {
   const cleanDecision = String(decision || "").trim().toLowerCase();
   const cleanOrderId = String(orderId || "").trim();
+  const rejectReason = normalizeText(options.rejectReason) || TOPUP_REJECT_REASON;
   if (!["approve", "reject"].includes(cleanDecision)) {
     const error = new Error("Invalid topup review action");
     error.statusCode = 400;
@@ -1105,9 +1146,10 @@ async function reviewTopupOrder(decision, actor, orderId) {
         createdAtIso: formatBangkokDate(order.createdAt),
         reviewedByEmail:
           order.approvedByEmail || order.rejectedByEmail || actor.email || PRIMARY_ADMIN_EMAIL,
-        rejectReason: order.rejectedReason || TOPUP_REJECT_REASON,
+        rejectReason: order.rejectedReason || rejectReason,
         telegramChatId: String(order.telegramChatId || ""),
         telegramMessageId: String(order.telegramMessageId || ""),
+        reviewSource: order.reviewSource || actor.source || "admin",
       };
     }
 
@@ -1163,7 +1205,7 @@ async function reviewTopupOrder(decision, actor, orderId) {
             rejectedAt: FieldValue.serverTimestamp(),
             rejectedByUid: actor.uid || "",
             rejectedByEmail: actor.email || PRIMARY_ADMIN_EMAIL,
-            rejectedReason: TOPUP_REJECT_REASON,
+            rejectedReason: rejectReason,
             reviewSource: actor.source || "admin",
             updatedAt: FieldValue.serverTimestamp(),
           },
@@ -1180,9 +1222,10 @@ async function reviewTopupOrder(decision, actor, orderId) {
       email: order.email || "",
       createdAtIso: formatBangkokDate(order.createdAt),
       reviewedByEmail: actor.email || PRIMARY_ADMIN_EMAIL,
-      rejectReason: TOPUP_REJECT_REASON,
+      rejectReason,
       telegramChatId: String(order.telegramChatId || ""),
       telegramMessageId: String(order.telegramMessageId || ""),
+      reviewSource: actor.source || "admin",
     };
   });
 }

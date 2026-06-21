@@ -19,6 +19,7 @@ const DEFAULT_CHECKOUT_MESSAGE =
   "เลือกแพ็ก สแกน QR แนบสลิป แล้วกด “โอนแล้ว” เพื่อส่งให้แอดมินตรวจสอบ";
 const PENDING_MEMBER_MESSAGE = "รอแอดมินอนุมัติแพ็กสมาชิกอยู่";
 const ADMIN_EMAIL = "givemeai.edit@gmail.com";
+const TOPUP_NOTICE_SEEN_KEY = "givemeai_topup_notice_seen_v1";
 
 const plans = [...document.querySelectorAll(".topup-plan")];
 const title = document.querySelector("#selectedPlanTitle");
@@ -54,6 +55,7 @@ let currentOrders = [];
 let slipDataUrl = "";
 let stopUserDocWatch = null;
 let stopOrderWatch = null;
+let visibleLiveNoticeSignature = "";
 
 plans.forEach((plan) => {
   const button = plan.querySelector("button");
@@ -101,6 +103,45 @@ function formatDate(value) {
     timeStyle: "short",
     timeZone: "Asia/Bangkok",
   });
+}
+
+function getLiveNoticeSignature(order) {
+  if (!order?.id) return "";
+  return [
+    String(order.id || ""),
+    String(order.status || ""),
+    String(
+      timestampToDate(order.updatedAt)?.getTime() ||
+        timestampToDate(order.approvedAt)?.getTime() ||
+        timestampToDate(order.rejectedAt)?.getTime() ||
+        timestampToDate(order.createdAt)?.getTime() ||
+        0,
+    ),
+  ].join(":");
+}
+
+function getSeenNoticeStorageKey(user) {
+  return user?.uid ? `${TOPUP_NOTICE_SEEN_KEY}:${user.uid}` : "";
+}
+
+function readSeenLiveNotice(user) {
+  const storageKey = getSeenNoticeStorageKey(user);
+  if (!storageKey) return "";
+  try {
+    return localStorage.getItem(storageKey) || "";
+  } catch {
+    return "";
+  }
+}
+
+function rememberSeenLiveNotice(user, signature) {
+  const storageKey = getSeenNoticeStorageKey(user);
+  if (!storageKey || !signature) return;
+  try {
+    localStorage.setItem(storageKey, signature);
+  } catch {
+    // Ignore storage failures and keep the page usable.
+  }
 }
 
 function getOrderSortTime(order) {
@@ -305,6 +346,57 @@ function renderLiveNotice() {
   liveNoticeTitle.textContent = `รออนุมัติรายการ ${packageLabel}`;
   liveNoticeText.textContent =
     "ตอนนี้อยู่ในช่วงทดสอบระบบ กรุณารอสักครู่ ให้แอดมินตรวจเช็ค ไม่เกิน 15 นาทีค่ะ";
+}
+
+function renderLiveNotice() {
+  if (!liveNotice || !liveNoticeTitle || !liveNoticeText || !liveNoticeIcon) return;
+  if (!currentUser || !currentOrders.length) {
+    visibleLiveNoticeSignature = "";
+    liveNotice.hidden = true;
+    if (historyButton) historyButton.hidden = true;
+    return;
+  }
+
+  const latestOrder = currentOrders[0];
+  const packageLabel = latestOrder.packageLabel || latestOrder.packageId || "รายการล่าสุด";
+  const latestSignature = getLiveNoticeSignature(latestOrder);
+  const isFinalStatus = latestOrder.status === "approved" || latestOrder.status === "rejected";
+  const seenSignature = readSeenLiveNotice(currentUser);
+
+  if (isFinalStatus && seenSignature === latestSignature && visibleLiveNoticeSignature !== latestSignature) {
+    liveNotice.hidden = true;
+    if (historyButton) historyButton.hidden = true;
+    return;
+  }
+
+  liveNotice.hidden = false;
+  liveNotice.dataset.state = latestOrder.status || "pending";
+  if (historyButton) historyButton.hidden = false;
+
+  if (latestOrder.status === "approved") {
+    visibleLiveNoticeSignature = latestSignature;
+    if (seenSignature !== latestSignature) rememberSeenLiveNotice(currentUser, latestSignature);
+    liveNoticeIcon.textContent = "✓";
+    liveNoticeTitle.textContent = `อนุมัติรายการ ${packageLabel} แล้ว`;
+    liveNoticeText.textContent = "ระบบเติมสิทธิ์ให้เรียบร้อยแล้ว สามารถกดดูรายการย้อนหลังได้ด้านล่าง";
+    return;
+  }
+
+  if (latestOrder.status === "rejected") {
+    visibleLiveNoticeSignature = latestSignature;
+    if (seenSignature !== latestSignature) rememberSeenLiveNotice(currentUser, latestSignature);
+    liveNoticeIcon.textContent = "!";
+    liveNoticeTitle.textContent = `ปฏิเสธรายการ ${packageLabel}`;
+    liveNoticeText.textContent =
+      "แอดมินตรวจสลิปแล้วไม่ผ่าน กรุณาแนบสลิปใหม่อีกครั้ง หรือติดต่อแอดมินเพื่อตรวจสอบ";
+    return;
+  }
+
+  visibleLiveNoticeSignature = "";
+  liveNoticeIcon.textContent = "…";
+  liveNoticeTitle.textContent = `รออนุมัติรายการ ${packageLabel}`;
+  liveNoticeText.textContent =
+    "ตอนนี้อยู่ในช่วงทดสอบระบบ กรุณารอสักครู่ ให้แอดมินตรวจเช็ก ไม่เกิน 15 นาทีค่ะ";
 }
 
 function renderOrderHistory() {
@@ -559,10 +651,16 @@ submitButton?.addEventListener("click", async () => {
 
   try {
     submitButton.disabled = true;
-    setStatus("กำลังส่งคำขอให้แอดมินตรวจสอบ...", "muted");
-    await submitTopupSlip();
+    setStatus("กำลังตรวจสลิปอัตโนมัติ...", "muted");
+    const result = await submitTopupSlip();
     resetSlip();
-    setStatus("ส่งสลิปเรียบร้อยแล้ว รอแอดมินอนุมัติรายการ", "success");
+    if (result?.status === "approved") {
+      setStatus(result.message || "ระบบอนุมัติรายการให้อัตโนมัติแล้ว", "success");
+    } else if (result?.status === "rejected") {
+      setStatus(result.rejectReason || result.message || "ระบบตรวจสลิปไม่ผ่าน", "warning");
+    } else {
+      setStatus(result?.message || "ส่งสลิปเรียบร้อย ระบบกำลังตรวจอัตโนมัติ", "success");
+    }
   } catch (error) {
     setStatus(error.message || "ส่งคำขอเติมเงินไม่สำเร็จ", "warning");
   } finally {
