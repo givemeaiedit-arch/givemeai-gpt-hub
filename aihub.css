@@ -1204,11 +1204,15 @@ meter::-webkit-meter-optimum-value {
 }
 
 .topup-shell {
-  grid-template-columns: 236px minmax(0, 1fr) 368px;
+  grid-template-columns: 236px minmax(0, 1fr);
 }
 
 .topup-main {
   padding-bottom: 96px;
+}
+
+.topup-panel {
+  display: none;
 }
 
 .topup-hero {
@@ -1281,6 +1285,33 @@ meter::-webkit-meter-optimum-value {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
   margin-top: 22px;
+}
+
+.topup-steps-strip {
+  margin-top: 18px;
+  margin-bottom: 0;
+  padding: 20px 24px;
+}
+
+.topup-steps-strip .panel-heading {
+  margin-bottom: 10px;
+}
+
+.topup-steps-strip .lesson-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.topup-steps-strip .lesson-list li {
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  min-height: 100%;
+  border: 1px solid rgba(255, 100, 0, 0.12);
+  border-radius: 18px;
+  padding: 16px 18px;
+  background: linear-gradient(180deg, #fffaf5, #ffffff);
 }
 
 .topup-plan {
@@ -1392,7 +1423,7 @@ meter::-webkit-meter-optimum-value {
 }
 
 .topup-shell.is-checkout-mode {
-  grid-template-columns: 236px minmax(0, 760px) minmax(0, 1fr);
+  grid-template-columns: 236px minmax(0, 1fr);
 }
 
 .topup-shell.is-checkout-mode .topup-main {
@@ -1403,8 +1434,8 @@ meter::-webkit-meter-optimum-value {
   display: block !important;
   grid-column: 2;
   grid-row: 1;
-  max-width: 720px;
-  padding: 34px 34px 60px 0;
+  max-width: 940px;
+  padding: 34px 28px 60px 0;
 }
 
 .topup-shell.is-checkout-mode .topup-summary-card {
@@ -1416,7 +1447,7 @@ meter::-webkit-meter-optimum-value {
 }
 
 .topup-shell.is-pending-mode {
-  grid-template-columns: 236px minmax(0, 760px) minmax(0, 1fr);
+  grid-template-columns: 236px minmax(0, 1fr);
 }
 
 .topup-shell.is-pending-mode .topup-main,
@@ -1429,8 +1460,8 @@ meter::-webkit-meter-optimum-value {
   display: block !important;
   grid-column: 2;
   grid-row: 1;
-  max-width: 720px;
-  padding: 34px 34px 60px 0;
+  max-width: 940px;
+  padding: 34px 28px 60px 0;
 }
 
 .topup-pending-notice {
@@ -1831,6 +1862,25 @@ meter::-webkit-meter-optimum-value {
 .topup-order-status-pill[data-status="pending"] {
   color: #b45309;
   background: #fff7ed;
+}
+
+.topup-shell.is-checkout-mode .topup-history-table-wrap,
+.topup-shell.is-pending-mode .topup-history-table-wrap {
+  overflow: visible;
+}
+
+.topup-shell.is-checkout-mode .topup-history-table,
+.topup-shell.is-pending-mode .topup-history-table {
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.topup-shell.is-checkout-mode .topup-history-table th,
+.topup-shell.is-checkout-mode .topup-history-table td,
+.topup-shell.is-pending-mode .topup-history-table th,
+.topup-shell.is-pending-mode .topup-history-table td {
+  word-break: break-word;
+  white-space: normal;
 }
 
 .articles-shell {
@@ -6161,6 +6211,20 @@ meter::-webkit-meter-optimum-value {
     grid-template-columns: 1fr;
     gap: 12px;
     margin-top: 14px;
+  }
+
+  .topup-steps-strip {
+    margin-top: 14px;
+    padding: 16px;
+  }
+
+  .topup-steps-strip .lesson-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .topup-steps-strip .lesson-list li {
+    padding: 14px;
   }
 
   .topup-plan {
