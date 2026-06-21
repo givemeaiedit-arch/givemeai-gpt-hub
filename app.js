@@ -93,6 +93,11 @@ function getMemberLevel(profile, user) {
   return "free";
 }
 
+function getTopActionsAnchor(...nodes) {
+  if (!topActions) return null;
+  return nodes.find((node) => node && topActions.contains(node)) || null;
+}
+
 function ensureTopAdminLink() {
   if (!topActions) return null;
   let link = document.querySelector("#topAdminLink, .top-admin-link");
@@ -107,7 +112,7 @@ function ensureTopAdminLink() {
   link.href = "admin.html";
   link.textContent = "Admin Panel";
   link.hidden = true;
-  topActions.insertBefore(link, loginButton || userBadge || logoutButton || null);
+  topActions.insertBefore(link, getTopActionsAnchor(loginButton, userBadge, logoutButton));
   return link;
 }
 
@@ -129,7 +134,7 @@ function ensureInlineRedeemPanel() {
   let panel = document.querySelector("#proCodeInlineWrapper");
   if (panel) return panel;
   panel = buildRedeemPanel("proCodeInline", true);
-  topActions.insertBefore(panel, userBadge || logoutButton || null);
+  topActions.insertBefore(panel, getTopActionsAnchor(userBadge, logoutButton));
   return panel;
 }
 
@@ -138,8 +143,11 @@ function ensureUpgradeRedeemPanel() {
   let panel = document.querySelector("#proCodeUpgradeWrapper");
   if (panel) return panel;
   panel = buildRedeemPanel("proCodeUpgrade", false);
-  const upgradeLink = auditUpgradeNotice.querySelector("a");
-  auditUpgradeNotice.insertBefore(panel, upgradeLink || null);
+  const upgradeAnchor =
+    [...auditUpgradeNotice.children].find((child) =>
+      child.matches?.(".audit-upgrade-actions, a"),
+    ) || null;
+  auditUpgradeNotice.insertBefore(panel, upgradeAnchor);
   return panel;
 }
 

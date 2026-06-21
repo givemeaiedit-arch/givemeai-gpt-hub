@@ -1346,9 +1346,45 @@ meter::-webkit-meter-optimum-value {
   margin-top: auto;
 }
 
+.topup-plan.is-locked {
+  border-color: rgba(148, 163, 184, 0.45);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.topup-plan .orange-button:disabled,
+.topup-summary-card .orange-button:disabled {
+  cursor: not-allowed;
+  color: #475569;
+  background: linear-gradient(135deg, #e5e7eb, #dbe3ec);
+  box-shadow: none;
+}
+
 .topup-summary-card {
   display: grid;
   gap: 16px;
+}
+
+.topup-account-state {
+  border: 1px solid rgba(255, 100, 0, 0.14);
+  border-radius: 16px;
+  padding: 12px 14px;
+  background: #fff8f1;
+  color: #9a3412;
+  font-size: 0.96rem;
+  font-weight: 850;
+  line-height: 1.6;
+}
+
+.topup-account-state[data-plan="pro"] {
+  border-color: rgba(37, 99, 235, 0.18);
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.topup-account-state[data-plan="master"] {
+  border-color: rgba(217, 119, 6, 0.18);
+  background: #fff7ed;
+  color: #b45309;
 }
 
 .topup-change-plan {
@@ -1435,13 +1471,70 @@ meter::-webkit-meter-optimum-value {
   max-width: 600px;
   margin: 0;
   color: #047857;
-  font-size: clamp(1.25rem, 3vw, 2.35rem);
-  font-weight: 950;
-  line-height: 1.55;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 850;
+  line-height: 1.75;
 }
 
 .topup-pending-notice .orange-button {
   min-width: min(100%, 260px);
+  text-decoration: none;
+}
+
+.topup-live-notice[data-state="pending"] {
+  border-color: rgba(245, 158, 11, 0.24);
+  color: #92400e;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.16), transparent 16rem),
+    linear-gradient(135deg, #fff8eb, #ffffff);
+  box-shadow: 0 28px 80px rgba(245, 158, 11, 0.12);
+}
+
+.topup-live-notice[data-state="pending"] .topup-pending-icon {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  box-shadow: 0 18px 38px rgba(245, 158, 11, 0.24);
+}
+
+.topup-live-notice[data-state="pending"] strong,
+.topup-live-notice[data-state="pending"] p {
+  color: #92400e;
+}
+
+.topup-live-notice[data-state="approved"] {
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+.topup-live-notice[data-state="rejected"] {
+  border-color: rgba(239, 68, 68, 0.22);
+  color: #991b1b;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.12), transparent 16rem),
+    linear-gradient(135deg, #fff1f2, #ffffff);
+  box-shadow: 0 28px 80px rgba(239, 68, 68, 0.12);
+}
+
+.topup-live-notice[data-state="rejected"] .topup-pending-icon {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 18px 38px rgba(239, 68, 68, 0.22);
+}
+
+.topup-live-notice[data-state="rejected"] strong,
+.topup-live-notice[data-state="rejected"] p {
+  color: #991b1b;
+}
+
+.topup-notice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.topup-notice-actions .soft-button,
+.topup-notice-actions .orange-button {
+  flex: 1 1 220px;
+  min-width: min(100%, 220px);
   text-decoration: none;
 }
 
@@ -1552,6 +1645,51 @@ meter::-webkit-meter-optimum-value {
 .topup-note[data-tone="success"] {
   color: #047857;
   background: #ecfdf5;
+}
+
+.topup-history-panel {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 18px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.topup-history-panel summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+  padding: 16px 18px;
+  font-weight: 950;
+  color: var(--ink);
+}
+
+.topup-history-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.topup-history-panel summary small {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.topup-history-body {
+  padding: 0 16px 16px;
+}
+
+.topup-order-status[data-status="approved"] {
+  color: #047857;
+}
+
+.topup-order-status[data-status="rejected"] {
+  color: #b91c1c;
+}
+
+.topup-order-status[data-status="pending"] {
+  color: #b45309;
 }
 
 .articles-shell {
@@ -5127,6 +5265,10 @@ meter::-webkit-meter-optimum-value {
   justify-content: center;
 }
 
+.audit-topup-link {
+  text-decoration: none;
+}
+
 .audit-skeleton-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -5907,6 +6049,10 @@ meter::-webkit-meter-optimum-value {
     padding: 16px;
   }
 
+  .topup-notice-actions {
+    flex-direction: column;
+  }
+
   .topup-summary {
     border-radius: 16px;
     padding: 14px;
@@ -5940,6 +6086,15 @@ meter::-webkit-meter-optimum-value {
   .topup-change-plan,
   .topup-summary-card .orange-button {
     width: 100%;
+  }
+
+  .topup-history-panel summary {
+    align-items: start;
+    padding: 14px;
+  }
+
+  .topup-history-body {
+    padding: 0 12px 12px;
   }
 
   .topup-note {
