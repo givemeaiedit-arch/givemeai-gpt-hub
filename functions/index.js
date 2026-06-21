@@ -344,6 +344,40 @@ async function updateTelegramTopupMessage(order, messageContext = null) {
   });
 }
 
+async function notifyTelegramTopupReviewed(order) {
+  const chatId = getTelegramSecretValue(telegramAdminChatId);
+  if (!getTelegramSecretValue(telegramBotToken) || !chatId || order?.alreadyProcessed) {
+    return { ok: false, skipped: true, reason: "skip_review_notice" };
+  }
+
+  const isApproved = String(order?.status || "").toLowerCase() === "approved";
+  const statusText = isApproved ? "อนุมัติรายการเติมเงินแล้ว" : "ปฏิเสธรายการเติมเงินแล้ว";
+  const lines = [
+    `${isApproved ? "✅" : "❌"} ${statusText}`,
+    "",
+    `แพ็กเกจ: ${order?.packageLabel || order?.packageId || "-"}`,
+    `ราคา: ${Number(order?.price || 0)} บาท`,
+    `ผู้ใช้: ${order?.displayName || "-"}`,
+    `อีเมล: ${order?.email || "-"}`,
+    `ดำเนินการโดย: ${order?.reviewedByEmail || PRIMARY_ADMIN_EMAIL}`,
+    `เวลาส่งสลิป: ${order?.createdAtIso || "-"}`,
+    `Order ID: ${order?.orderId || "-"}`,
+  ];
+
+  if (!isApproved) {
+    lines.push(`เหตุผล: ${order?.rejectReason || TOPUP_REJECT_REASON}`);
+  }
+
+  lines.push("", `เปิดหลังบ้าน: ${ADMIN_PANEL_URL}`);
+
+  return callTelegramApi("sendMessage", {
+    chat_id: chatId,
+    text: lines.map(escapeTelegramText).join("\n"),
+    parse_mode: "HTML",
+    disable_web_page_preview: true,
+  });
+}
+
 async function verifySignedInUser(req) {
   const authHeader = req.get("authorization") || "";
   const match = authHeader.match(/^Bearer\s+(.+)$/i);
@@ -862,6 +896,7 @@ async function approveTopupOrderForAdmin(adminUser, orderId) {
     orderId,
   );
   await updateTelegramTopupMessage(result);
+  await notifyTelegramTopupReviewed(result);
   return result;
 }
 
@@ -873,6 +908,7 @@ async function rejectTopupOrderForAdmin(adminUser, orderId) {
     orderId,
   );
   await updateTelegramTopupMessage(result);
+  await notifyTelegramTopupReviewed(result);
   return result;
 }
 
@@ -904,6 +940,7 @@ async function processTelegramTopupAction(callbackQuery) {
       orderId,
     );
     await updateTelegramTopupMessage(result, { chatId, messageId });
+    await notifyTelegramTopupReviewed(result);
     await answerTelegramCallbackQuery(
       callbackQueryId,
       result.alreadyProcessed
