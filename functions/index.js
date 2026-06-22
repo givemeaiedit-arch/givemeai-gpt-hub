@@ -564,6 +564,78 @@ async function getAdCheckUsageSummary(user) {
   };
 }
 
+async function notifyTelegramCommunityRequest(request) {
+  const chatId = getTelegramSecretValue(telegramAdminChatId);
+  if (!getTelegramSecretValue(telegramBotToken) || !chatId) {
+    return { ok: false, skipped: true, reason: "missing_telegram_config" };
+  }
+
+  const lines = [
+    "มีคนแจ้งขอเข้าร่วมกลุ่มรายใหม่",
+    "",
+    `ชื่อ Facebook: ${request.facebookName || "-"}`,
+    `ผู้ใช้: ${request.displayName || "-"}`,
+    `อีเมล: ${request.email || "-"}`,
+    `เวลา: ${request.createdAtIso || "-"}`,
+    `Request ID: ${request.requestId || "-"}`,
+    "",
+    `เปิดหลังบ้าน: ${ADMIN_PANEL_URL}`,
+  ];
+
+  return callTelegramApi("sendMessage", {
+    chat_id: chatId,
+    text: lines.map(escapeTelegramText).join("\n"),
+    parse_mode: "HTML",
+    disable_web_page_preview: true,
+  });
+}
+
+async function createCommunityRequestForUser(user, payload) {
+  await ensureUserProfile(user);
+  const usage = await getUserUsageProfile(user);
+  if (!usage.isPrivileged) {
+    const error = new Error("สำหรับสมาชิกระดับ Pro ขึ้นไปเท่านั้น");
+    error.statusCode = 403;
+    error.code = "PRO_REQUIRED";
+    throw error;
+  }
+
+  const facebookName = String(payload?.facebookName || "").trim();
+  if (facebookName.length < 2 || facebookName.length > 120) {
+    const error = new Error("กรุณากรอกชื่อ Facebook ให้ถูกต้อง");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const now = new Date();
+  const requestRef = adminDb.collection("communityRequests").doc();
+  const request = {
+    requestId: requestRef.id,
+    uid: user.uid,
+    email: user.email || "",
+    displayName: user.displayName || user.email?.split("@")[0] || "",
+    photoURL: user.photoURL || "",
+    facebookName,
+    status: "new",
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+    createdAtIso: now.toISOString(),
+  };
+
+  await requestRef.set(request);
+  try {
+    await notifyTelegramCommunityRequest(request);
+  } catch (error) {
+    console.error("Telegram community request notify failed", error);
+  }
+
+  return {
+    requestId: requestRef.id,
+    facebookName,
+    status: "new",
+  };
+}
+
 function getTopupPackage(packageId) {
   const plan = TOPUP_PACKAGES[String(packageId || "")];
   if (!plan) {
@@ -1795,6 +1867,42 @@ export const telegramTopupWebhook = onRequest(
     } catch (error) {
       console.error("telegramTopupWebhook failed", error);
       res.status(200).json({ ok: false });
+    }
+  },
+);
+
+export const submitCommunityRequest = onRequest(
+  {
+    region: "asia-southeast1",
+    cors: true,
+    secrets: [telegramBotToken, telegramAdminChatId],
+    timeoutSeconds: 60,
+    memory: "256MiB",
+  },
+  async (req, res) => {
+    setCors(res);
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      const user = await verifySignedInUser(req);
+      const payload = await readJsonBody(req);
+      const result = await createCommunityRequestForUser(user, payload);
+      sendJson(res, 200, { ok: true, ...result });
+    } catch (error) {
+      sendJson(res, error.statusCode || 400, {
+        ok: false,
+        error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
+      });
     }
   },
 );

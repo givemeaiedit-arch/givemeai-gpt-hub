@@ -35,6 +35,8 @@ const adminHistoryLabel = document.querySelector("#adminHistoryLabel");
 const adminSearchInput = document.querySelector("#adminSearchInput");
 const topupOrdersLabel = document.querySelector("#topupOrdersLabel");
 const topupOrdersBody = document.querySelector("#topupOrdersBody");
+const communityRequestsLabel = document.querySelector("#communityRequestsLabel");
+const communityRequestsBody = document.querySelector("#communityRequestsBody");
 const adminPromptsLabel = document.querySelector("#adminPromptsLabel");
 const adminPromptsBody = document.querySelector("#adminPromptsBody");
 const promptAdminForm = document.querySelector("#promptAdminForm");
@@ -69,6 +71,7 @@ const adminHistoryDialogBody = document.querySelector("#adminHistoryDialogBody")
 let allUsers = [];
 let allHistory = [];
 let allTopupOrders = [];
+let allCommunityRequests = [];
 let allPrompts = [];
 let remotePromptMap = new Map();
 let currentAdmin = null;
@@ -173,7 +176,7 @@ function setEmptyTable(body, message, columnCount = 6) {
 function filterData() {
   const keyword = adminSearchInput?.value?.trim().toLowerCase() || "";
   if (!keyword) {
-    return { users: allUsers, history: allHistory, prompts: allPrompts };
+    return { users: allUsers, history: allHistory, communityRequests: allCommunityRequests, prompts: allPrompts };
   }
 
   const users = allUsers.filter((item) => {
@@ -191,7 +194,12 @@ function filterData() {
     return haystack.includes(keyword);
   });
 
-  return { users, history, prompts };
+  const communityRequests = allCommunityRequests.filter((item) => {
+    const haystack = `${item.email} ${item.displayName} ${item.facebookName} ${item.status}`.toLowerCase();
+    return haystack.includes(keyword);
+  });
+
+  return { users, history, communityRequests, prompts };
 }
 
 function renderUsers(users) {
@@ -350,6 +358,34 @@ function renderTopupOrders(orders) {
     .join("");
 }
 
+function renderCommunityRequests(requests) {
+  if (communityRequestsLabel) communityRequestsLabel.textContent = `${requests.length} รายการ`;
+  if (!communityRequestsBody) return;
+
+  if (!requests.length) {
+    setEmptyTable(communityRequestsBody, "ยังไม่มีคำขอเข้ากลุ่ม", 4);
+    return;
+  }
+
+  communityRequestsBody.innerHTML = requests
+    .map(
+      (item) => `
+        <tr>
+          <td>${formatDate(item.createdAt)}</td>
+          <td>
+            <div class="admin-community-name">
+              <strong>${escapeHtml(item.displayName || "-")}</strong>
+              <small>${escapeHtml(item.email || "-")}</small>
+            </div>
+          </td>
+          <td>${escapeHtml(item.facebookName || "-")}</td>
+          <td>${escapeHtml(item.status || "new")}</td>
+        </tr>
+      `,
+    )
+    .join("");
+}
+
 function renderPromptCategories() {
   if (!promptCategoryInput) return;
   const categories = window.GIVEME_PROMPT_CATEGORIES || [];
@@ -386,10 +422,11 @@ function renderAdminPrompts(prompts) {
 }
 
 function renderAll() {
-  const { users, history, prompts } = filterData();
+  const { users, history, communityRequests, prompts } = filterData();
   renderUsers(users);
   renderHistory(history);
   renderTopupOrders(allTopupOrders);
+  renderCommunityRequests(communityRequests);
   renderAdminPrompts(prompts);
 
   if (adminUserCount) adminUserCount.textContent = String(allUsers.length);
@@ -865,6 +902,21 @@ function normalizeTopupOrderDoc(entry) {
   };
 }
 
+function normalizeCommunityRequestDoc(entry) {
+  const data = entry.data() || {};
+  return {
+    id: entry.id,
+    uid: data.uid || "",
+    email: data.email || "",
+    displayName: data.displayName || data.email || "",
+    photoURL: data.photoURL || fallbackAvatar,
+    facebookName: data.facebookName || "",
+    status: data.status || "new",
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+  };
+}
+
 async function loadAdminData() {
   if (!isFirebaseConfigured()) {
     setAdminStatus("ยังไม่ได้ตั้งค่า Firebase", "error");
@@ -875,19 +927,22 @@ async function loadAdminData() {
   const usersQuery = query(collection(services.db, "users"), orderBy("updatedAt", "desc"), limit(100));
   const historyQuery = query(collection(services.db, "adCheckHistory"), orderBy("checkedAt", "desc"), limit(200));
   const topupOrdersQuery = query(collection(services.db, "topupOrders"), orderBy("createdAt", "desc"), limit(50));
+  const communityRequestsQuery = query(collection(services.db, "communityRequests"), orderBy("createdAt", "desc"), limit(100));
 
   setAdminStatus("กำลังโหลดข้อมูลหลังบ้าน...", "loading");
 
-  const [usersSnapshot, historySnapshot, topupOrdersSnapshot, promptSnapshot] = await Promise.all([
+  const [usersSnapshot, historySnapshot, topupOrdersSnapshot, communityRequestsSnapshot, promptSnapshot] = await Promise.all([
     getDocs(usersQuery),
     getDocs(historyQuery),
     getDocs(topupOrdersQuery),
+    getDocs(communityRequestsQuery),
     getDocs(collection(services.db, "promptLibrary")),
   ]);
 
   allUsers = usersSnapshot.docs.map(normalizeUserDoc);
   allHistory = historySnapshot.docs.map(normalizeHistoryDoc);
   allTopupOrders = topupOrdersSnapshot.docs.map(normalizeTopupOrderDoc);
+  allCommunityRequests = communityRequestsSnapshot.docs.map(normalizeCommunityRequestDoc);
   const remotePrompts = promptSnapshot.docs.map(normalizePromptDoc);
   remotePromptMap = new Map(remotePrompts.map((prompt) => [prompt.id, prompt]));
   allPrompts = buildPromptList(remotePrompts);
@@ -1365,6 +1420,7 @@ watchAuth(async ({ user, configured }) => {
     allUsers = [];
     allHistory = [];
     allTopupOrders = [];
+    allCommunityRequests = [];
     allPrompts = [];
     remotePromptMap = new Map();
     selectedProfileUid = "";
@@ -1378,6 +1434,7 @@ watchAuth(async ({ user, configured }) => {
     allUsers = [];
     allHistory = [];
     allTopupOrders = [];
+    allCommunityRequests = [];
     allPrompts = [];
     remotePromptMap = new Map();
     selectedProfileUid = "";

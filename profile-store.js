@@ -90,6 +90,8 @@ function buildFallbackProfile(user, customProfile = {}) {
     tier: customProfile.tier || "free",
     memberLevel: customProfile.memberLevel || "free",
     subscriptionStatus: customProfile.subscriptionStatus || "",
+    proExpiresAt: customProfile.proExpiresAt || null,
+    proLifetime: Boolean(customProfile.proLifetime),
   };
 }
 
@@ -156,6 +158,8 @@ export async function getResolvedProfile(user) {
       tier: data.tier,
       memberLevel: data.memberLevel,
       subscriptionStatus: data.subscriptionStatus,
+      proExpiresAt: data.proExpiresAt,
+      proLifetime: data.proLifetime,
     });
   } catch {
     return buildFallbackProfile(user);

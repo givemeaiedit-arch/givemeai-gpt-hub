@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>กลุ่มเรียนรู้ | GivemeAI</title>
+    <link rel="icon" href="assets/Icon/asset_1x1_cropfix/asset_1-01-growth-arrow.png" />
+    <link rel="stylesheet" href="aihub.css" />
+    <script defer src="browser-check.js"></script>
+  </head>
+  <body>
+    <div class="app-shell community-shell">
+      <aside class="sidebar" aria-label="เมนูหลัก"></aside>
+
+      <main class="main-content community-main">
+        <header class="topbar"></header>
+        <p class="system-message" id="systemMessage">พื้นที่กลุ่มเรียนรู้สำหรับสมาชิก Pro ขึ้นไป</p>
+
+        <section class="community-hero" aria-labelledby="communityTitle">
+          <div>
+            <p class="tools-kicker">FACEBOOK COMMUNITY</p>
+            <h1 id="communityTitle">Ai ภาพนี้ให้หน่อย<br />[ กลุ่มเรียนรู้ AI หัวแถว Community ]</h1>
+            <p>
+              กลุ่มเรียนรู้ AI สำหรับคนที่อยากใช้ AI ทำงานจริง ทั้งภาพโฆษณา Prompt เครื่องมือ AI
+              และแนวทางต่อยอดกับธุรกิจไทย ภายในกลุ่มมีผู้เรียนมากกว่า 2,500+ คน
+              และมีบทเรียนให้ศึกษามากกว่า 30 บทเรียน
+            </p>
+            <div class="community-actions">
+              <a
+                class="orange-button"
+                id="communityGroupButton"
+                href="https://www.facebook.com/groups/1045914594211214"
+                target="_blank"
+                rel="noopener"
+              >
+                เข้ากลุ่ม Facebook
+              </a>
+              <a class="soft-button" href="topup.html">อัปเกรดเป็น Pro</a>
+            </div>
+          </div>
+
+          <div class="community-metrics" aria-label="ภาพรวมกลุ่มเรียนรู้">
+            <article><strong>2,500+</strong><span>ผู้เรียนในกลุ่ม</span></article>
+            <article><strong>30+</strong><span>บทเรียนในกลุ่ม</span></article>
+            <article><strong>Pro+</strong><span>สิทธิ์เข้าร่วมกลุ่ม</span></article>
+          </div>
+        </section>
+
+        <section class="community-grid">
+          <article class="community-card">
+            <div class="panel-heading">
+              <h2>วิธีเข้ากลุ่ม</h2>
+              <span>สำหรับสมาชิก Pro / Master</span>
+            </div>
+            <ol class="community-steps">
+              <li><span>1</span><p>กดปุ่มเข้ากลุ่ม Facebook แล้วส่งคำขอเข้าร่วมกลุ่มด้วยบัญชี Facebook ของคุณ</p></li>
+              <li><span>2</span><p>กรอกชื่อ Facebook ที่ใช้กดขอเข้ากลุ่มในช่องด้านล่าง</p></li>
+              <li><span>3</span><p>กดแจ้งแอดมิน ระบบจะบันทึกคำขอและส่งแจ้งเตือน Telegram ให้แอดมินเข้าไปตรวจใน Facebook</p></li>
+            </ol>
+          </article>
+
+          <article class="community-card community-request-card">
+            <div class="panel-heading">
+              <h2>แจ้งชื่อ Facebook ให้แอดมิน</h2>
+              <span id="communityAccessLabel">กำลังตรวจสอบสิทธิ์...</span>
+            </div>
+            <label class="community-field">
+              <span>ชื่อ Facebook ที่ใช้กดขอเข้ากลุ่ม</span>
+              <input id="communityFacebookName" type="text" placeholder="เช่น Nattawat Notzio" autocomplete="name" />
+            </label>
+            <button class="green-button" id="communityNotifyButton" type="button">แจ้งขอเข้ากลุ่ม</button>
+            <p class="profile-status" id="communityStatus" data-tone="muted">
+              Login ด้วย Gmail และต้องเป็นสมาชิกระดับ Pro ขึ้นไปก่อนจึงจะแจ้งขอเข้ากลุ่มได้
+            </p>
+          </article>
+        </section>
+      </main>
+
+      <aside class="right-panel community-panel" aria-label="สิทธิ์สมาชิก">
+        <section class="side-card">
+          <div class="panel-heading">
+            <h2>สิทธิ์สำหรับสมาชิก</h2>
+          </div>
+          <ol class="lesson-list">
+            <li><span>✓</span>เข้ากลุ่มเรียนรู้ Facebook</li>
+            <li><span>✓</span>ดูบทเรียนเสริมในกลุ่ม</li>
+            <li><span>✓</span>ติดตามเครื่องมือและบทเรียนใหม่</li>
+          </ol>
+        </section>
+      </aside>
+    </div>
+
+    <nav class="bottom-nav" aria-label="เมนูมือถือ"></nav>
+
+    <script src="shared-shell.js"></script>
+    <script type="module" src="app.js"></script>
+    <script type="module" src="community.js"></script>
+  </body>
+</html>

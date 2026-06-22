@@ -21,6 +21,12 @@
       searchLabel: "ค้นหาบทความ",
       active: "articles",
     },
+    "community.html": {
+      searchId: "communitySearch",
+      searchPlaceholder: "ค้นหากลุ่มเรียนรู้, คอร์ส, Facebook Community...",
+      searchLabel: "ค้นหากลุ่มเรียนรู้",
+      active: "community",
+    },
     "prompts.html": {
       searchId: "promptShellSearch",
       searchPlaceholder: "ค้นหา Prompt เช่น ร้านอาหาร บ้าน รถ เสื้อผ้า...",
@@ -109,6 +115,7 @@
           <p class="nav-group">เรียนรู้ AI</p>
           <a class="nav-item${isActive("courses")}" href="courses.html"><span class="nav-icon">▱</span>คอร์สเรียนทั้งหมด</a>
           <a class="nav-item${isActive("articles")}" href="articles.html"><span class="nav-icon">▤</span>บทความ & เทคนิค</a>
+          <a class="nav-item${isActive("community")}" href="community.html"><span class="nav-icon">◉</span>กลุ่มเรียนรู้</a>
 
           <p class="nav-group">คลัง Prompt</p>
           <a class="nav-item${isActive("prompts")}" href="prompts.html"><span class="nav-icon">▣</span>Prompt ยอดนิยม</a>
@@ -189,6 +196,22 @@
     `;
   }
 
+  function bottomNavHtml() {
+    const item = (key, href, icon, label) =>
+      `<a class="${cfg.active === key ? "active" : ""}" href="${href}"><span>${icon}</span>${label}</a>`;
+
+    return `
+      <nav class="bottom-nav" aria-label="เมนูมือถือ">
+        ${item("home", "index.html", "⌂", "หน้าแรก")}
+        ${item("courses", "courses.html", "▱", "คอร์ส")}
+        ${item("articles", "articles.html", "▤", "บทความ")}
+        ${item("community", "community.html", "◉", "กลุ่ม")}
+        ${item("tools", "tools.html", "◇", "เครื่องมือ")}
+        ${item("profile", "profile.html", "♙", "โปรไฟล์")}
+      </nav>
+    `;
+  }
+
   const sidebar = document.querySelector(".sidebar");
   if (sidebar) {
     sidebar.outerHTML = sidebarHtml(sidebar.className);
@@ -265,5 +288,12 @@
         window.location.href = nextUrl.href;
       }, 240);
     });
+  }
+
+  const existingBottomNav = document.querySelector(".bottom-nav");
+  if (existingBottomNav) {
+    existingBottomNav.outerHTML = bottomNavHtml();
+  } else {
+    document.body.insertAdjacentHTML("beforeend", bottomNavHtml());
   }
 })();

@@ -67,6 +67,7 @@ const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
 const FREE_LIMIT_MESSAGE =
   "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว สามารถเติมเงินเพิ่มในหน้าเติมเงิน หรือสมัคร Pro 289 บาทต่อเดือน เพื่อใช้ Check Ads ได้วันละ 10 ครั้ง พร้อมคอร์สเรียน AI มากกว่า 20 บทและเครื่องมือ AI ใหม่ ๆ ในอนาคต หากต้องการราคาพิเศษสำหรับองค์กร ติดต่อ Admin ได้ค่ะ ที่ page AI ภาพนี้ให้หน่อย";
+const AUTO_PRODUCT_PLACEHOLDER = "ให้ AI ดูจากภาพโฆษณาและระบุชื่อสินค้าหรือประเภทสินค้าที่ใกล้เคียงที่สุด";
 
 const metricMeta = {
   hook_scroll_stop: 15,
@@ -530,7 +531,7 @@ async function analyzeWithBackend() {
     fileName: selectedFileName,
     fileSize: selectedFileSize,
     productName:
-      productNameInput?.value?.trim() || "ให้ AI ดูจากภาพโฆษณาและระบุชื่อสินค้าหรือประเภทสินค้าที่ใกล้เคียงที่สุด",
+      productNameInput?.value?.trim() || AUTO_PRODUCT_PLACEHOLDER,
     targetMarket: targetMarketInput?.value?.trim() || "TH",
     objective: objectiveInput?.value?.trim() || "meta_ads_conversion",
     notes: notesInput?.value?.trim() || "-",
@@ -573,8 +574,11 @@ async function analyzeWithBackend() {
 
     renderAudit(result);
     setUsagePill(result.usage || null);
-    if (previewOverlayTitle) previewOverlayTitle.textContent = "วิเคราะห์จาก OpenAI สำเร็จ";
-    if (previewOverlayText) previewOverlayText.textContent = "ผลลัพธ์หน้านี้ถูกเติมจาก JSON response ที่ backend ส่งกลับมาแล้ว";
+    const analyzedProductName = [result.history?.productName, payload.productName]
+      .map((value) => String(value || "").trim())
+      .find((value) => value && value !== AUTO_PRODUCT_PLACEHOLDER) || "สินค้าในภาพโฆษณา";
+    if (previewOverlayTitle) previewOverlayTitle.textContent = analyzedProductName;
+    if (previewOverlayText) previewOverlayText.textContent = "ชื่อสินค้าที่ใช้วิเคราะห์";
     if (result.history?.fromHistory) {
       setRequestStatus(`ไฟล์ชื่อนี้ (${result.history.fileName}) เคย Check ไปแล้ว ระบบดึงประวัติเดิมมาให้ดู`, "success");
     } else {

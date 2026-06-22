@@ -91,6 +91,20 @@ function getMemberLevel(profile, user) {
   return "free";
 }
 
+function hasProAccess(profile, user) {
+  const level = getMemberLevel(profile, user);
+  if (level === "admin" || level === "master") return true;
+  if (level !== "pro") return false;
+
+  const expiresAt = profile?.proExpiresAt?.toDate?.() || (profile?.proExpiresAt ? new Date(profile.proExpiresAt) : null);
+  return !expiresAt || Number.isNaN(expiresAt.getTime()) || expiresAt.getTime() > Date.now();
+}
+
+function getLessonNumberFromHref(href) {
+  const match = String(href || "").match(/lesson-(\d+)\.html/i);
+  return match ? Number(match[1]) : 0;
+}
+
 function getTopActionsAnchor(...nodes) {
   if (!topActions) return null;
   return nodes.find((node) => node && topActions.contains(node)) || null;
@@ -240,6 +254,18 @@ function initTrackingInteractions() {
   });
 }
 
+function initProLessonGuards() {
+  document.addEventListener("click", (event) => {
+    const lessonLink = event.target.closest('a[href*="lesson-"]');
+    const lessonNumber = getLessonNumberFromHref(lessonLink?.getAttribute("href"));
+    if (!lessonLink || lessonNumber < 2) return;
+    if (hasProAccess(currentProfile, currentUser)) return;
+
+    event.preventDefault();
+    window.alert("สำหรับสมาชิกระดับ Pro ขึ้นไปเท่านั้น");
+  });
+}
+
 function initHeroCarousel() {
   const carousel = document.querySelector("#heroCarousel");
   if (!carousel) return;
@@ -349,4 +375,5 @@ if (!isFirebaseConfigured()) {
 initProfileShortcuts();
 initMembershipControls();
 initTrackingInteractions();
+initProLessonGuards();
 initHeroCarousel();

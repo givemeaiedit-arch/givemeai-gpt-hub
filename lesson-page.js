@@ -1,6 +1,6 @@
 import { signInWithGoogle, watchAuth } from "./auth-shared.js";
 import { getLessonById, getLessonIndex, LESSONS, LESSON_POINTS } from "./lesson-data.js";
-import { claimLessonScore, hasClaimedLesson, recordLearning } from "./profile-store.js";
+import { claimLessonScore, getResolvedProfile, hasClaimedLesson, recordLearning } from "./profile-store.js";
 
 const lessonId = document.body.dataset.lessonId;
 const lesson = getLessonById(lessonId);
@@ -17,6 +17,49 @@ const prevLink = document.querySelector("#lessonPrevLink");
 const nextLink = document.querySelector("#lessonNextLink");
 
 let currentUser = null;
+let currentProfile = null;
+
+function normalizeAccessValue(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function isAdminUser(user) {
+  return normalizeAccessValue(user?.email) === "givemeai.edit@gmail.com";
+}
+
+function lessonRequiresPro() {
+  const match = String(lesson?.id || "").match(/lesson-(\d+)/i);
+  return match ? Number(match[1]) >= 2 : false;
+}
+
+function hasProAccess() {
+  if (isAdminUser(currentUser)) return true;
+  const values = [
+    currentProfile?.plan,
+    currentProfile?.tier,
+    currentProfile?.memberLevel,
+    currentProfile?.subscriptionStatus,
+  ].map(normalizeAccessValue);
+
+  if (values.includes("admin") || values.includes("master")) return true;
+  if (!values.includes("pro") && !values.includes("active")) return false;
+
+  const expiresAt = currentProfile?.proExpiresAt?.toDate?.()
+    || (currentProfile?.proExpiresAt ? new Date(currentProfile.proExpiresAt) : null);
+  return !expiresAt || Number.isNaN(expiresAt.getTime()) || expiresAt.getTime() > Date.now();
+}
+
+function renderProLock() {
+  if (!mediaNode) return;
+  mediaNode.innerHTML = `
+    <div class="lesson-video-placeholder lesson-access-lock">
+      <span>PRO LESSON</span>
+      <strong>สำหรับสมาชิกระดับ Pro ขึ้นไปเท่านั้น</strong>
+      <p>บทเรียนนี้เป็นเนื้อหาสำหรับสมาชิก Pro / Master หลังอัปเกรดแล้วจะเปิดดูวิดีโอและรับคะแนนได้ทันที</p>
+      <a class="orange-button" href="topup.html">อัปเกรด / เติมเงิน</a>
+    </div>
+  `;
+}
 
 function renderLesson() {
   if (!lesson) return;
@@ -29,7 +72,9 @@ function renderLesson() {
   if (pointsNode) pointsNode.textContent = `${LESSON_POINTS} คะแนน`;
 
   if (mediaNode) {
-    if (lesson.videoId) {
+    if (lessonRequiresPro() && !hasProAccess()) {
+      renderProLock();
+    } else if (lesson.videoId) {
       mediaNode.innerHTML = `
         <div class="lesson-video-frame">
           <iframe
@@ -82,6 +127,13 @@ function renderLesson() {
 async function syncClaimState() {
   if (!claimButton || !claimHint || !lesson) return;
 
+  if (lessonRequiresPro() && !hasProAccess()) {
+    claimButton.disabled = true;
+    claimButton.textContent = "สำหรับสมาชิกระดับ Pro ขึ้นไปเท่านั้น";
+    claimHint.textContent = "อัปเกรดเป็น Pro หรือ Master เพื่อดูบทเรียนนี้และรับคะแนนหลังเรียนจบ";
+    return;
+  }
+
   if (!currentUser) {
     claimButton.disabled = false;
     claimButton.textContent = `Login Gmail เพื่อรับ ${LESSON_POINTS} คะแนน`;
@@ -126,7 +178,10 @@ claimButton?.addEventListener("click", async () => {
 
 watchAuth(async ({ user }) => {
   currentUser = user;
-  if (user && lesson) {
+  currentProfile = user ? await getResolvedProfile(user) : null;
+  renderLesson();
+
+  if (user && lesson && (!lessonRequiresPro() || hasProAccess())) {
     await recordLearning(user, {
       id: lesson.id,
       title: lesson.title,
