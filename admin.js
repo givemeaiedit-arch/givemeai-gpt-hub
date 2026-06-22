@@ -437,6 +437,113 @@ function buildHistoryList(items) {
   `;
 }
 
+const historyMetricMeta = {
+  hook_scroll_stop: { label: "Hook / Scroll Stop", max: 15 },
+  audience_signal: { label: "Audience Signal", max: 15 },
+  pain_desire_clarity: { label: "Pain / Desire", max: 10 },
+  offer_strength: { label: "Offer Strength", max: 15 },
+  creative_clarity: { label: "Creative Clarity", max: 10 },
+  proof_trust: { label: "Proof / Trust", max: 10 },
+  objection_handling: { label: "Objection Handling", max: 10 },
+  cta: { label: "CTA", max: 5 },
+  andromeda_readiness: { label: "Andromeda Readiness", max: 10 },
+};
+
+function formatCompactNumber(value) {
+  const number = Number(value || 0);
+  if (!Number.isFinite(number) || number <= 0) return "-";
+  if (number >= 1000000) return `${(number / 1000000).toFixed(number % 1000000 === 0 ? 0 : 1)}M`;
+  if (number >= 1000) return `${(number / 1000).toFixed(number % 1000 === 0 ? 0 : 1)}K`;
+  return number.toLocaleString("th-TH");
+}
+
+function formatFileSize(bytes) {
+  const value = Number(bytes || 0);
+  if (!Number.isFinite(value) || value <= 0) return "-";
+  if (value >= 1024 * 1024) return `${(value / (1024 * 1024)).toFixed(2)} MB`;
+  if (value >= 1024) return `${(value / 1024).toFixed(1)} KB`;
+  return `${value.toLocaleString("th-TH")} bytes`;
+}
+
+function toReadableText(value) {
+  if (Array.isArray(value)) {
+    const list = value.filter(Boolean).map((item) => String(item).trim()).filter(Boolean);
+    return list.join(", ") || "-";
+  }
+  const text = String(value ?? "").trim();
+  return text || "-";
+}
+
+function buildHistoryFieldRows(fields) {
+  const list = Array.isArray(fields) ? fields : [];
+  return `
+    <div class="admin-history-field-list">
+      ${list
+        .map(
+          ([label, value]) => `
+            <article class="admin-history-field-row">
+              <span>${escapeHtml(label)}</span>
+              <strong>${escapeHtml(toReadableText(value))}</strong>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function buildHistoryPersonas(items) {
+  const list = Array.isArray(items) ? items.filter(Boolean) : [];
+  if (!list.length) {
+    return `<p class="admin-history-empty">ไม่มีข้อมูลในส่วนนี้</p>`;
+  }
+
+  return `
+    <div class="admin-history-personas">
+      ${list
+        .map((item, index) => {
+          const title = typeof item === "string" ? item : item?.title || `Persona ${index + 1}`;
+          const description = typeof item === "string" ? "" : item?.description || "";
+          return `
+            <article class="admin-history-persona">
+              <span class="admin-history-persona-index">${index + 1}</span>
+              <div>
+                <strong>${escapeHtml(title)}</strong>
+                ${description ? `<p>${escapeHtml(description)}</p>` : ""}
+              </div>
+            </article>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function buildHistoryMetricBars(scores) {
+  const source = scores && typeof scores === "object" ? scores : {};
+  return `
+    <div class="admin-history-metric-list">
+      ${Object.entries(historyMetricMeta)
+        .map(([key, meta]) => {
+          const numeric = Number(source[key] || 0);
+          const width = Math.max(0, Math.min(100, (numeric / meta.max) * 100));
+          return `
+            <article class="admin-history-metric-item">
+              <div class="admin-history-metric-head">
+                <span>${escapeHtml(meta.label)}</span>
+                <strong>${numeric}/${meta.max}</strong>
+              </div>
+              <div class="admin-history-metric-track">
+                <div class="admin-history-metric-bar" style="width:${width}%"></div>
+              </div>
+            </article>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
 function openHistoryDialog(historyId) {
   if (!adminHistoryDialog || !adminHistoryDialogBody) return;
   const item = allHistory.find((entry) => entry.id === historyId);
@@ -449,14 +556,34 @@ function openHistoryDialog(historyId) {
   const summaryList = result.summary_3_lines || [];
   const strengths = result.strengths || [];
   const weaknesses = result.weaknesses || [];
-  const fixes = result.things_to_fix_first || result.fixes || [];
+  const fixes = result.fixes_now || result.things_to_fix_first || result.fixes || [];
   const hooks = result.new_hooks || result.hook_options || [];
-  const audienceRange = result?.audience_size_estimate?.range_th || result?.audience_size_estimate?.range || "-";
+  const primaryAudience = result.primary_audience || {};
+  const secondaryAudiences = result.secondary_audiences || [];
+  const audienceEstimate = result.audience_size_estimate || {};
+  const signalCheck = result.andromeda_signal_check || {};
+  const categoryScores = result.category_scores || result.topic_scores || {};
+  const audienceRange =
+    audienceEstimate.range_th ||
+    audienceEstimate.range ||
+    ((audienceEstimate.min || audienceEstimate.max)
+      ? `${formatCompactNumber(audienceEstimate.min)} - ${formatCompactNumber(audienceEstimate.max)}`
+      : "-");
   const audienceConfidence =
-    result?.audience_size_estimate?.confidence || result?.audience_size_estimate?.confidence_level || "-";
+    audienceEstimate.confidence || audienceEstimate.confidence_level || "-";
+  const audienceRationale = audienceEstimate.rationale || "-";
+  const finalVerdictStatus = result?.final_verdict?.status || "-";
+  const finalVerdictReason = result?.final_verdict?.reason || "-";
+  const creativePotential = result.creative_potential || "-";
+  const hasNotes = item.notes && item.notes !== "-";
+  const autoProductText = "ให้ AI ดูจากภาพโฆษณาและระบุชื่อสินค้าหรือประเภทสินค้าที่ใกล้เคียงที่สุด";
+  const dialogTitle =
+    item.productName && item.productName !== autoProductText
+      ? item.productName
+      : "ผลตรวจครั้งนี้";
 
   if (adminHistoryDialogTitle) {
-    adminHistoryDialogTitle.textContent = item.fileName || "ดูผลตรวจครั้งนี้";
+    adminHistoryDialogTitle.textContent = dialogTitle;
   }
 
   if (adminHistoryDialogMeta) {
@@ -476,10 +603,21 @@ function openHistoryDialog(historyId) {
       }
     </div>
     <div class="admin-history-detail">
+      <section class="admin-history-score-card">
+        <article>
+          <span>คะแนนรวม</span>
+          <strong>${Number(item.score || result.overall_score || 0)}/100</strong>
+        </article>
+        <article>
+          <span>Creative Potential</span>
+          <strong>${escapeHtml(creativePotential)}</strong>
+        </article>
+      </section>
+
       <div class="admin-history-meta-grid">
         <article>
           <span>คะแนน</span>
-          <strong>${Number(item.score || 0)}/100</strong>
+          <strong>${Number(item.score || result.overall_score || 0)}/100</strong>
         </article>
         <article>
           <span>สินค้า</span>
@@ -504,8 +642,53 @@ function openHistoryDialog(historyId) {
       </div>
 
       <section class="admin-history-section">
-        <h3>สรุปสั้น</h3>
+        <h3>สรุปสั้น 3 บรรทัด</h3>
         ${buildHistoryList(summaryList)}
+      </section>
+
+      <div class="admin-history-section-grid">
+        <section class="admin-history-section">
+          <h3>กลุ่มเป้าหมายหลัก</h3>
+          ${buildHistoryFieldRows([
+            ["Demographic", primaryAudience.demographic || "-"],
+            ["Interest", primaryAudience.interests || []],
+            ["Behavior", primaryAudience.behaviors || []],
+            ["Pain / Desire", primaryAudience.pain_desire || []],
+            ["Creative Signal", primaryAudience.creative_signals || []],
+          ])}
+        </section>
+        <section class="admin-history-section">
+          <h3>Audience Size Estimate</h3>
+          ${buildHistoryFieldRows([
+            ["ช่วงประมาณ", audienceRange],
+            ["ระดับความมั่นใจ", audienceConfidence],
+            ["เหตุผล", audienceRationale],
+          ])}
+        </section>
+      </div>
+
+      <div class="admin-history-section-grid">
+        <section class="admin-history-section">
+          <h3>กลุ่มเป้าหมายรอง</h3>
+          ${buildHistoryPersonas(secondaryAudiences)}
+        </section>
+        <section class="admin-history-section">
+          <h3>Andromeda Signal Check</h3>
+          ${buildHistoryFieldRows([["Signal ชัดหรือกว้างเกินไป", signalCheck.clarity || "-"]])}
+          <div class="admin-history-subsection">
+            <h4>สิ่งที่ระบบน่าจะเข้าใจ</h4>
+            ${buildHistoryList(signalCheck.understood_signals || [])}
+          </div>
+          <div class="admin-history-subsection">
+            <h4>สิ่งที่ยังสับสน</h4>
+            ${buildHistoryList(signalCheck.confusing_signals || [])}
+          </div>
+        </section>
+      </div>
+
+      <section class="admin-history-section">
+        <h3>คะแนนแยกตามหัวข้อ</h3>
+        ${buildHistoryMetricBars(categoryScores)}
       </section>
 
       <div class="admin-history-section-grid">
@@ -530,15 +713,25 @@ function openHistoryDialog(historyId) {
         </section>
       </div>
 
-      <section class="admin-history-section">
-        <h3>ข้อมูลเสริม</h3>
-        <div class="admin-history-inline">
-          <span>ขนาดกลุ่มเป้าหมาย: <b>${escapeHtml(audienceRange)}</b></span>
-          <span>ความมั่นใจ: <b>${escapeHtml(audienceConfidence)}</b></span>
-          <span>ขนาดไฟล์: <b>${item.fileSize ? `${Number(item.fileSize).toLocaleString("th-TH")} bytes` : "-"}</b></span>
-        </div>
-        ${item.notes ? `<p class="admin-history-notes">หมายเหตุ: ${escapeHtml(item.notes)}</p>` : ""}
-      </section>
+      <div class="admin-history-section-grid">
+        <section class="admin-history-section">
+          <h3>Final Verdict</h3>
+          <div class="admin-history-verdict">
+            <strong>${escapeHtml(finalVerdictStatus)}</strong>
+            <p>${escapeHtml(finalVerdictReason)}</p>
+          </div>
+        </section>
+        <section class="admin-history-section">
+          <h3>ข้อมูลไฟล์และบันทึก</h3>
+          ${buildHistoryFieldRows([
+            ["ชื่อไฟล์", item.fileName || "-"],
+            ["ชนิดไฟล์", item.mimeType || "-"],
+            ["ขนาดไฟล์", formatFileSize(item.fileSize)],
+            ["เช็กซ้ำ", `${Number(item.duplicateHits || 0)} ครั้ง`],
+          ])}
+          ${hasNotes ? `<p class="admin-history-notes">หมายเหตุ: ${escapeHtml(item.notes)}</p>` : ""}
+        </section>
+      </div>
     </div>
   `;
 
