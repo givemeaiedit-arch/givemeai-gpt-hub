@@ -7,6 +7,7 @@ const ADMIN_EMAIL = "givemeai.edit@gmail.com";
 const PRO_REQUIRED_MESSAGE = "สำหรับสมาชิกระดับ Pro ขึ้นไปเท่านั้น";
 
 const groupButton = document.querySelector("#communityGroupButton");
+const topupButton = document.querySelector("#communityTopupButton");
 const notifyButton = document.querySelector("#communityNotifyButton");
 const facebookNameInput = document.querySelector("#communityFacebookName");
 const statusNode = document.querySelector("#communityStatus");
@@ -55,6 +56,7 @@ function syncCommunityUi() {
         : "ต้องเป็น Pro ขึ้นไป";
   }
 
+  if (topupButton) topupButton.hidden = isPro;
   if (notifyButton) notifyButton.disabled = !isPro;
   if (facebookNameInput) facebookNameInput.disabled = !isPro;
 

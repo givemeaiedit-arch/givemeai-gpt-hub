@@ -4184,6 +4184,13 @@ meter::-webkit-meter-optimum-value {
   margin-top: 24px;
 }
 
+.community-topup-button {
+  min-width: 220px;
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: 0 18px 40px rgba(22, 163, 74, 0.24);
+}
+
 .community-metrics {
   display: grid;
   gap: 12px;
