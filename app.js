@@ -168,6 +168,7 @@ async function setAuthUi(user) {
 
   setMessage(user ? "Signed in successfully. AI Hub is ready." : "Ready to explore AI Hub.");
   updateMembershipUi(user, profile);
+  syncProLessonButtons();
 }
 
 function trackPageView(user) {
@@ -263,6 +264,32 @@ function initProLessonGuards() {
 
     event.preventDefault();
     window.alert("สำหรับสมาชิกระดับ Pro ขึ้นไปเท่านั้น");
+  });
+
+  syncProLessonButtons();
+}
+
+function syncProLessonButtons() {
+  const canOpenProLessons = hasProAccess(currentProfile, currentUser);
+
+  document.querySelectorAll('a[href*="lesson-"]').forEach((lessonLink) => {
+    const lessonNumber = getLessonNumberFromHref(lessonLink.getAttribute("href"));
+    if (lessonNumber < 2) return;
+
+    if (!lessonLink.dataset.proOriginalText) {
+      lessonLink.dataset.proOriginalText = lessonLink.textContent.trim();
+    }
+
+    if (canOpenProLessons) {
+      lessonLink.classList.remove("is-pro-locked");
+      lessonLink.removeAttribute("aria-disabled");
+      lessonLink.textContent = lessonLink.dataset.proOriginalText || "เข้าเรียน";
+      return;
+    }
+
+    lessonLink.classList.add("is-pro-locked");
+    lessonLink.setAttribute("aria-disabled", "true");
+    lessonLink.textContent = "สำหรับสมาชิก Pro เท่านั้น";
   });
 }
 

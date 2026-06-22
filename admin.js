@@ -26,6 +26,9 @@ const adminStatus = document.querySelector("#adminStatus");
 const adminUserCount = document.querySelector("#adminUserCount");
 const adminCheckCount = document.querySelector("#adminCheckCount");
 const adminLatestTime = document.querySelector("#adminLatestTime");
+const adminTodaySignupCount = document.querySelector("#adminTodaySignupCount");
+const adminTodayPaidCount = document.querySelector("#adminTodayPaidCount");
+const adminTodayPackageBreakdown = document.querySelector("#adminTodayPackageBreakdown");
 const adminUsersBody = document.querySelector("#adminUsersBody");
 const adminHistoryBody = document.querySelector("#adminHistoryBody");
 const adminUserHistoryBody = document.querySelector("#adminUserHistoryBody");
@@ -123,6 +126,42 @@ function formatDate(value) {
     dateStyle: "medium",
     timeStyle: "short",
   });
+}
+
+function toDateValue(value) {
+  const iso = toIsoString(value);
+  if (!iso) return null;
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function isSameLocalDate(value, targetDate = new Date()) {
+  const date = toDateValue(value);
+  if (!date) return false;
+
+  return (
+    date.getFullYear() === targetDate.getFullYear() &&
+    date.getMonth() === targetDate.getMonth() &&
+    date.getDate() === targetDate.getDate()
+  );
+}
+
+function getTodayPaidOrders() {
+  return allTopupOrders.filter((order) => order.status === "approved" && isSameLocalDate(order.approvedAt || order.createdAt));
+}
+
+function summarizeTodayPackages(orders) {
+  if (!orders.length) return "-";
+
+  const packageCounts = new Map();
+  orders.forEach((order) => {
+    const label = order.packageLabel || order.packageId || "ไม่ระบุแพ็ก";
+    packageCounts.set(label, (packageCounts.get(label) || 0) + 1);
+  });
+
+  return [...packageCounts.entries()]
+    .map(([label, count]) => `${label} ${count} รายการ`)
+    .join(" / ");
 }
 
 function getMemberKey(data) {
@@ -423,6 +462,9 @@ function renderAdminPrompts(prompts) {
 
 function renderAll() {
   const { users, history, communityRequests, prompts } = filterData();
+  const todayPaidOrders = getTodayPaidOrders();
+  const todayPaidUsers = new Set(todayPaidOrders.map((order) => order.uid || order.email || order.id));
+
   renderUsers(users);
   renderHistory(history);
   renderTopupOrders(allTopupOrders);
@@ -432,6 +474,11 @@ function renderAll() {
   if (adminUserCount) adminUserCount.textContent = String(allUsers.length);
   if (adminCheckCount) adminCheckCount.textContent = String(allHistory.length);
   if (adminLatestTime) adminLatestTime.textContent = formatDate(allHistory[0]?.checkedAt);
+  if (adminTodaySignupCount) {
+    adminTodaySignupCount.textContent = String(allUsers.filter((user) => isSameLocalDate(user.createdAt)).length);
+  }
+  if (adminTodayPaidCount) adminTodayPaidCount.textContent = String(todayPaidUsers.size);
+  if (adminTodayPackageBreakdown) adminTodayPackageBreakdown.textContent = summarizeTodayPackages(todayPaidOrders);
 }
 
 function openSlipDialog(orderId) {
@@ -924,9 +971,9 @@ async function loadAdminData() {
   }
 
   const services = getFirebaseServices();
-  const usersQuery = query(collection(services.db, "users"), orderBy("updatedAt", "desc"), limit(100));
+  const usersQuery = query(collection(services.db, "users"), orderBy("updatedAt", "desc"), limit(300));
   const historyQuery = query(collection(services.db, "adCheckHistory"), orderBy("checkedAt", "desc"), limit(200));
-  const topupOrdersQuery = query(collection(services.db, "topupOrders"), orderBy("createdAt", "desc"), limit(50));
+  const topupOrdersQuery = query(collection(services.db, "topupOrders"), orderBy("createdAt", "desc"), limit(200));
   const communityRequestsQuery = query(collection(services.db, "communityRequests"), orderBy("createdAt", "desc"), limit(100));
 
   setAdminStatus("กำลังโหลดข้อมูลหลังบ้าน...", "loading");

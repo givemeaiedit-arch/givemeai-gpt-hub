@@ -65,16 +65,19 @@ async function ensureUserDoc(user) {
   const userRef = getUserDocRef(user);
   if (!userRef) return null;
 
-  await setDoc(
-    userRef,
-    {
-      email: user.email || "",
-      googleDisplayName: user.displayName || "",
-      googlePhotoURL: sanitizePhotoURL(user.photoURL),
-      updatedAt: serverTimestamp(),
-    },
-    { merge: true },
-  );
+  const snapshot = await getDoc(userRef);
+  const patch = {
+    email: user.email || "",
+    googleDisplayName: user.displayName || "",
+    googlePhotoURL: sanitizePhotoURL(user.photoURL),
+    updatedAt: serverTimestamp(),
+  };
+
+  if (!snapshot.exists()) {
+    patch.createdAt = serverTimestamp();
+  }
+
+  await setDoc(userRef, patch, { merge: true });
 
   return userRef;
 }

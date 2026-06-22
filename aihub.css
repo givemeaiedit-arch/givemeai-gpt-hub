@@ -553,6 +553,18 @@ img {
   backdrop-filter: blur(10px);
 }
 
+a.is-pro-locked,
+.orange-button.is-pro-locked,
+.dark-button.is-pro-locked,
+.soft-button.is-pro-locked {
+  cursor: not-allowed;
+  border-color: #d8dde6 !important;
+  color: #667085 !important;
+  background: linear-gradient(135deg, #eef1f5, #e4e8ee) !important;
+  box-shadow: none !important;
+  text-align: center;
+}
+
 .hero-art {
   height: 350px;
 }
@@ -5413,8 +5425,16 @@ meter::-webkit-meter-optimum-value {
 }
 
 .admin-stat-grid strong {
+  display: block;
   color: #111827;
   font-size: clamp(1.4rem, 3vw, 2rem);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+#adminTodayPackageBreakdown {
+  color: #d35400;
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
 }
 
 .admin-grid {

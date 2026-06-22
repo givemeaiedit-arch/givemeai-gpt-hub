@@ -486,17 +486,21 @@ async function verifySignedInUser(req) {
 }
 
 async function ensureUserProfile(user) {
-  await adminDb.collection("users").doc(user.uid).set(
-    {
-      email: user.email,
-      emailLower: normalizeEmail(user.email),
-      googleDisplayName: user.displayName,
-      googlePhotoURL: user.photoURL,
-      updatedAt: FieldValue.serverTimestamp(),
-      createdAt: FieldValue.serverTimestamp(),
-    },
-    { merge: true },
-  );
+  const userRef = adminDb.collection("users").doc(user.uid);
+  const snapshot = await userRef.get();
+  const patch = {
+    email: user.email,
+    emailLower: normalizeEmail(user.email),
+    googleDisplayName: user.displayName,
+    googlePhotoURL: user.photoURL,
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+
+  if (!snapshot.exists) {
+    patch.createdAt = FieldValue.serverTimestamp();
+  }
+
+  await userRef.set(patch, { merge: true });
 }
 
 function isAdminEmail(email) {
