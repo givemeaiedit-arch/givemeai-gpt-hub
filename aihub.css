@@ -4416,6 +4416,42 @@ meter::-webkit-meter-optimum-value {
   background: #fff1ef;
 }
 
+.audit-loading-callout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0 0;
+  padding: 14px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(22, 163, 74, 0.18);
+  background: linear-gradient(135deg, #effcf4, #f8fffb);
+  color: #0f8a53;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.5;
+  text-align: center;
+  animation: auditLoadingBlink 2.2s ease-in-out infinite;
+}
+
+@keyframes auditLoadingBlink {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 0.42;
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audit-loading-callout {
+    animation: none;
+  }
+}
+
 .audit-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));

@@ -8,6 +8,7 @@ const auditGuestNotice = document.querySelector("#auditGuestNotice");
 const auditUploadCard = document.querySelector("#auditUploadCard");
 const auditUploadHint = document.querySelector("#auditUploadHint");
 const auditSkeletonGrid = document.querySelector("#auditSkeletonGrid");
+const auditLoadingCallout = document.querySelector("#auditLoadingCallout");
 const auditResultsGrid = document.querySelector("#auditResultsGrid");
 const runAuditButton = document.querySelector("#runAuditButton");
 const adsPreviewImage = document.querySelector("#adsPreviewImage");
@@ -121,10 +122,19 @@ function setResultPanelsVisible(visible) {
 }
 
 function setSkeletonVisible(visible) {
+  if (auditLoadingCallout) auditLoadingCallout.hidden = !visible;
   if (auditSkeletonGrid) {
     auditSkeletonGrid.hidden = !visible;
     auditSkeletonGrid.setAttribute("aria-hidden", visible ? "false" : "true");
   }
+}
+
+function scrollToLoadingState() {
+  const target = auditLoadingCallout || auditSkeletonGrid;
+  if (!target) return;
+  window.requestAnimationFrame(() => {
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 }
 
 function updateGuestGate() {
@@ -530,6 +540,7 @@ async function analyzeWithBackend() {
     runAuditButton.disabled = true;
     setResultPanelsVisible(false);
     setSkeletonVisible(true);
+    scrollToLoadingState();
     runAuditButton.textContent = "กำลังวิเคราะห์...";
     if (auditStatusBadge) auditStatusBadge.textContent = "Loading";
     setUpgradeNotice(false);
