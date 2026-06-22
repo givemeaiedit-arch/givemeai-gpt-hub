@@ -5354,6 +5354,12 @@ meter::-webkit-meter-optimum-value {
   .admin-profile-fields {
     grid-template-columns: 1fr;
   }
+
+  .admin-history-dialog-body,
+  .admin-history-meta-grid,
+  .admin-history-section-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .green-button {
@@ -5592,6 +5598,120 @@ meter::-webkit-meter-optimum-value {
   max-height: 72vh;
   object-fit: contain;
   background: #ffffff;
+}
+
+.admin-history-dialog {
+  width: min(1040px, calc(100vw - 24px));
+}
+
+.admin-history-dialog-body {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.admin-history-preview,
+.admin-history-section,
+.admin-history-meta-grid article {
+  border: 1px solid var(--faint);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.admin-history-preview {
+  overflow: hidden;
+  padding: 14px;
+  background: #f8fafc;
+}
+
+.admin-history-preview img {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  border-radius: 14px;
+  object-fit: contain;
+  background: #fff;
+}
+
+.admin-history-preview-empty {
+  display: grid;
+  min-height: 280px;
+  place-items: center;
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+  color: var(--muted);
+  font-weight: 850;
+  text-align: center;
+}
+
+.admin-history-detail {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-history-meta-grid,
+.admin-history-section-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-history-meta-grid article,
+.admin-history-section {
+  padding: 14px 16px;
+}
+
+.admin-history-meta-grid span,
+.admin-history-inline span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.admin-history-meta-grid strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 950;
+  line-height: 1.4;
+}
+
+.admin-history-section h3,
+.admin-history-notes {
+  margin: 0;
+}
+
+.admin-history-section h3 {
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.admin-history-list {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding-left: 20px;
+  color: #364152;
+  font-weight: 750;
+  line-height: 1.65;
+}
+
+.admin-history-empty,
+.admin-history-notes {
+  margin-top: 12px;
+  color: var(--muted);
+  font-weight: 750;
+  line-height: 1.65;
+}
+
+.admin-history-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-top: 12px;
 }
 
 .admin-table small {

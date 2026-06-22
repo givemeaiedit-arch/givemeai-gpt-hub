@@ -59,6 +59,12 @@ const adminSlipDialogDone = document.querySelector("#adminSlipDialogDone");
 const adminSlipDialogImage = document.querySelector("#adminSlipDialogImage");
 const adminSlipDialogTitle = document.querySelector("#adminSlipDialogTitle");
 const adminSlipDialogMeta = document.querySelector("#adminSlipDialogMeta");
+const adminHistoryDialog = document.querySelector("#adminHistoryDialog");
+const adminHistoryDialogClose = document.querySelector("#adminHistoryDialogClose");
+const adminHistoryDialogDone = document.querySelector("#adminHistoryDialogDone");
+const adminHistoryDialogTitle = document.querySelector("#adminHistoryDialogTitle");
+const adminHistoryDialogMeta = document.querySelector("#adminHistoryDialogMeta");
+const adminHistoryDialogBody = document.querySelector("#adminHistoryDialogBody");
 
 let allUsers = [];
 let allHistory = [];
@@ -233,7 +239,7 @@ function renderHistory(history) {
           <td>${escapeHtml(item.fileName || "-")}</td>
           <td>${escapeHtml(item.productName || "-")}</td>
           <td>${Number(item.score || 0)}/100</td>
-          <td><button class="soft-button admin-small-button" type="button" data-admin-user="${escapeHtml(item.uid)}">ดูโปรไฟล์</button></td>
+          <td><button class="soft-button admin-small-button" type="button" data-view-history="${escapeHtml(item.id)}">ดูผลตรวจ</button></td>
         </tr>
       `,
     )
@@ -418,6 +424,132 @@ function closeSlipDialog() {
   adminSlipDialog.close();
 }
 
+function buildHistoryList(items) {
+  const list = Array.isArray(items) ? items.filter(Boolean) : [];
+  if (!list.length) {
+    return `<p class="admin-history-empty">ไม่มีข้อมูลในส่วนนี้</p>`;
+  }
+
+  return `
+    <ul class="admin-history-list">
+      ${list.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+    </ul>
+  `;
+}
+
+function openHistoryDialog(historyId) {
+  if (!adminHistoryDialog || !adminHistoryDialogBody) return;
+  const item = allHistory.find((entry) => entry.id === historyId);
+  if (!item) {
+    setAdminStatus("ไม่พบประวัติการตรวจรายการนี้", "error");
+    return;
+  }
+
+  const result = item.result || {};
+  const summaryList = result.summary_3_lines || [];
+  const strengths = result.strengths || [];
+  const weaknesses = result.weaknesses || [];
+  const fixes = result.things_to_fix_first || result.fixes || [];
+  const hooks = result.new_hooks || result.hook_options || [];
+  const audienceRange = result?.audience_size_estimate?.range_th || result?.audience_size_estimate?.range || "-";
+  const audienceConfidence =
+    result?.audience_size_estimate?.confidence || result?.audience_size_estimate?.confidence_level || "-";
+
+  if (adminHistoryDialogTitle) {
+    adminHistoryDialogTitle.textContent = item.fileName || "ดูผลตรวจครั้งนี้";
+  }
+
+  if (adminHistoryDialogMeta) {
+    adminHistoryDialogMeta.textContent = [
+      item.displayName || item.userEmail || "-",
+      item.userEmail || "-",
+      formatDate(item.checkedAt),
+    ].join(" • ");
+  }
+
+  adminHistoryDialogBody.innerHTML = `
+    <div class="admin-history-preview">
+      ${
+        item.imagePreviewDataUrl
+          ? `<img src="${escapeHtml(item.imagePreviewDataUrl)}" alt="${escapeHtml(item.fileName || "Ad preview")}" />`
+          : `<div class="admin-history-preview-empty">ไม่มีรูปที่บันทึกไว้</div>`
+      }
+    </div>
+    <div class="admin-history-detail">
+      <div class="admin-history-meta-grid">
+        <article>
+          <span>คะแนน</span>
+          <strong>${Number(item.score || 0)}/100</strong>
+        </article>
+        <article>
+          <span>สินค้า</span>
+          <strong>${escapeHtml(item.productName || "-")}</strong>
+        </article>
+        <article>
+          <span>ตลาดเป้าหมาย</span>
+          <strong>${escapeHtml(item.targetMarket || "-")}</strong>
+        </article>
+        <article>
+          <span>Objective</span>
+          <strong>${escapeHtml(item.objective || "-")}</strong>
+        </article>
+        <article>
+          <span>ไฟล์</span>
+          <strong>${escapeHtml(item.fileName || "-")}</strong>
+        </article>
+        <article>
+          <span>เช็กซ้ำ</span>
+          <strong>${Number(item.duplicateHits || 0)} ครั้ง</strong>
+        </article>
+      </div>
+
+      <section class="admin-history-section">
+        <h3>สรุปสั้น</h3>
+        ${buildHistoryList(summaryList)}
+      </section>
+
+      <div class="admin-history-section-grid">
+        <section class="admin-history-section">
+          <h3>จุดแข็ง</h3>
+          ${buildHistoryList(strengths)}
+        </section>
+        <section class="admin-history-section">
+          <h3>จุดอ่อน</h3>
+          ${buildHistoryList(weaknesses)}
+        </section>
+      </div>
+
+      <div class="admin-history-section-grid">
+        <section class="admin-history-section">
+          <h3>ควรแก้ก่อน</h3>
+          ${buildHistoryList(fixes)}
+        </section>
+        <section class="admin-history-section">
+          <h3>Hook ที่แนะนำ</h3>
+          ${buildHistoryList(hooks)}
+        </section>
+      </div>
+
+      <section class="admin-history-section">
+        <h3>ข้อมูลเสริม</h3>
+        <div class="admin-history-inline">
+          <span>ขนาดกลุ่มเป้าหมาย: <b>${escapeHtml(audienceRange)}</b></span>
+          <span>ความมั่นใจ: <b>${escapeHtml(audienceConfidence)}</b></span>
+          <span>ขนาดไฟล์: <b>${item.fileSize ? `${Number(item.fileSize).toLocaleString("th-TH")} bytes` : "-"}</b></span>
+        </div>
+        ${item.notes ? `<p class="admin-history-notes">หมายเหตุ: ${escapeHtml(item.notes)}</p>` : ""}
+      </section>
+    </div>
+  `;
+
+  adminHistoryDialog.showModal();
+}
+
+function closeHistoryDialog() {
+  if (!adminHistoryDialog?.open) return;
+  adminHistoryDialog.close();
+}
+
 function confirmTopupDecision(orderId, decision) {
   const order = allTopupOrders.find((item) => item.id === orderId);
   const actionText = decision === "approve" ? "อนุมัติ" : "ปฏิเสธ";
@@ -509,6 +641,11 @@ function normalizeHistoryDoc(entry) {
     checkedAt: data.checkedAt,
     targetMarket: data.targetMarket || "",
     objective: data.objective || "",
+    fileSize: Number(data.fileSize || 0),
+    mimeType: data.mimeType || "",
+    notes: data.notes || "",
+    imagePreviewDataUrl: data.imagePreviewDataUrl || "",
+    result: data.result || null,
   };
 }
 
@@ -960,6 +1097,12 @@ document.addEventListener("click", async (event) => {
     return;
   }
 
+  const historyButton = event.target.closest("[data-view-history]");
+  if (historyButton) {
+    openHistoryDialog(historyButton.dataset.viewHistory);
+    return;
+  }
+
   const viewSlipButton = event.target.closest("[data-view-slip]");
   if (viewSlipButton) {
     openSlipDialog(viewSlipButton.dataset.viewSlip);
@@ -1008,6 +1151,11 @@ adminSlipDialogClose?.addEventListener("click", closeSlipDialog);
 adminSlipDialogDone?.addEventListener("click", closeSlipDialog);
 adminSlipDialog?.addEventListener("click", (event) => {
   if (event.target === adminSlipDialog) closeSlipDialog();
+});
+adminHistoryDialogClose?.addEventListener("click", closeHistoryDialog);
+adminHistoryDialogDone?.addEventListener("click", closeHistoryDialog);
+adminHistoryDialog?.addEventListener("click", (event) => {
+  if (event.target === adminHistoryDialog) closeHistoryDialog();
 });
 renderPromptCategories();
 resetPromptForm();
