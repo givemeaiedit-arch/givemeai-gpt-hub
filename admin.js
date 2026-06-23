@@ -186,7 +186,7 @@ function getPageViewVisitorKey(item) {
 }
 
 function summarizePageViews(days) {
-  const rows = allPageViews.filter((item) => isWithinDays(item.createdAt, days));
+  const rows = allPageViews.filter((item) => item.mode === "session_day" && isWithinDays(item.createdAt, days));
   const uniqueVisitors = new Set(rows.map(getPageViewVisitorKey).filter(Boolean));
   return {
     views: rows.length,
@@ -524,7 +524,7 @@ function renderTrafficDashboard() {
   if (adminVisitorsWeek) adminVisitorsWeek.textContent = String(week.visitors);
   if (adminViewsMonth) adminViewsMonth.textContent = String(month.views);
   if (adminVisitorsMonth) adminVisitorsMonth.textContent = String(month.visitors);
-  if (adminTrafficLabel) adminTrafficLabel.textContent = `${month.views} วิวใน 30 วันล่าสุด`;
+  if (adminTrafficLabel) adminTrafficLabel.textContent = `${month.views} ครั้งแบบ 1 session ต่อ 1 วัน`;
 
   if (!adminTrafficBody) return;
   if (!month.rows.length) {
@@ -1086,6 +1086,8 @@ function normalizePageViewDoc(entry) {
     uid: data.uid || "",
     email: data.email || "",
     title: data.title || "",
+    dayKey: data.dayKey || "",
+    mode: data.mode || "",
     createdAt: data.createdAt,
   };
 }

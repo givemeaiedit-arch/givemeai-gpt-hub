@@ -1,5 +1,4 @@
 import {
-  addDoc,
   collection,
   doc,
   getDoc,
@@ -16,6 +15,8 @@ import { LESSON_POINTS, LESSONS, getLessonById } from "./lesson-data.js";
 
 const fallbackAvatar = "assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png";
 const PAGE_VIEW_VISITOR_KEY = "givemeai_page_visitor_id";
+const PAGE_VIEW_SESSION_LOG_PREFIX = "givemeai_page_view_logged";
+const PAGE_VIEW_SESSION_ID_KEY = "givemeai_page_session_id";
 
 function getUserKey(user) {
   return user?.uid || null;
@@ -65,6 +66,50 @@ function getStoredVisitorId() {
     return nextId;
   } catch {
     return `visitor_fallback_${Date.now()}`;
+  }
+}
+
+function getStoredSessionId() {
+  try {
+    const existing = window.sessionStorage.getItem(PAGE_VIEW_SESSION_ID_KEY);
+    if (existing) return existing;
+    const nextId =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    window.sessionStorage.setItem(PAGE_VIEW_SESSION_ID_KEY, nextId);
+    return nextId;
+  } catch {
+    return `session_fallback_${Date.now()}`;
+  }
+}
+
+function getBangkokDayKey() {
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Bangkok",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+function getPageViewSessionStorageKey(dayKey) {
+  return `${PAGE_VIEW_SESSION_LOG_PREFIX}:${dayKey}`;
+}
+
+function hasLoggedPageViewForSession(dayKey) {
+  try {
+    return window.sessionStorage.getItem(getPageViewSessionStorageKey(dayKey)) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markPageViewLoggedForSession(dayKey) {
+  try {
+    window.sessionStorage.setItem(getPageViewSessionStorageKey(dayKey), "1");
+  } catch {
+    // Ignore storage failures and keep the page usable.
   }
 }
 
@@ -295,21 +340,29 @@ export async function recordPageView(user, pagePath = window.location.pathname) 
   try {
     const pageViewsRef = getPageViewsCollection();
     if (!pageViewsRef) return false;
+    const dayKey = getBangkokDayKey();
+    if (hasLoggedPageViewForSession(dayKey)) return true;
 
     const rawPath = String(pagePath || window.location.pathname || "index.html");
     const path = rawPath.startsWith("/") ? rawPath : `/${rawPath}`;
     const page = path.split("/").pop() || "index.html";
     const visitorId = getStoredVisitorId();
+    const sessionId = getStoredSessionId();
+    const sessionDocId = `${visitorId}_${sessionId}_${dayKey}`;
 
-    await addDoc(pageViewsRef, {
+    await setDoc(doc(pageViewsRef, sessionDocId), {
       path,
       page,
       visitorId,
+      sessionId,
       uid: user?.uid || "",
       email: user?.email || "",
       title: document.title || "",
+      dayKey,
+      mode: "session_day",
       createdAt: serverTimestamp(),
     });
+    markPageViewLoggedForSession(dayKey);
     return true;
   } catch {
     return false;

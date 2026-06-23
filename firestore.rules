@@ -105,17 +105,23 @@ service cloud.firestore {
           "path",
           "page",
           "visitorId",
+          "sessionId",
           "uid",
           "email",
           "title",
+          "dayKey",
+          "mode",
           "createdAt"
         ])
         && request.resource.data.path is string
         && request.resource.data.page is string
         && request.resource.data.visitorId is string
+        && request.resource.data.sessionId is string
         && request.resource.data.uid is string
         && request.resource.data.email is string
         && request.resource.data.title is string
+        && request.resource.data.dayKey is string
+        && request.resource.data.mode == "session_day"
         && request.resource.data.createdAt == request.time
         && (
           request.resource.data.uid == ""
