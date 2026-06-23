@@ -1786,6 +1786,9 @@ async function generateAdFixImageForUser(req, payload) {
       "",
       "Create a polished Thai Meta Ads creative based on the uploaded original ad.",
       "Keep the same product and brand direction, but improve readability, hierarchy, trust signal, proof, and CTA.",
+      "Meta policy safety is mandatory: do not directly call out personal attributes, health conditions, debt, age, body shape, hair loss, illness, or sensitive traits of the viewer.",
+      "Avoid exaggerated before-after, guaranteed results, 100% claims, cure claims, get-rich-fast claims, fake UI buttons, fake notifications, fake chats, clickbait, insults, fear pressure, and prohibited products.",
+      "Use careful wording such as interested people, may help, supports, learn more, ask for details, and results may vary when relevant.",
       "Return a finished square social ad image suitable for Facebook and Instagram feed.",
     ].join("\n"),
   );

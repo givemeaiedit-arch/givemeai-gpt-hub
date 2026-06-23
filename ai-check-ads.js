@@ -50,7 +50,14 @@ const generateFixImageButton = document.querySelector("#generateFixImageButton")
 const generatedImageStatus = document.querySelector("#generatedImageStatus");
 const generatedFixImage = document.querySelector("#generatedFixImage");
 const generatedImageEmpty = document.querySelector("#generatedImageEmpty");
-const downloadGeneratedImageButton = document.querySelector("#downloadGeneratedImageButton");
+let resetFixPromptButton = null;
+let viewOriginalImageButton = null;
+let viewGeneratedImageButton = null;
+let compareImagesButton = null;
+let downloadGeneratedImageButton = document.querySelector("#downloadGeneratedImageButton");
+let auditImageModal = null;
+let auditImageModalTitle = null;
+let auditImageModalBody = null;
 const weaknessInsightGroup = weaknessesList?.closest(".audit-insight-group");
 const fixesInsightGroup = fixesList?.closest(".audit-insight-group");
 const hookOptionsList = document.querySelector("#hookOptionsList");
@@ -76,6 +83,9 @@ let freeLimitExhausted = false;
 let generatedImageDataUrl = "";
 let generatedImageFileName = "generated-ad-fix.png";
 let currentAuditResult = null;
+let defaultFixPrompt = "";
+let generateProgressTimer = null;
+let generateProgressValue = 0;
 
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
@@ -99,6 +109,84 @@ function setRequestStatus(message, tone = "muted") {
   if (!auditRequestStatus) return;
   auditRequestStatus.textContent = message;
   auditRequestStatus.dataset.tone = tone;
+}
+
+function createActionButton(className, id, text) {
+  const button = document.createElement("button");
+  button.className = className;
+  button.id = id;
+  button.type = "button";
+  button.textContent = text;
+  return button;
+}
+
+function ensureAuditUiEnhancements() {
+  if (runAuditButton) {
+    runAuditButton.textContent = "วิเคราะห์เลย ใช้ 1 เครดิต";
+  }
+  if (generateFixImageButton) {
+    generateFixImageButton.textContent = "Generate แก้รูปใหม่ + พร้อมวิเคราะห์ ใช้ 1 เครดิต";
+  }
+  if (fixPromptOutput) {
+    fixPromptOutput.readOnly = false;
+    defaultFixPrompt = fixPromptOutput.value;
+  }
+
+  if (copyFixPromptButton && !resetFixPromptButton) {
+    resetFixPromptButton = createActionButton("soft-button audit-reset-button", "resetFixPromptButton", "คืนค่า Prompt");
+    copyFixPromptButton.insertAdjacentElement("afterend", resetFixPromptButton);
+  }
+
+  const previewHeading = document.querySelector(".audit-preview-card .audit-card-heading");
+  if (previewHeading && !viewOriginalImageButton) {
+    viewOriginalImageButton = createActionButton("soft-button audit-view-button", "viewOriginalImageButton", "ดูภาพใหญ่");
+    previewHeading.append(viewOriginalImageButton);
+  }
+
+  const generatedActions = document.querySelector(".audit-generated-actions");
+  if (generatedActions) {
+    if (!viewGeneratedImageButton) {
+      viewGeneratedImageButton = createActionButton("soft-button audit-view-button", "viewGeneratedImageButton", "ดูภาพใหญ่");
+      viewGeneratedImageButton.hidden = true;
+      generatedActions.insertBefore(viewGeneratedImageButton, downloadGeneratedImageButton || null);
+    }
+    if (!compareImagesButton) {
+      compareImagesButton = createActionButton("soft-button audit-compare-button", "compareImagesButton", "เปรียบเทียบ");
+      compareImagesButton.hidden = true;
+      generatedActions.insertBefore(compareImagesButton, downloadGeneratedImageButton || null);
+    }
+  }
+
+  if (!downloadGeneratedImageButton && generatedActions) {
+    downloadGeneratedImageButton = createActionButton("soft-button audit-download-button", "downloadGeneratedImageButton", "ดาวน์โหลดรูป");
+    downloadGeneratedImageButton.hidden = true;
+    generatedActions.append(downloadGeneratedImageButton);
+  } else if (downloadGeneratedImageButton) {
+    downloadGeneratedImageButton.textContent = "ดาวน์โหลดรูป";
+  }
+
+  if (!auditImageModal) {
+    auditImageModal = document.createElement("div");
+    auditImageModal.className = "audit-image-modal";
+    auditImageModal.id = "auditImageModal";
+    auditImageModal.hidden = true;
+    auditImageModal.innerHTML = `
+      <div class="audit-image-modal-panel" role="dialog" aria-modal="true" aria-labelledby="auditImageModalTitle">
+        <div class="audit-image-modal-head">
+          <h2 id="auditImageModalTitle">ดูภาพ</h2>
+          <button class="soft-button" id="closeImageModalButton" type="button">ปิด</button>
+        </div>
+        <div class="audit-image-modal-body" id="auditImageModalBody"></div>
+      </div>
+    `;
+    document.body.append(auditImageModal);
+    auditImageModalTitle = auditImageModal.querySelector("#auditImageModalTitle");
+    auditImageModalBody = auditImageModal.querySelector("#auditImageModalBody");
+    auditImageModal.querySelector("#closeImageModalButton")?.addEventListener("click", closeImageModal);
+    auditImageModal.addEventListener("click", (event) => {
+      if (event.target === auditImageModal) closeImageModal();
+    });
+  }
 }
 
 function setUpgradeNotice(visible, message = FREE_LIMIT_MESSAGE, url = PRO_UPGRADE_URL) {
@@ -150,6 +238,40 @@ function scrollToLoadingState() {
   window.requestAnimationFrame(() => {
     target.scrollIntoView({ behavior: "smooth", block: "start" });
   });
+}
+
+function startGenerateProgress() {
+  stopGenerateProgress();
+  generateProgressValue = 0;
+  updateGenerateProgress(0);
+  generateProgressTimer = window.setInterval(() => {
+    generateProgressValue = Math.min(95, generateProgressValue + Math.ceil((96 - generateProgressValue) * 0.12));
+    updateGenerateProgress(generateProgressValue);
+  }, 650);
+}
+
+function updateGenerateProgress(value) {
+  if (auditLoadingCallout) {
+    auditLoadingCallout.innerHTML = `
+      <span>กำลังสร้างรูปใหม่ พร้อมวิเคราะห์ทันที</span>
+      <b>${value}%</b>
+      <i class="audit-loading-meter"><em style="width: ${value}%"></em></i>
+    `;
+  }
+}
+
+function stopGenerateProgress(finalValue = 100) {
+  if (generateProgressTimer) {
+    window.clearInterval(generateProgressTimer);
+    generateProgressTimer = null;
+  }
+  if (finalValue !== null) updateGenerateProgress(finalValue);
+}
+
+function resetFixPrompt() {
+  if (!fixPromptOutput) return;
+  fixPromptOutput.value = defaultFixPrompt || buildFixPrompt(currentAuditResult || {});
+  setRequestStatus("คืนค่า Prompt แล้ว", "success");
 }
 
 function updateGuestGate() {
@@ -379,6 +501,20 @@ function renderMetric(key, value) {
   if (text) text.textContent = `${numeric}/${max}`;
 }
 
+function sanitizeMetaSafePromptText(value) {
+  return String(value || "")
+    .replace(/before\s*\/\s*after/gi, "หลักฐานความน่าเชื่อถือที่ไม่เกินจริง")
+    .replace(/before-after/gi, "หลักฐานความน่าเชื่อถือที่ไม่เกินจริง")
+    .replace(/เห็นผลทันที/g, "สื่อสารประโยชน์อย่างระมัดระวัง")
+    .replace(/หายขาด/g, "ช่วยดูแลหรือสนับสนุนตามความเหมาะสม")
+    .replace(/รับประกันผล/g, "เพิ่มโอกาสให้ผลลัพธ์ดีขึ้น")
+    .replace(/การันตี/g, "เพิ่มความมั่นใจ")
+    .replace(/100%/g, "อย่างเหมาะสม")
+    .replace(/รวยเร็ว/g, "เห็นแนวทางที่เป็นไปได้")
+    .replace(/กำไรแน่นอน/g, "เพิ่มโอกาสทางธุรกิจ")
+    .replace(/รีบซื้อเดี๋ยวนี้/g, "สนใจสอบถามเพิ่มเติม");
+}
+
 function buildFixPrompt(data) {
   const productName =
     data?.history?.productName ||
@@ -390,37 +526,45 @@ function buildFixPrompt(data) {
   const verdict = data?.final_verdict?.reason || "";
 
   const fixLines = fixes.length
-    ? fixes.map((item, index) => `${index + 1}. ${item}`).join("\n")
+    ? fixes.map((item, index) => `${index + 1}. ${sanitizeMetaSafePromptText(item)}`).join("\n")
     : "1. ปรับข้อความขายให้ชัดขึ้น\n2. เพิ่มความน่าเชื่อถือของภาพ\n3. ทำ CTA ให้ชัดขึ้น";
   const keepLines = strengths.length
-    ? strengths.map((item) => `- ${item}`).join("\n")
+    ? strengths.map((item) => `- ${sanitizeMetaSafePromptText(item)}`).join("\n")
     : "- คงสินค้าเดิม\n- คงโทนภาพเดิม\n- คงคอนเซ็ปต์เดิม";
 
   return [
-    `ช่วยแก้ไขภาพโฆษณาของ ${productName} ให้คะแนน AI Check Ads สูงขึ้น และพร้อมยิง Meta Ads มากขึ้น`,
+    `ช่วยแก้ไขภาพโฆษณาของ ${productName} ให้พร้อมใช้เป็นสื่อ Meta Ads มากขึ้น โดยคงสินค้าเดิม แบรนด์เดิม และโทนภาพเดิมไว้`,
     "",
-    "สิ่งที่ต้องแก้ทันทีตามผลวิเคราะห์:",
+    "แนวทางแก้ไขจากผลวิเคราะห์:",
     fixLines,
     "",
     "สิ่งที่ควรรักษาไว้:",
     keepLines,
     "",
-    verdict ? `เป้าหมายการแก้ไข: ${verdict}` : "เป้าหมายการแก้ไข: เพิ่มความชัด ความน่าเชื่อถือ และแรงจูงใจให้คนทักหรือกดซื้อ",
+    verdict ? `เป้าหมายการแก้ไข: ${sanitizeMetaSafePromptText(verdict)}` : "เป้าหมายการแก้ไข: เพิ่มความชัด ความน่าเชื่อถือ และทำให้ CTA สุภาพ ชัดเจน น่ากดสอบถาม",
     "",
     "ต้องปรับให้ผ่านเกณฑ์เหล่านี้:",
-    "- มองแวบแรก 1-2 วินาทีต้องรู้ว่าขายอะไรและแก้ปัญหาอะไร",
+    "- มองแวบแรก 1-2 วินาทีต้องรู้ว่าสินค้าหรือบริการคืออะไร และช่วยเรื่องใดแบบสุภาพ",
     "- มี one clear promise เพียงแกนเดียว ไม่ยัดหลายข้อความจนสับสน",
-    "- เพิ่ม proof/trust ที่เห็นชัด เช่น รีวิว ตัวเลข ผลลัพธ์ หรือ before-after ที่น่าเชื่อถือ",
-    "- ตอบข้อกังวลหลักของลูกค้าอย่างน้อย 1 ข้อ เช่น ราคา ความปลอดภัย ความยาก หรือเห็นผลจริงไหม",
-    "- CTA ต้องชัดและทำตามได้ทันที เช่น ทักรับโปร จองคิว หรือสั่งซื้อ",
+    "- เพิ่ม proof/trust ที่ไม่เกินจริง เช่น รีวิวจริง จำนวนผู้ใช้จริง เครื่องหมายรับรอง หรือจุดเด่นที่ตรวจสอบได้",
+    "- CTA ต้องชัดและสุภาพ เช่น สนใจสอบถามเพิ่มเติม, ดูรายละเอียด, ทักเพื่อรับข้อมูล",
     "- ตัวหนังสือต้องอ่านง่ายบนมือถือและลำดับสายตาต้องชัด",
     "",
-    "ข้อกำหนดเพิ่มเติม:",
+    "ข้อห้ามสำคัญเพื่อให้ปลอดภัยกับ Meta/Facebook Ads:",
+    "- ห้ามระบุคุณลักษณะส่วนบุคคลของผู้ชมโดยตรง เช่น อ้วน เป็นหนี้ แก่ ผมร่วง เป็นโรค หรือมีปัญหาส่วนตัว",
+    "- ห้ามใช้ Before-After ที่เกินจริงหรือทำให้รู้สึกแย่กับตัวเอง",
+    "- ห้ามกล่าวอ้างผลลัพธ์เกินจริง เช่น เห็นผลทันที หายขาด รวยเร็ว กำไรแน่นอน รับประกัน 100%",
+    "- ห้ามทำปุ่มปลอม แจ้งเตือนปลอม แชทปลอม หรือองค์ประกอบที่ทำให้เข้าใจผิด",
+    "- ห้ามใช้คำกดดันรุนแรง เช่น รีบซื้อเดี๋ยวนี้ ไม่ซื้อจะเสียใจ หรือคำดูถูกผู้ชม",
+    "- หากเป็นสุขภาพ ความงาม การเงิน หรือรายได้ ให้ใช้ถ้อยคำระมัดระวัง เช่น ช่วยเพิ่มโอกาส, ผลลัพธ์ขึ้นอยู่กับแต่ละบุคคล, สนใจสอบถามเพิ่มเติม",
+    "- ห้ามใช้สินค้าต้องห้ามหรือสื่อสารในทางละเมิดนโยบาย",
+    "",
+    "ข้อกำหนดภาพ:",
     "- คงสินค้าเดิม แบรนด์เดิม และโทนภาพเดิม",
     "- ลดองค์ประกอบที่ไม่ช่วยขายหรือทำให้สัญญาณโฆษณาสับสน",
-    "- หลีกเลี่ยง claim เกินจริงหรือข้อความที่เสี่ยงนโยบายโฆษณา",
+    "- ใช้ภาษาไทยที่สุภาพ น่าเชื่อถือ ไม่ clickbait และไม่โจมตี self-image",
     "",
-    "ขอผลลัพธ์เป็นภาพโฆษณาเวอร์ชันปรับปรุงที่พร้อมใช้งานจริง",
+    "ขอผลลัพธ์เป็นภาพโฆษณาเวอร์ชันปรับปรุงที่ดูน่าเชื่อถือ สะอาด อ่านง่าย และเหมาะกับการนำไปทดสอบยิง Ads",
   ].join("\n");
 }
 
@@ -476,9 +620,7 @@ async function generateFixImage() {
     generateFixImageButton.textContent = "กำลังสร้างและวิเคราะห์...";
     setResultPanelsVisible(false);
     setSkeletonVisible(true);
-    if (auditLoadingCallout) {
-      auditLoadingCallout.textContent = "กำลังสร้างรูปใหม่ พร้อมวิเคราะห์ทันที";
-    }
+    startGenerateProgress();
     scrollToLoadingState();
     generatedImageDataUrl = "";
     if (downloadGeneratedImageButton) downloadGeneratedImageButton.hidden = true;
@@ -526,6 +668,7 @@ async function generateFixImage() {
       throw new Error(result?.error || "Generate รูปใหม่ไม่สำเร็จ");
     }
 
+    stopGenerateProgress(100);
     generatedImageDataUrl = result.imageDataUrl || "";
     generatedImageFileName = result.fileName || generatedImageFileName;
     if (generatedImageDataUrl && generatedFixImage) {
@@ -541,6 +684,8 @@ async function generateFixImage() {
       `;
     }
     if (downloadGeneratedImageButton) downloadGeneratedImageButton.hidden = !generatedImageDataUrl;
+    if (viewGeneratedImageButton) viewGeneratedImageButton.hidden = !generatedImageDataUrl;
+    if (compareImagesButton) compareImagesButton.hidden = !generatedImageDataUrl;
     if (generatedImageStatus) generatedImageStatus.textContent = result.reusedHistory ? "ใช้ผลเดิม" : "Generated + Analyzed";
     if (result.analysis) {
       renderAudit(result.analysis, { generatedMode: true });
@@ -552,6 +697,7 @@ async function generateFixImage() {
     }
     setRequestStatus(result.reusedHistory ? "พบชื่อไฟล์รูปนี้ในประวัติ จึงดึงผลเดิมมาแสดงแล้ว" : "Generate รูปใหม่และวิเคราะห์สำเร็จแล้ว", "success");
   } catch (error) {
+    stopGenerateProgress(null);
     setSkeletonVisible(false);
     if (generatedImageEmpty) {
       generatedImageEmpty.hidden = false;
@@ -583,10 +729,56 @@ function downloadGeneratedImage() {
   setRequestStatus(`ดาวน์โหลดรูปแล้ว: ${link.download}`, "success");
 }
 
+function openImageModal(mode) {
+  if (!auditImageModal || !auditImageModalBody) return;
+  const originalSrc = selectedImageDataUrl || adsPreviewImage?.src || "";
+  const generatedSrc = generatedImageDataUrl || generatedFixImage?.src || "";
+
+  if (mode === "original" && !originalSrc) {
+    setRequestStatus("ยังไม่มีรูปเก่าสำหรับดูภาพใหญ่", "error");
+    return;
+  }
+  if (mode === "generated" && !generatedSrc) {
+    setRequestStatus("ยังไม่มีรูปใหม่สำหรับดูภาพใหญ่", "error");
+    return;
+  }
+  if (mode === "compare" && (!originalSrc || !generatedSrc)) {
+    setRequestStatus("ต้องมีทั้งรูปเก่าและรูปใหม่ก่อนเปรียบเทียบ", "error");
+    return;
+  }
+
+  auditImageModalTitle.textContent =
+    mode === "compare" ? "เปรียบเทียบรูปเก่า / รูปใหม่" : mode === "generated" ? "รูปใหม่ที่ Generate" : "รูปเดิม";
+  auditImageModalBody.innerHTML = mode === "compare"
+    ? `
+      <figure>
+        <figcaption>รูปเดิม</figcaption>
+        <img src="${originalSrc}" alt="รูปเดิม" />
+      </figure>
+      <figure>
+        <figcaption>รูปใหม่</figcaption>
+        <img src="${generatedSrc}" alt="รูปใหม่" />
+      </figure>
+    `
+    : `<figure><img src="${mode === "generated" ? generatedSrc : originalSrc}" alt="ดูภาพใหญ่" /></figure>`;
+  auditImageModal.hidden = false;
+  document.body.classList.add("is-audit-modal-open");
+}
+
+function closeImageModal() {
+  if (!auditImageModal) return;
+  auditImageModal.hidden = true;
+  if (auditImageModalBody) auditImageModalBody.innerHTML = "";
+  document.body.classList.remove("is-audit-modal-open");
+}
+
 function renderAudit(data, options = {}) {
   currentAuditResult = data;
   setSkeletonVisible(false);
   setResultPanelsVisible(true);
+  if (auditResultsGrid) {
+    auditResultsGrid.classList.toggle("is-generated-comparison", Boolean(options.generatedMode));
+  }
   if (auditStatusBadge) auditStatusBadge.textContent = "Analyzed";
   if (auditScoreValue) auditScoreValue.textContent = String(data.overall_score ?? 0);
   if (auditScoreBar) auditScoreBar.style.width = `${Math.max(0, Math.min(100, Number(data.overall_score || 0)))}%`;
@@ -628,7 +820,9 @@ function renderAudit(data, options = {}) {
   if (fixesInsightGroup) fixesInsightGroup.hidden = Boolean(options.generatedMode);
   if (weaknessesList) weaknessesList.innerHTML = listToHtml(data.weaknesses);
   if (fixesList) fixesList.innerHTML = listToHtml(data.fixes_now);
-  if (fixPromptOutput) fixPromptOutput.value = buildFixPrompt(data);
+  const generatedPrompt = buildFixPrompt(data);
+  defaultFixPrompt = generatedPrompt;
+  if (fixPromptOutput) fixPromptOutput.value = generatedPrompt;
   if (hookOptionsList) hookOptionsList.innerHTML = listToHtml(data.hook_options);
 
   if (finalVerdictStatus) finalVerdictStatus.textContent = data.final_verdict?.status || "-";
@@ -858,6 +1052,16 @@ adsImageInput?.addEventListener("change", async (event) => {
 
 clearAdsImageButton?.addEventListener("click", () => {
   if (adsImageInput) adsImageInput.value = "";
+  generatedImageDataUrl = "";
+  generatedImageFileName = "generated-ad-fix.png";
+  if (auditResultsGrid) auditResultsGrid.classList.remove("is-generated-comparison");
+  if (generatedFixImage) {
+    generatedFixImage.hidden = true;
+    generatedFixImage.removeAttribute("src");
+  }
+  if (viewGeneratedImageButton) viewGeneratedImageButton.hidden = true;
+  if (compareImagesButton) compareImagesButton.hidden = true;
+  if (downloadGeneratedImageButton) downloadGeneratedImageButton.hidden = true;
   initUploadUi();
   setDefaultPreview();
   applyMockAudit();
@@ -867,7 +1071,6 @@ clearAdsImageButton?.addEventListener("click", () => {
 runAuditButton?.addEventListener("click", analyzeWithBackend);
 copyFixPromptButton?.addEventListener("click", copyFixPrompt);
 generateFixImageButton?.addEventListener("click", generateFixImage);
-downloadGeneratedImageButton?.addEventListener("click", downloadGeneratedImage);
 
 heroLoginButton?.addEventListener("click", async () => {
   try {
@@ -882,6 +1085,13 @@ watchAuth(async ({ user }) => {
   updateAdminUi();
   await refreshUsage();
 });
+
+ensureAuditUiEnhancements();
+resetFixPromptButton?.addEventListener("click", resetFixPrompt);
+viewOriginalImageButton?.addEventListener("click", () => openImageModal("original"));
+viewGeneratedImageButton?.addEventListener("click", () => openImageModal("generated"));
+compareImagesButton?.addEventListener("click", () => openImageModal("compare"));
+downloadGeneratedImageButton?.addEventListener("click", downloadGeneratedImage);
 
 initUploadUi();
 setDefaultPreview();
