@@ -44,6 +44,8 @@ const signalConfusingList = document.querySelector("#signalConfusingList");
 const strengthsList = document.querySelector("#strengthsList");
 const weaknessesList = document.querySelector("#weaknessesList");
 const fixesList = document.querySelector("#fixesList");
+const fixPromptOutput = document.querySelector("#fixPromptOutput");
+const copyFixPromptButton = document.querySelector("#copyFixPromptButton");
 const hookOptionsList = document.querySelector("#hookOptionsList");
 const finalVerdictStatus = document.querySelector("#finalVerdictStatus");
 const finalVerdictReason = document.querySelector("#finalVerdictReason");
@@ -365,6 +367,59 @@ function renderMetric(key, value) {
   if (text) text.textContent = `${numeric}/${max}`;
 }
 
+function buildFixPrompt(data) {
+  const productName =
+    data?.history?.productName ||
+    productNameInput?.value?.trim() ||
+    previewOverlayTitle?.textContent?.trim() ||
+    "สินค้านี้";
+  const fixes = Array.isArray(data?.fixes_now) ? data.fixes_now.filter(Boolean) : [];
+  const strengths = Array.isArray(data?.strengths) ? data.strengths.filter(Boolean) : [];
+  const verdict = data?.final_verdict?.reason || "";
+
+  const fixLines = fixes.length
+    ? fixes.map((item, index) => `${index + 1}. ${item}`).join("\n")
+    : "1. ปรับข้อความขายให้ชัดขึ้น\n2. เพิ่มความน่าเชื่อถือของภาพ\n3. ทำ CTA ให้ชัดขึ้น";
+  const keepLines = strengths.length
+    ? strengths.map((item) => `- ${item}`).join("\n")
+    : "- คงสินค้าเดิม\n- คงโทนภาพเดิม\n- คงคอนเซ็ปต์เดิม";
+
+  return [
+    `ช่วยแก้ไขภาพโฆษณาของ ${productName} ให้พร้อมยิง Ads มากขึ้น`,
+    "",
+    "สิ่งที่ต้องแก้ทันที:",
+    fixLines,
+    "",
+    "สิ่งที่ควรรักษาไว้:",
+    keepLines,
+    "",
+    verdict ? `เป้าหมายการแก้ไข: ${verdict}` : "เป้าหมายการแก้ไข: เพิ่มความชัด ความน่าเชื่อถือ และแรงจูงใจให้คนทักหรือกดซื้อ",
+    "",
+    "ข้อกำหนดเพิ่มเติม:",
+    "- คงสินค้าเดิม แบรนด์เดิม และโทนภาพเดิม",
+    "- ทำให้ข้อความอ่านง่ายบนมือถือ",
+    "- เพิ่ม proof หรือผลลัพธ์ที่น่าเชื่อถือ",
+    "- เพิ่ม CTA ที่ชัดเจนและดูพร้อมใช้งานจริง",
+    "",
+    "ขอผลลัพธ์เป็นภาพโฆษณาเวอร์ชันปรับปรุงที่พร้อมใช้งานจริง",
+  ].join("\n");
+}
+
+async function copyFixPrompt() {
+  const prompt = fixPromptOutput?.value?.trim();
+  if (!prompt) {
+    setRequestStatus("ยังไม่มี Prompt สำหรับคัดลอก", "error");
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(prompt);
+    setRequestStatus("คัดลอก Prompt สำหรับแก้ไขแล้ว", "success");
+  } catch {
+    setRequestStatus("คัดลอก Prompt ไม่สำเร็จ กรุณาลองใหม่", "error");
+  }
+}
+
 function renderAudit(data) {
   setSkeletonVisible(false);
   setResultPanelsVisible(true);
@@ -407,6 +462,7 @@ function renderAudit(data) {
   if (strengthsList) strengthsList.innerHTML = listToHtml(data.strengths);
   if (weaknessesList) weaknessesList.innerHTML = listToHtml(data.weaknesses);
   if (fixesList) fixesList.innerHTML = listToHtml(data.fixes_now);
+  if (fixPromptOutput) fixPromptOutput.value = buildFixPrompt(data);
   if (hookOptionsList) hookOptionsList.innerHTML = listToHtml(data.hook_options);
 
   if (finalVerdictStatus) finalVerdictStatus.textContent = data.final_verdict?.status || "-";
@@ -640,6 +696,7 @@ clearAdsImageButton?.addEventListener("click", () => {
 });
 
 runAuditButton?.addEventListener("click", analyzeWithBackend);
+copyFixPromptButton?.addEventListener("click", copyFixPrompt);
 
 heroLoginButton?.addEventListener("click", async () => {
   try {

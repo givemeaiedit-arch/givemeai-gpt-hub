@@ -4946,6 +4946,35 @@ meter::-webkit-meter-optimum-value {
   grid-column: span 4;
 }
 
+.audit-prompt-card {
+  display: grid;
+  grid-column: span 4;
+  gap: 12px;
+}
+
+.audit-prompt-caption {
+  margin: -4px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.audit-prompt-textarea {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid #dbe4f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: #f8fbff;
+  color: var(--ink);
+  font: inherit;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+.audit-copy-button {
+  white-space: nowrap;
+}
+
 .audit-hooks-card {
   grid-column: span 8;
 }
@@ -5115,6 +5144,7 @@ meter::-webkit-meter-optimum-value {
   .audit-size-card,
   .audit-signal-card,
   .audit-breakdown-card,
+  .audit-prompt-card,
   .audit-insight-card,
   .audit-hooks-card,
   .audit-verdict-card {
