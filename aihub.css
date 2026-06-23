@@ -4948,7 +4948,7 @@ meter::-webkit-meter-optimum-value {
 
 .audit-prompt-card {
   display: grid;
-  grid-column: span 4;
+  grid-column: 5 / span 4;
   gap: 12px;
 }
 

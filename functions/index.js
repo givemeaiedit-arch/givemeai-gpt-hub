@@ -23,6 +23,17 @@ const PRIMARY_ADMIN_EMAIL = "givemeai.edit@gmail.com";
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
 const ADMIN_PANEL_URL = "https://givemeaiedit-arch.github.io/givemeai-gpt-hub/admin.html";
 const AD_CHECK_POINTS = 15;
+const AD_CHECK_SCORE_KEYS = [
+  "hook_scroll_stop",
+  "audience_signal",
+  "pain_desire_clarity",
+  "offer_strength",
+  "creative_clarity",
+  "proof_trust",
+  "objection_handling",
+  "cta",
+  "andromeda_readiness",
+];
 const TOPUP_REJECT_REASON = "ตรวจสลิปไม่ผ่าน";
 const TOPUP_PACKAGES = {
   "credit-50": {
@@ -1490,7 +1501,26 @@ async function analyzeCreative(payload) {
     throw new Error("No model output returned");
   }
 
-  return JSON.parse(outputText);
+  return normalizeAdCreativeResult(JSON.parse(outputText));
+}
+
+function normalizeAdCreativeResult(result) {
+  if (!result?.category_scores) return result;
+  const score = AD_CHECK_SCORE_KEYS.reduce((total, key) => total + Number(result.category_scores[key] || 0), 0);
+  const overallScore = Math.max(0, Math.min(100, Math.round(score)));
+  result.overall_score = overallScore;
+
+  if (overallScore >= 81) {
+    result.creative_potential = "สูง";
+  } else if (overallScore >= 71) {
+    result.creative_potential = "ค่อนข้างสูง";
+  } else if (overallScore >= 61) {
+    result.creative_potential = "กลาง";
+  } else {
+    result.creative_potential = "ต่ำ";
+  }
+
+  return result;
 }
 
 async function analyzeCreativeForUser(req, payload) {
