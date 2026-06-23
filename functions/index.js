@@ -14,6 +14,7 @@ const telegramAdminChatId = defineSecret("TELEGRAM_ADMIN_CHAT_ID");
 const telegramWebhookSecret = defineSecret("TELEGRAM_WEBHOOK_SECRET");
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.4-mini";
 const OPENAI_FAST_MODEL = process.env.OPENAI_FAST_MODEL || "gpt-5.4-mini";
+const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
 const promptUrl = new URL("./openai/ai-check-ads-prompt.md", import.meta.url);
 const schemaUrl = new URL("./openai/ai-check-ads-schema.json", import.meta.url);
 const adminAuth = getAuth();
@@ -1667,6 +1668,78 @@ async function extractProductNameFromCreative(payload) {
   return JSON.parse(outputText);
 }
 
+async function generateAdFixImageForUser(req, payload) {
+  const user = await verifySignedInUser(req);
+  await ensureUserProfile(user);
+
+  const apiKey = openAiApiKey.value();
+  if (!apiKey) {
+    throw new Error("Missing OPENAI_API_KEY secret");
+  }
+
+  const prompt = String(payload?.prompt || "").trim();
+  if (!prompt) {
+    throw new Error("Missing prompt");
+  }
+
+  if (!payload?.imageBase64) {
+    throw new Error("Missing imageBase64");
+  }
+
+  const mimeType = String(payload.mimeType || "image/jpeg").toLowerCase();
+  if (!["image/jpeg", "image/png", "image/webp"].includes(mimeType)) {
+    throw new Error("Unsupported image type");
+  }
+
+  const extension = mimeType === "image/png" ? "png" : mimeType === "image/webp" ? "webp" : "jpg";
+  const imageBuffer = Buffer.from(String(payload.imageBase64), "base64");
+  const form = new FormData();
+  form.set("model", OPENAI_IMAGE_MODEL);
+  form.set("quality", "low");
+  form.set("size", "1024x1024");
+  form.set(
+    "prompt",
+    [
+      prompt,
+      "",
+      "Create a polished Thai Meta Ads creative based on the uploaded original ad.",
+      "Keep the same product and brand direction, but improve readability, hierarchy, trust signal, proof, and CTA.",
+      "Return a finished square social ad image suitable for Facebook and Instagram feed.",
+    ].join("\n"),
+  );
+  form.set("image", new Blob([imageBuffer], { type: mimeType }), `ad-source.${extension}`);
+
+  const apiResponse = await fetch("https://api.openai.com/v1/images/edits", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: form,
+  });
+
+  const responseJson = await apiResponse.json();
+  if (!apiResponse.ok) {
+    const message = responseJson?.error?.message || "OpenAI image generation failed";
+    throw new Error(message);
+  }
+
+  const image = responseJson?.data?.[0] || {};
+  const imageDataUrl = image.b64_json
+    ? `data:image/png;base64,${image.b64_json}`
+    : image.url || "";
+
+  if (!imageDataUrl) {
+    throw new Error("No generated image returned");
+  }
+
+  return {
+    imageDataUrl,
+    model: OPENAI_IMAGE_MODEL,
+    quality: "low",
+    generatedAt: new Date().toISOString(),
+  };
+}
+
 export const analyzeAdCreative = onRequest(
   {
     region: "asia-southeast1",
@@ -1734,6 +1807,40 @@ export const extractProductName = onRequest(
         error: error.message || "Unknown error",
         code: error.code || "UNKNOWN_ERROR",
         upgradeUrl: error.upgradeUrl || "",
+      });
+    }
+  },
+);
+
+export const generateAdFixImage = onRequest(
+  {
+    region: "asia-southeast1",
+    cors: true,
+    secrets: [openAiApiKey],
+    timeoutSeconds: 120,
+    memory: "512MiB",
+  },
+  async (req, res) => {
+    setCors(res);
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      const payload = await readJsonBody(req);
+      const result = await generateAdFixImageForUser(req, payload);
+      sendJson(res, 200, result);
+    } catch (error) {
+      sendJson(res, error.statusCode || 400, {
+        error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
       });
     }
   },

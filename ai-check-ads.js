@@ -56,6 +56,8 @@ const finalVerdictReason = document.querySelector("#finalVerdictReason");
 const auditStars = document.querySelector("#auditStars");
 const AD_CHECK_USAGE_ENDPOINT =
   "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/getAdCheckUsage";
+const GENERATE_FIX_IMAGE_ENDPOINT =
+  "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/generateAdFixImage";
 
 let selectedImageDataUrl = "";
 let selectedImagePreviewDataUrl = "";
@@ -424,33 +426,110 @@ async function copyFixPrompt() {
   }
 
   try {
-    await navigator.clipboard.writeText(prompt);
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(prompt);
+    } else {
+      fixPromptOutput.focus();
+      fixPromptOutput.select();
+      document.execCommand("copy");
+      window.getSelection()?.removeAllRanges();
+    }
     setRequestStatus("คัดลอก Prompt สำหรับแก้ไขแล้ว", "success");
   } catch {
     setRequestStatus("คัดลอก Prompt ไม่สำเร็จ กรุณาลองใหม่", "error");
   }
 }
 
-async function prepareGenerateFixImage() {
+async function generateFixImage() {
   const prompt = fixPromptOutput?.value?.trim();
   if (!prompt) {
     setRequestStatus("ยังไม่มี Prompt สำหรับ Generate รูปใหม่", "error");
     return;
   }
 
-  if (generatedFixImage) {
-    generatedFixImage.hidden = true;
-    generatedFixImage.removeAttribute("src");
+  if (!selectedImageDataUrl) {
+    setRequestStatus("กรุณาอัปโหลดรูปโฆษณาก่อน Generate รูปใหม่", "error");
+    return;
   }
-  if (generatedImageEmpty) {
-    generatedImageEmpty.innerHTML = `
-      <strong>พร้อม Generate รูปใหม่</strong>
-      <p>ระบบคัดลอก Prompt ให้แล้ว ตอนนี้ช่องนี้เตรียมไว้สำหรับแสดงรูปใหม่เมื่อเชื่อม API สร้างภาพจริง</p>
-    `;
+
+  if (!currentUser) {
+    setRequestStatus("กรุณา Login Gmail ก่อน Generate รูปใหม่", "error");
+    return;
   }
-  if (generatedImageStatus) generatedImageStatus.textContent = "พร้อมต่อ API";
-  await copyFixPrompt();
-  setRequestStatus("คัดลอก Prompt สำหรับ Generate แล้ว รอเชื่อม API สร้างภาพจริง", "success");
+
+  let idToken = "";
+  try {
+    idToken = await currentUser.getIdToken();
+  } catch {
+    setRequestStatus("ยืนยันสิทธิ์ Gmail ไม่สำเร็จ กรุณา Login ใหม่อีกครั้ง", "error");
+    return;
+  }
+
+  try {
+    generateFixImageButton.disabled = true;
+    if (generatedFixImage) {
+      generatedFixImage.hidden = true;
+      generatedFixImage.removeAttribute("src");
+    }
+    if (generatedImageEmpty) {
+      generatedImageEmpty.hidden = false;
+      generatedImageEmpty.innerHTML = `
+        <strong>กำลัง Generate รูปใหม่</strong>
+        <p>รอสักครู่ ระบบกำลังใช้ Prompt ข้าง ๆ และรูปเดิมสร้างภาพเวอร์ชันปรับปรุง</p>
+      `;
+    }
+    if (generatedImageStatus) generatedImageStatus.textContent = "Generating...";
+    setRequestStatus("กำลัง Generate รูปใหม่ด้วย GPT Image 2.0 low...", "loading");
+
+    const response = await fetch(GENERATE_FIX_IMAGE_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({
+        prompt,
+        imageBase64: selectedImageDataUrl.split(",")[1],
+        mimeType: selectedMimeType,
+      }),
+    });
+
+    const raw = await response.text();
+    let result = {};
+    try {
+      result = raw ? JSON.parse(raw) : {};
+    } catch {
+      throw new Error("backend ตอบกลับไม่ใช่ JSON ที่อ่านได้");
+    }
+
+    if (!response.ok) {
+      throw new Error(result?.error || "Generate รูปใหม่ไม่สำเร็จ");
+    }
+
+    if (!result.imageDataUrl) {
+      throw new Error("ไม่พบรูปที่ Generate กลับมา");
+    }
+
+    if (generatedFixImage) {
+      generatedFixImage.src = result.imageDataUrl;
+      generatedFixImage.hidden = false;
+    }
+    if (generatedImageEmpty) generatedImageEmpty.hidden = true;
+    if (generatedImageStatus) generatedImageStatus.textContent = "Generated";
+    setRequestStatus("Generate รูปใหม่สำเร็จแล้ว", "success");
+  } catch (error) {
+    if (generatedImageEmpty) {
+      generatedImageEmpty.hidden = false;
+      generatedImageEmpty.innerHTML = `
+        <strong>Generate ไม่สำเร็จ</strong>
+        <p>${error.message || "กรุณาลองใหม่อีกครั้ง"}</p>
+      `;
+    }
+    if (generatedImageStatus) generatedImageStatus.textContent = "Error";
+    setRequestStatus(error.message || "Generate รูปใหม่ไม่สำเร็จ", "error");
+  } finally {
+    generateFixImageButton.disabled = false;
+  }
 }
 
 function renderAudit(data) {
@@ -730,7 +809,7 @@ clearAdsImageButton?.addEventListener("click", () => {
 
 runAuditButton?.addEventListener("click", analyzeWithBackend);
 copyFixPromptButton?.addEventListener("click", copyFixPrompt);
-generateFixImageButton?.addEventListener("click", prepareGenerateFixImage);
+generateFixImageButton?.addEventListener("click", generateFixImage);
 
 heroLoginButton?.addEventListener("click", async () => {
   try {
