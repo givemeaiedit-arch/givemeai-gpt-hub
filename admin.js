@@ -1104,27 +1104,52 @@ async function loadAdminData() {
   const communityRequestsQuery = query(collection(services.db, "communityRequests"), orderBy("createdAt", "desc"), limit(100));
 
   setAdminStatus("กำลังโหลดข้อมูลหลังบ้าน...", "loading");
+  try {
+    const [usersResult, historyResult, pageViewsResult, topupOrdersResult, communityRequestsResult, promptResult] =
+      await Promise.allSettled([
+        getDocs(usersQuery),
+        getDocs(historyQuery),
+        getDocs(pageViewsQuery),
+        getDocs(topupOrdersQuery),
+        getDocs(communityRequestsQuery),
+        getDocs(collection(services.db, "promptLibrary")),
+      ]);
 
-  const [usersSnapshot, historySnapshot, pageViewsSnapshot, topupOrdersSnapshot, communityRequestsSnapshot, promptSnapshot] = await Promise.all([
-    getDocs(usersQuery),
-    getDocs(historyQuery),
-    getDocs(pageViewsQuery),
-    getDocs(topupOrdersQuery),
-    getDocs(communityRequestsQuery),
-    getDocs(collection(services.db, "promptLibrary")),
-  ]);
+    allUsers = usersResult.status === "fulfilled" ? usersResult.value.docs.map(normalizeUserDoc) : [];
+    allHistory = historyResult.status === "fulfilled" ? historyResult.value.docs.map(normalizeHistoryDoc) : [];
+    allPageViews =
+      pageViewsResult.status === "fulfilled" ? pageViewsResult.value.docs.map(normalizePageViewDoc) : [];
+    allTopupOrders =
+      topupOrdersResult.status === "fulfilled" ? topupOrdersResult.value.docs.map(normalizeTopupOrderDoc) : [];
+    allCommunityRequests =
+      communityRequestsResult.status === "fulfilled"
+        ? communityRequestsResult.value.docs.map(normalizeCommunityRequestDoc)
+        : [];
+    const remotePrompts =
+      promptResult.status === "fulfilled" ? promptResult.value.docs.map(normalizePromptDoc) : [];
+    remotePromptMap = new Map(remotePrompts.map((prompt) => [prompt.id, prompt]));
+    allPrompts = buildPromptList(remotePrompts);
 
-  allUsers = usersSnapshot.docs.map(normalizeUserDoc);
-  allHistory = historySnapshot.docs.map(normalizeHistoryDoc);
-  allPageViews = pageViewsSnapshot.docs.map(normalizePageViewDoc);
-  allTopupOrders = topupOrdersSnapshot.docs.map(normalizeTopupOrderDoc);
-  allCommunityRequests = communityRequestsSnapshot.docs.map(normalizeCommunityRequestDoc);
-  const remotePrompts = promptSnapshot.docs.map(normalizePromptDoc);
-  remotePromptMap = new Map(remotePrompts.map((prompt) => [prompt.id, prompt]));
-  allPrompts = buildPromptList(remotePrompts);
+    renderAll();
 
-  renderAll();
-  setAdminStatus("โหลดข้อมูล Admin สำเร็จ", "success");
+    if (pageViewsResult.status !== "fulfilled") {
+      setAdminStatus("โหลดหลังบ้านได้บางส่วน แต่ยอดวิวเว็บยังไม่พร้อม กรุณา deploy firestore.rules ล่าสุด", "warning");
+      return;
+    }
+
+    setAdminStatus("โหลดข้อมูล Admin สำเร็จ", "success");
+  } catch (error) {
+    console.error("loadAdminData failed", error);
+    allUsers = [];
+    allHistory = [];
+    allPageViews = [];
+    allTopupOrders = [];
+    allCommunityRequests = [];
+    allPrompts = [];
+    remotePromptMap = new Map();
+    renderAll();
+    setAdminStatus("โหลดข้อมูลหลังบ้านไม่สำเร็จ กรุณาลองรีเฟรชอีกครั้ง", "error");
+  }
 }
 
 function resetPromptForm() {
