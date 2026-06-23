@@ -99,6 +99,35 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /pageViews/{viewId} {
+      allow read: if isAdmin();
+      allow create: if request.resource.data.keys().hasOnly([
+          "path",
+          "page",
+          "visitorId",
+          "uid",
+          "email",
+          "title",
+          "createdAt"
+        ])
+        && request.resource.data.path is string
+        && request.resource.data.page is string
+        && request.resource.data.visitorId is string
+        && request.resource.data.uid is string
+        && request.resource.data.email is string
+        && request.resource.data.title is string
+        && request.resource.data.createdAt == request.time
+        && (
+          request.resource.data.uid == ""
+          || (isSignedIn() && request.resource.data.uid == request.auth.uid)
+        )
+        && (
+          request.resource.data.email == ""
+          || (isSignedIn() && request.resource.data.email == request.auth.token.email)
+        );
+      allow update, delete: if false;
+    }
+
     match /topupOrders/{orderId} {
       allow read: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid);
       allow write: if false;

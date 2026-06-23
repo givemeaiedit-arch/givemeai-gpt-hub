@@ -1,4 +1,5 @@
 import {
+  addDoc,
   collection,
   doc,
   getDoc,
@@ -14,6 +15,7 @@ import { getFirebaseServices, isFirebaseConfigured } from "./auth-shared.js";
 import { LESSON_POINTS, LESSONS, getLessonById } from "./lesson-data.js";
 
 const fallbackAvatar = "assets/Icon/asset_1x1_cropfix/asset_6-05-avatar-like-2.png";
+const PAGE_VIEW_VISITOR_KEY = "givemeai_page_visitor_id";
 
 function getUserKey(user) {
   return user?.uid || null;
@@ -43,6 +45,27 @@ function getLessonScoreDoc(user, lessonId) {
   const uid = getUserKey(user);
   if (!scoresRef || !uid || !lessonId) return null;
   return doc(scoresRef, `${uid}_${lessonId}`);
+}
+
+function getPageViewsCollection() {
+  const services = getFirebaseServices();
+  if (!services?.db) return null;
+  return collection(services.db, "pageViews");
+}
+
+function getStoredVisitorId() {
+  try {
+    const existing = window.localStorage.getItem(PAGE_VIEW_VISITOR_KEY);
+    if (existing) return existing;
+    const nextId =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `visitor_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    window.localStorage.setItem(PAGE_VIEW_VISITOR_KEY, nextId);
+    return nextId;
+  } catch {
+    return `visitor_fallback_${Date.now()}`;
+  }
 }
 
 function toIsoString(value) {
@@ -260,6 +283,33 @@ export async function recordToolUsage(user, item) {
       },
       { merge: true },
     );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function recordPageView(user, pagePath = window.location.pathname) {
+  if (!isFirebaseConfigured()) return false;
+
+  try {
+    const pageViewsRef = getPageViewsCollection();
+    if (!pageViewsRef) return false;
+
+    const rawPath = String(pagePath || window.location.pathname || "index.html");
+    const path = rawPath.startsWith("/") ? rawPath : `/${rawPath}`;
+    const page = path.split("/").pop() || "index.html";
+    const visitorId = getStoredVisitorId();
+
+    await addDoc(pageViewsRef, {
+      path,
+      page,
+      visitorId,
+      uid: user?.uid || "",
+      email: user?.email || "",
+      title: document.title || "",
+      createdAt: serverTimestamp(),
+    });
     return true;
   } catch {
     return false;

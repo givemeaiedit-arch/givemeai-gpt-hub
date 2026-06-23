@@ -29,12 +29,20 @@ const adminLatestTime = document.querySelector("#adminLatestTime");
 const adminTodaySignupCount = document.querySelector("#adminTodaySignupCount");
 const adminTodayPaidCount = document.querySelector("#adminTodayPaidCount");
 const adminTodayPackageBreakdown = document.querySelector("#adminTodayPackageBreakdown");
+const adminViewsToday = document.querySelector("#adminViewsToday");
+const adminVisitorsToday = document.querySelector("#adminVisitorsToday");
+const adminViewsWeek = document.querySelector("#adminViewsWeek");
+const adminVisitorsWeek = document.querySelector("#adminVisitorsWeek");
+const adminViewsMonth = document.querySelector("#adminViewsMonth");
+const adminVisitorsMonth = document.querySelector("#adminVisitorsMonth");
 const adminUsersBody = document.querySelector("#adminUsersBody");
 const adminHistoryBody = document.querySelector("#adminHistoryBody");
+const adminTrafficBody = document.querySelector("#adminTrafficBody");
 const adminUserHistoryBody = document.querySelector("#adminUserHistoryBody");
 const adminProfileDetail = document.querySelector("#adminProfileDetail");
 const adminUsersLabel = document.querySelector("#adminUsersLabel");
 const adminHistoryLabel = document.querySelector("#adminHistoryLabel");
+const adminTrafficLabel = document.querySelector("#adminTrafficLabel");
 const adminSearchInput = document.querySelector("#adminSearchInput");
 const topupOrdersLabel = document.querySelector("#topupOrdersLabel");
 const topupOrdersBody = document.querySelector("#topupOrdersBody");
@@ -73,6 +81,7 @@ const adminHistoryDialogBody = document.querySelector("#adminHistoryDialogBody")
 
 let allUsers = [];
 let allHistory = [];
+let allPageViews = [];
 let allTopupOrders = [];
 let allCommunityRequests = [];
 let allPrompts = [];
@@ -162,6 +171,50 @@ function summarizeTodayPackages(orders) {
   return [...packageCounts.entries()]
     .map(([label, count]) => `${label} ${count} รายการ`)
     .join(" / ");
+}
+
+function isWithinDays(value, days) {
+  const date = toDateValue(value);
+  if (!date) return false;
+  const now = Date.now();
+  const windowStart = now - days * 24 * 60 * 60 * 1000;
+  return date.getTime() >= windowStart;
+}
+
+function getPageViewVisitorKey(item) {
+  return item.uid || item.visitorId || item.email || item.id;
+}
+
+function summarizePageViews(days) {
+  const rows = allPageViews.filter((item) => isWithinDays(item.createdAt, days));
+  const uniqueVisitors = new Set(rows.map(getPageViewVisitorKey).filter(Boolean));
+  return {
+    views: rows.length,
+    visitors: uniqueVisitors.size,
+    rows,
+  };
+}
+
+function getPageLabel(value) {
+  const page = String(value || "index.html").split("?")[0];
+  const map = {
+    "index.html": "หน้าแรก",
+    "courses.html": "คอร์สเรียน",
+    "articles.html": "บทความ & เทคนิค",
+    "community.html": "กลุ่มเรียนรู้",
+    "prompts.html": "Prompt ยอดนิยม",
+    "prompt-categories.html": "หมวดหมู่ Prompt",
+    "tools.html": "เครื่องมือทั้งหมด",
+    "ai-check-ads.html": "AI Check Ads",
+    "topup.html": "เติมเงิน",
+    "profile.html": "โปรไฟล์",
+    "leaderboard.html": "Leaderboard",
+    "admin.html": "Admin Panel",
+    "lesson-1.html": "บทเรียน 1",
+    "lesson-2.html": "บทเรียน 2",
+    "lesson-3.html": "บทเรียน 3",
+  };
+  return map[page] || page;
 }
 
 function getMemberKey(data) {
@@ -460,6 +513,64 @@ function renderAdminPrompts(prompts) {
     .join("");
 }
 
+function renderTrafficDashboard() {
+  const today = summarizePageViews(1);
+  const week = summarizePageViews(7);
+  const month = summarizePageViews(30);
+
+  if (adminViewsToday) adminViewsToday.textContent = String(today.views);
+  if (adminVisitorsToday) adminVisitorsToday.textContent = String(today.visitors);
+  if (adminViewsWeek) adminViewsWeek.textContent = String(week.views);
+  if (adminVisitorsWeek) adminVisitorsWeek.textContent = String(week.visitors);
+  if (adminViewsMonth) adminViewsMonth.textContent = String(month.views);
+  if (adminVisitorsMonth) adminVisitorsMonth.textContent = String(month.visitors);
+  if (adminTrafficLabel) adminTrafficLabel.textContent = `${month.views} วิวใน 30 วันล่าสุด`;
+
+  if (!adminTrafficBody) return;
+  if (!month.rows.length) {
+    setEmptyTable(adminTrafficBody, "ยังไม่มีข้อมูลยอดวิวหน้าเว็บ", 4);
+    return;
+  }
+
+  const pageMap = new Map();
+  month.rows.forEach((item) => {
+    const key = item.page || item.path || item.id;
+    const current = pageMap.get(key) || {
+      page: key,
+      views: 0,
+      visitorKeys: new Set(),
+      latestAt: "",
+    };
+    current.views += 1;
+    current.visitorKeys.add(getPageViewVisitorKey(item));
+    const checkedAt = toIsoString(item.createdAt);
+    if (checkedAt && (!current.latestAt || checkedAt > current.latestAt)) {
+      current.latestAt = checkedAt;
+    }
+    pageMap.set(key, current);
+  });
+
+  const rows = [...pageMap.values()]
+    .sort((a, b) => b.views - a.views || b.visitorKeys.size - a.visitorKeys.size)
+    .slice(0, 12);
+
+  adminTrafficBody.innerHTML = rows
+    .map(
+      (item) => `
+        <tr>
+          <td>
+            <strong>${escapeHtml(getPageLabel(item.page))}</strong>
+            <small>${escapeHtml(item.page)}</small>
+          </td>
+          <td>${item.views.toLocaleString("th-TH")}</td>
+          <td>${item.visitorKeys.size.toLocaleString("th-TH")}</td>
+          <td>${escapeHtml(formatDate(item.latestAt))}</td>
+        </tr>
+      `,
+    )
+    .join("");
+}
+
 function renderAll() {
   const { users, history, communityRequests, prompts } = filterData();
   const todayPaidOrders = getTodayPaidOrders();
@@ -467,6 +578,7 @@ function renderAll() {
 
   renderUsers(users);
   renderHistory(history);
+  renderTrafficDashboard();
   renderTopupOrders(allTopupOrders);
   renderCommunityRequests(communityRequests);
   renderAdminPrompts(prompts);
@@ -964,6 +1076,20 @@ function normalizeCommunityRequestDoc(entry) {
   };
 }
 
+function normalizePageViewDoc(entry) {
+  const data = entry.data() || {};
+  return {
+    id: entry.id,
+    page: data.page || "index.html",
+    path: data.path || "",
+    visitorId: data.visitorId || "",
+    uid: data.uid || "",
+    email: data.email || "",
+    title: data.title || "",
+    createdAt: data.createdAt,
+  };
+}
+
 async function loadAdminData() {
   if (!isFirebaseConfigured()) {
     setAdminStatus("ยังไม่ได้ตั้งค่า Firebase", "error");
@@ -973,14 +1099,16 @@ async function loadAdminData() {
   const services = getFirebaseServices();
   const usersQuery = query(collection(services.db, "users"), orderBy("updatedAt", "desc"), limit(300));
   const historyQuery = query(collection(services.db, "adCheckHistory"), orderBy("checkedAt", "desc"), limit(200));
+  const pageViewsQuery = query(collection(services.db, "pageViews"), orderBy("createdAt", "desc"), limit(2000));
   const topupOrdersQuery = query(collection(services.db, "topupOrders"), orderBy("createdAt", "desc"), limit(200));
   const communityRequestsQuery = query(collection(services.db, "communityRequests"), orderBy("createdAt", "desc"), limit(100));
 
   setAdminStatus("กำลังโหลดข้อมูลหลังบ้าน...", "loading");
 
-  const [usersSnapshot, historySnapshot, topupOrdersSnapshot, communityRequestsSnapshot, promptSnapshot] = await Promise.all([
+  const [usersSnapshot, historySnapshot, pageViewsSnapshot, topupOrdersSnapshot, communityRequestsSnapshot, promptSnapshot] = await Promise.all([
     getDocs(usersQuery),
     getDocs(historyQuery),
+    getDocs(pageViewsQuery),
     getDocs(topupOrdersQuery),
     getDocs(communityRequestsQuery),
     getDocs(collection(services.db, "promptLibrary")),
@@ -988,6 +1116,7 @@ async function loadAdminData() {
 
   allUsers = usersSnapshot.docs.map(normalizeUserDoc);
   allHistory = historySnapshot.docs.map(normalizeHistoryDoc);
+  allPageViews = pageViewsSnapshot.docs.map(normalizePageViewDoc);
   allTopupOrders = topupOrdersSnapshot.docs.map(normalizeTopupOrderDoc);
   allCommunityRequests = communityRequestsSnapshot.docs.map(normalizeCommunityRequestDoc);
   const remotePrompts = promptSnapshot.docs.map(normalizePromptDoc);
@@ -1466,6 +1595,7 @@ watchAuth(async ({ user, configured }) => {
   if (!user) {
     allUsers = [];
     allHistory = [];
+    allPageViews = [];
     allTopupOrders = [];
     allCommunityRequests = [];
     allPrompts = [];
@@ -1480,6 +1610,7 @@ watchAuth(async ({ user, configured }) => {
   if (!isAdminUser(user)) {
     allUsers = [];
     allHistory = [];
+    allPageViews = [];
     allTopupOrders = [];
     allCommunityRequests = [];
     allPrompts = [];

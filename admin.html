@@ -103,8 +103,36 @@
           </article>
         </section>
 
+        <section class="admin-stat-grid admin-anchor-section" aria-label="Dashboard ยอดวิวหน้าเว็บ">
+          <article>
+            <span>ยอดวิววันนี้</span>
+            <strong id="adminViewsToday">0</strong>
+          </article>
+          <article>
+            <span>คนเข้าวันนี้</span>
+            <strong id="adminVisitorsToday">0</strong>
+          </article>
+          <article>
+            <span>ยอดวิว 7 วัน</span>
+            <strong id="adminViewsWeek">0</strong>
+          </article>
+          <article>
+            <span>คนเข้า 7 วัน</span>
+            <strong id="adminVisitorsWeek">0</strong>
+          </article>
+          <article>
+            <span>ยอดวิว 30 วัน</span>
+            <strong id="adminViewsMonth">0</strong>
+          </article>
+          <article>
+            <span>คนเข้า 30 วัน</span>
+            <strong id="adminVisitorsMonth">0</strong>
+          </article>
+        </section>
+
         <nav class="admin-head-menu" aria-label="เมนูหัวข้อแอดมิน">
           <a class="admin-head-link" href="#adminOverviewSection">ภาพรวม</a>
+          <a class="admin-head-link" href="#adminTrafficSection">ยอดวิวเว็บ</a>
           <a class="admin-head-link" href="#adminUsersSection">สมาชิก</a>
           <a class="admin-head-link" href="#adminHistorySection">ประวัติ Check Ads</a>
           <a class="admin-head-link" href="#adminTopupSection">ตรวจสลิป</a>
@@ -114,6 +142,26 @@
         </nav>
 
         <section class="admin-grid">
+          <article class="leaderboard-table-card admin-card admin-anchor-section" id="adminTrafficSection">
+            <div class="panel-heading">
+              <h2>Dashboard ยอดวิวหน้าเว็บ</h2>
+              <span id="adminTrafficLabel">-</span>
+            </div>
+            <div class="leaderboard-table-wrap">
+              <table class="leaderboard-table admin-table">
+                <thead>
+                  <tr>
+                    <th>หน้า</th>
+                    <th>ยอดวิว 30 วัน</th>
+                    <th>คนเข้า 30 วัน</th>
+                    <th>ล่าสุด</th>
+                  </tr>
+                </thead>
+                <tbody id="adminTrafficBody"></tbody>
+              </table>
+            </div>
+          </article>
+
           <article class="leaderboard-table-card admin-card admin-anchor-section" id="adminUsersSection">
             <div class="panel-heading">
               <h2>รายชื่อผู้ใช้</h2>

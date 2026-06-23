@@ -6,6 +6,7 @@ import {
 } from "./auth-shared.js";
 import {
   getResolvedProfile,
+  recordPageView,
   recordLearning,
   recordToolUsage,
 } from "./profile-store.js";
@@ -172,8 +173,10 @@ async function setAuthUi(user) {
 }
 
 function trackPageView(user) {
-  const userKey = user?.uid || user?.email || "";
-  if (!userKey || pageTrackedFor === `${currentPage}:${userKey}`) return;
+  const userKey = user?.uid || user?.email || "guest";
+  if (pageTrackedFor === `${currentPage}:${userKey}`) return;
+
+  recordPageView(user, window.location.pathname);
 
   if (currentPage === "courses.html") {
     recordLearning(user, {
