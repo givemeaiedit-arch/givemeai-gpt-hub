@@ -4948,8 +4948,15 @@ meter::-webkit-meter-optimum-value {
 
 .audit-prompt-card {
   display: grid;
-  grid-column: 5 / span 4;
+  grid-column: span 8;
   gap: 12px;
+}
+
+.audit-prompt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .audit-prompt-caption {
@@ -4973,6 +4980,57 @@ meter::-webkit-meter-optimum-value {
 
 .audit-copy-button {
   white-space: nowrap;
+}
+
+.audit-generate-button {
+  min-height: 46px;
+  white-space: nowrap;
+}
+
+.audit-generated-card {
+  display: grid;
+  grid-column: span 4;
+  gap: 12px;
+}
+
+.audit-generated-frame {
+  display: grid;
+  min-height: 320px;
+  overflow: hidden;
+  border: 1px dashed #cbd5e1;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 16%, rgba(16, 185, 129, 0.12), transparent 9rem),
+    linear-gradient(180deg, #f8fbff, #fff);
+}
+
+.audit-generated-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #fff;
+}
+
+.audit-generated-empty {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  padding: 28px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.audit-generated-empty strong {
+  color: #14316e;
+  font-size: 1.2rem;
+  font-weight: 950;
+}
+
+.audit-generated-empty p {
+  max-width: 320px;
+  margin: 0;
+  line-height: 1.7;
 }
 
 .audit-hooks-card {
@@ -5145,6 +5203,7 @@ meter::-webkit-meter-optimum-value {
   .audit-signal-card,
   .audit-breakdown-card,
   .audit-prompt-card,
+  .audit-generated-card,
   .audit-insight-card,
   .audit-hooks-card,
   .audit-verdict-card {
@@ -5347,6 +5406,20 @@ meter::-webkit-meter-optimum-value {
 
   .audit-card {
     padding: 18px;
+  }
+
+  .audit-card-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .audit-prompt-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .audit-prompt-actions > * {
+    flex: 1 1 160px;
   }
 
   .audit-metric {

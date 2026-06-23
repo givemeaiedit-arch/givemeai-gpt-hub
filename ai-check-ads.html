@@ -366,10 +366,27 @@
           <article class="audit-card audit-prompt-card">
             <div class="audit-card-heading">
               <h2>Prompt สำหรับแก้ไข</h2>
-              <button class="soft-button audit-copy-button" id="copyFixPromptButton" type="button">คัดลอก Prompt</button>
+              <div class="audit-prompt-actions">
+                <button class="soft-button audit-copy-button" id="copyFixPromptButton" type="button">คัดลอก Prompt</button>
+                <button class="green-button audit-generate-button" id="generateFixImageButton" type="button">Generate ทำรูปใหม่</button>
+              </div>
             </div>
             <p class="audit-prompt-caption">ใช้ prompt นี้สำหรับให้ AI ช่วยแก้ภาพ โดยอิงจากรายการ “สิ่งที่ควรแก้ทันที” ด้านบน</p>
             <textarea class="audit-prompt-textarea" id="fixPromptOutput" rows="9" readonly>ช่วยปรับภาพโฆษณานี้ให้พร้อมยิง Ads มากขึ้น โดยเพิ่ม proof ให้ชัดขึ้น เพิ่มข้อความตอบข้อกังวลของลูกค้า และปรับ CTA ให้ชัดเจนขึ้น โดยยังคงคอนเซ็ปต์สินค้าเดิม โทนเดิม และความน่าเชื่อถือของแบรนด์ไว้</textarea>
+          </article>
+
+          <article class="audit-card audit-generated-card">
+            <div class="audit-card-heading">
+              <h2>รูปที่ Generate ใหม่</h2>
+              <span id="generatedImageStatus">รอ Generate</span>
+            </div>
+            <div class="audit-generated-frame">
+              <img id="generatedFixImage" alt="รูปโฆษณาที่ Generate ใหม่" hidden />
+              <div class="audit-generated-empty" id="generatedImageEmpty">
+                <strong>ยังไม่มีรูปใหม่</strong>
+                <p>กด Generate ทำรูปใหม่ เพื่อเตรียม prompt และแสดงผลลัพธ์ในช่องนี้เมื่อเชื่อม API สร้างภาพแล้ว</p>
+              </div>
+            </div>
           </article>
 
           <article class="audit-card audit-hooks-card">

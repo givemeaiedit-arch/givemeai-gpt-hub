@@ -46,6 +46,10 @@ const weaknessesList = document.querySelector("#weaknessesList");
 const fixesList = document.querySelector("#fixesList");
 const fixPromptOutput = document.querySelector("#fixPromptOutput");
 const copyFixPromptButton = document.querySelector("#copyFixPromptButton");
+const generateFixImageButton = document.querySelector("#generateFixImageButton");
+const generatedImageStatus = document.querySelector("#generatedImageStatus");
+const generatedFixImage = document.querySelector("#generatedFixImage");
+const generatedImageEmpty = document.querySelector("#generatedImageEmpty");
 const hookOptionsList = document.querySelector("#hookOptionsList");
 const finalVerdictStatus = document.querySelector("#finalVerdictStatus");
 const finalVerdictReason = document.querySelector("#finalVerdictReason");
@@ -427,6 +431,28 @@ async function copyFixPrompt() {
   }
 }
 
+async function prepareGenerateFixImage() {
+  const prompt = fixPromptOutput?.value?.trim();
+  if (!prompt) {
+    setRequestStatus("ยังไม่มี Prompt สำหรับ Generate รูปใหม่", "error");
+    return;
+  }
+
+  if (generatedFixImage) {
+    generatedFixImage.hidden = true;
+    generatedFixImage.removeAttribute("src");
+  }
+  if (generatedImageEmpty) {
+    generatedImageEmpty.innerHTML = `
+      <strong>พร้อม Generate รูปใหม่</strong>
+      <p>ระบบคัดลอก Prompt ให้แล้ว ตอนนี้ช่องนี้เตรียมไว้สำหรับแสดงรูปใหม่เมื่อเชื่อม API สร้างภาพจริง</p>
+    `;
+  }
+  if (generatedImageStatus) generatedImageStatus.textContent = "พร้อมต่อ API";
+  await copyFixPrompt();
+  setRequestStatus("คัดลอก Prompt สำหรับ Generate แล้ว รอเชื่อม API สร้างภาพจริง", "success");
+}
+
 function renderAudit(data) {
   setSkeletonVisible(false);
   setResultPanelsVisible(true);
@@ -704,6 +730,7 @@ clearAdsImageButton?.addEventListener("click", () => {
 
 runAuditButton?.addEventListener("click", analyzeWithBackend);
 copyFixPromptButton?.addEventListener("click", copyFixPrompt);
+generateFixImageButton?.addEventListener("click", prepareGenerateFixImage);
 
 heroLoginButton?.addEventListener("click", async () => {
   try {
