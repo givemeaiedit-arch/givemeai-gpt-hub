@@ -50,6 +50,7 @@ const generateFixImageButton = document.querySelector("#generateFixImageButton")
 const generatedImageStatus = document.querySelector("#generatedImageStatus");
 const generatedFixImage = document.querySelector("#generatedFixImage");
 const generatedImageEmpty = document.querySelector("#generatedImageEmpty");
+const generatedCard = document.querySelector(".audit-generated-card");
 let resetFixPromptButton = null;
 let viewOriginalImageButton = null;
 let viewGeneratedImageButton = null;
@@ -130,6 +131,9 @@ function ensureAuditUiEnhancements() {
   if (fixPromptOutput) {
     fixPromptOutput.readOnly = false;
     defaultFixPrompt = fixPromptOutput.value;
+  }
+  if (generatedCard) {
+    generatedCard.hidden = true;
   }
 
   if (copyFixPromptButton && !resetFixPromptButton) {
@@ -618,6 +622,9 @@ async function generateFixImage() {
   try {
     generateFixImageButton.disabled = true;
     generateFixImageButton.textContent = "กำลังสร้างและวิเคราะห์...";
+    if (generatedCard) {
+      generatedCard.hidden = false;
+    }
     setResultPanelsVisible(false);
     setSkeletonVisible(true);
     startGenerateProgress();
@@ -778,6 +785,9 @@ function renderAudit(data, options = {}) {
   setResultPanelsVisible(true);
   if (auditResultsGrid) {
     auditResultsGrid.classList.toggle("is-generated-comparison", Boolean(options.generatedMode));
+  }
+  if (generatedCard) {
+    generatedCard.hidden = !options.generatedMode;
   }
   if (auditStatusBadge) auditStatusBadge.textContent = "Analyzed";
   if (auditScoreValue) auditScoreValue.textContent = String(data.overall_score ?? 0);
@@ -1055,6 +1065,7 @@ clearAdsImageButton?.addEventListener("click", () => {
   generatedImageDataUrl = "";
   generatedImageFileName = "generated-ad-fix.png";
   if (auditResultsGrid) auditResultsGrid.classList.remove("is-generated-comparison");
+  if (generatedCard) generatedCard.hidden = true;
   if (generatedFixImage) {
     generatedFixImage.hidden = true;
     generatedFixImage.removeAttribute("src");
