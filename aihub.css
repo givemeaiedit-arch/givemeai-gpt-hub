@@ -4987,6 +4987,19 @@ meter::-webkit-meter-optimum-value {
   white-space: nowrap;
 }
 
+.audit-generated-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.audit-download-button {
+  min-height: 36px;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
 .audit-generated-card {
   display: grid;
   grid-column: span 4;

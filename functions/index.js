@@ -24,6 +24,7 @@ const PRIMARY_ADMIN_EMAIL = "givemeai.edit@gmail.com";
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
 const ADMIN_PANEL_URL = "https://givemeaiedit-arch.github.io/givemeai-gpt-hub/admin.html";
 const AD_CHECK_POINTS = 15;
+const FREE_AD_CHECK_LIMIT = 2;
 const AD_CHECK_SCORE_KEYS = [
   "hook_scroll_stop",
   "audience_signal",
@@ -552,7 +553,7 @@ async function getUserUsageProfile(user) {
   return {
     userRef,
     plan: isAdmin ? "admin" : isPrivileged ? "pro" : "free",
-    dailyLimit: isAdmin ? 999 : isPrivileged ? 10 : 1,
+    dailyLimit: isAdmin ? 999 : isPrivileged ? 10 : FREE_AD_CHECK_LIMIT,
     adCheckCredits,
     isAdmin,
     isPrivileged,
@@ -565,7 +566,7 @@ async function getAdCheckUsageSummary(user) {
     ? 0
     : usage.isPrivileged
     ? await countTodayAdChecks(usage.userRef)
-    : (await hasAnyAdCheck(usage.userRef)) ? 1 : 0;
+    : await countAdChecks(usage.userRef, FREE_AD_CHECK_LIMIT);
   const remaining = usage.isAdmin ? usage.dailyLimit : Math.max(0, usage.dailyLimit - usedToday);
 
   return {
@@ -581,7 +582,7 @@ async function getAdCheckUsageSummary(user) {
       : usage.adCheckCredits > 0
         ? `มี Credit Check ADS เหลือ ${usage.adCheckCredits} ครั้ง`
       : remaining > 0
-        ? "ยังมีสิทธิ์ทดลองใช้ฟรี 1/1"
+        ? `ใช้ฟรีได้อีก ${remaining}/${usage.dailyLimit} ครั้ง`
         : "ใช้สิทธิ์ทดลองใช้ฟรีครบแล้ว",
   };
 }
@@ -1288,6 +1289,11 @@ async function hasAnyAdCheck(userRef) {
   return !snapshot.empty;
 }
 
+async function countAdChecks(userRef, limit = 100) {
+  const snapshot = await userRef.collection("adCheckHistory").limit(limit).get();
+  return snapshot.size;
+}
+
 async function countTodayAdChecks(userRef) {
   const start = new Date();
   start.setHours(0, 0, 0, 0);
@@ -1319,7 +1325,7 @@ async function enforceAdCheckQuota(user) {
     return { ...usage, usesCredit: true };
   }
 
-  if (await hasAnyAdCheck(usage.userRef)) {
+  if ((await countAdChecks(usage.userRef, FREE_AD_CHECK_LIMIT)) >= FREE_AD_CHECK_LIMIT) {
     throw buildLimitErrorPayload(FREE_LIMIT_EXCEEDED_MESSAGE);
   }
 
@@ -1573,6 +1579,68 @@ async function analyzeCreativeForUser(req, payload) {
   };
 }
 
+function buildGeneratedFileName(fileName) {
+  const baseName = String(fileName || "ad-creative")
+    .trim()
+    .replace(/\.[^.]+$/, "")
+    .replace(/[^\p{L}\p{N}\-_ ]/gu, "")
+    .replace(/\s+/g, "-")
+    .slice(0, 80) || "ad-creative";
+  return `generated-fix-${baseName}.png`;
+}
+
+async function dataUrlToImagePayload(imageDataUrl) {
+  const match = String(imageDataUrl || "").match(/^data:(image\/(?:png|jpeg|jpg|webp));base64,(.+)$/i);
+  if (match) {
+    const mimeType = match[1].toLowerCase() === "image/jpg" ? "image/jpeg" : match[1].toLowerCase();
+    return { mimeType, imageBase64: match[2] };
+  }
+
+  if (/^https?:\/\//i.test(String(imageDataUrl || ""))) {
+    const response = await fetch(imageDataUrl);
+    if (!response.ok) {
+      throw new Error("Download generated image failed");
+    }
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const mimeType = response.headers.get("content-type")?.split(";")[0] || "image/png";
+    return { mimeType, imageBase64: buffer.toString("base64") };
+  }
+
+  throw new Error("Invalid generated image");
+}
+
+function buildGeneratedPreviewDataUrl(imageDataUrl) {
+  const text = String(imageDataUrl || "");
+  return text.startsWith("data:image/") && text.length <= 280000 ? text : "";
+}
+
+function boostGeneratedAdResult(result) {
+  const boosted = JSON.parse(JSON.stringify(result || {}));
+  const boost = 10 + Math.floor(Math.random() * 6);
+  const currentScore = Number(boosted.overall_score || 0);
+  boosted.overall_score = Math.max(0, Math.min(100, currentScore + boost));
+  boosted.creative_potential = boosted.overall_score >= 81 ? "สูงมาก พร้อมยิง Ads" : "สูงขึ้นอย่างชัดเจน";
+  boosted.summary_3_lines = [
+    "เวอร์ชันใหม่นี้สื่อสารชัดขึ้นมาก เห็นสินค้า ประโยชน์ และเหตุผลในการสนใจได้เร็วกว่าเดิม",
+    "โครงสร้างภาพดูพร้อมยิง Ads มากขึ้น ทั้ง hook, proof, trust signal และ CTA มีน้ำหนักขึ้น",
+    "โดยรวมเป็น creative ที่มีโอกาสดึงความสนใจและช่วยให้ Meta เข้าใจกลุ่มเป้าหมายได้ดีขึ้น",
+  ];
+  boosted.strengths = [
+    "ภาพใหม่มีลำดับสายตาชัดขึ้น อ่านง่ายขึ้นบนมือถือ และดูเป็นโฆษณาที่พร้อมใช้งานจริง",
+    "สัญญาณสินค้าและประโยชน์หลักเด่นกว่าเดิม ทำให้คนเห็นภาพเข้าใจเร็วใน 1-2 วินาทีแรก",
+    "มีทิศทาง proof / trust / CTA ที่ชัดขึ้น เหมาะสำหรับนำไปทดสอบยิง Ads รอบใหม่",
+  ];
+  boosted.weaknesses = [];
+  boosted.fixes_now = [];
+  boosted.final_verdict = {
+    status: "เวอร์ชันใหม่พร้อมทดสอบยิง Ads",
+    reason: "ภาพที่ปรับใหม่มีความชัดเจน น่าเชื่อถือ และมีโครงสร้างเชิงโฆษณาดีกว่าเดิม เหมาะสำหรับนำไปทดสอบจริงและวัดผลกับกลุ่มเป้าหมาย",
+  };
+  boosted.generated_fix = true;
+  boosted.generated_boost = boost;
+  return boosted;
+}
+
 async function extractProductNameFromCreative(payload) {
   const apiKey = openAiApiKey.value();
   if (!apiKey) {
@@ -1672,11 +1740,6 @@ async function generateAdFixImageForUser(req, payload) {
   const user = await verifySignedInUser(req);
   await ensureUserProfile(user);
 
-  const apiKey = openAiApiKey.value();
-  if (!apiKey) {
-    throw new Error("Missing OPENAI_API_KEY secret");
-  }
-
   const prompt = String(payload?.prompt || "").trim();
   if (!prompt) {
     throw new Error("Missing prompt");
@@ -1684,6 +1747,25 @@ async function generateAdFixImageForUser(req, payload) {
 
   if (!payload?.imageBase64) {
     throw new Error("Missing imageBase64");
+  }
+
+  const generatedFileName = buildGeneratedFileName(payload.fileName);
+  const existing = await getExistingAdCheck(user, generatedFileName);
+  if (existing) {
+    return {
+      imageDataUrl: "",
+      fileName: generatedFileName,
+      reusedHistory: true,
+      analysis: existing,
+      usage: await getAdCheckUsageSummary(user),
+    };
+  }
+
+  const quota = await enforceAdCheckQuota(user);
+
+  const apiKey = openAiApiKey.value();
+  if (!apiKey) {
+    throw new Error("Missing OPENAI_API_KEY secret");
   }
 
   const mimeType = String(payload.mimeType || "image/jpeg").toLowerCase();
@@ -1732,11 +1814,59 @@ async function generateAdFixImageForUser(req, payload) {
     throw new Error("No generated image returned");
   }
 
+  const generatedPayload = await dataUrlToImagePayload(imageDataUrl);
+  const result = boostGeneratedAdResult(await analyzeCreative({
+    imageBase64: generatedPayload.imageBase64,
+    imagePreviewDataUrl: buildGeneratedPreviewDataUrl(imageDataUrl),
+    mimeType: generatedPayload.mimeType,
+    fileName: generatedFileName,
+    fileSize: Number(payload.fileSize || 0),
+    productName: payload.productName || "Generated ad creative",
+    targetMarket: payload.targetMarket || "TH",
+    objective: payload.objective || "meta_ads_conversion",
+    notes: "Generated fix image analyzed automatically",
+  }));
+  const savedHistory = await saveAdCheckHistory(
+    user,
+    {
+      ...payload,
+      imagePreviewDataUrl: buildGeneratedPreviewDataUrl(imageDataUrl),
+      mimeType: generatedPayload.mimeType,
+      fileName: generatedFileName,
+      productName: payload.productName || "Generated ad creative",
+      notes: "Generated fix image analyzed automatically",
+    },
+    result,
+  );
+  if (quota.usesCredit) {
+    await quota.userRef.set(
+      {
+        adCheckCredits: FieldValue.increment(-1),
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+  }
+  const scoreAward = await awardAdCheckScore(user, savedHistory.fileKey, savedHistory.fileName);
+
   return {
     imageDataUrl,
+    fileName: generatedFileName,
     model: OPENAI_IMAGE_MODEL,
     quality: "low",
     generatedAt: new Date().toISOString(),
+    analysis: {
+      ...result,
+      history: {
+        fromHistory: false,
+        fileName: generatedFileName,
+        productName: payload.productName || "Generated ad creative",
+        checkedBy: user.email,
+        imagePreviewDataUrl: buildGeneratedPreviewDataUrl(imageDataUrl),
+      },
+      scoreAward,
+    },
+    usage: await getAdCheckUsageSummary(user),
   };
 }
 

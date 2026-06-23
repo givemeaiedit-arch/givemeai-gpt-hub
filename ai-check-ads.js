@@ -50,6 +50,9 @@ const generateFixImageButton = document.querySelector("#generateFixImageButton")
 const generatedImageStatus = document.querySelector("#generatedImageStatus");
 const generatedFixImage = document.querySelector("#generatedFixImage");
 const generatedImageEmpty = document.querySelector("#generatedImageEmpty");
+const downloadGeneratedImageButton = document.querySelector("#downloadGeneratedImageButton");
+const weaknessInsightGroup = weaknessesList?.closest(".audit-insight-group");
+const fixesInsightGroup = fixesList?.closest(".audit-insight-group");
 const hookOptionsList = document.querySelector("#hookOptionsList");
 const finalVerdictStatus = document.querySelector("#finalVerdictStatus");
 const finalVerdictReason = document.querySelector("#finalVerdictReason");
@@ -70,6 +73,9 @@ let uploadPreviewImage = null;
 let uploadDropzone = null;
 let uploadUiReady = false;
 let freeLimitExhausted = false;
+let generatedImageDataUrl = "";
+let generatedImageFileName = "generated-ad-fix.png";
+let currentAuditResult = null;
 
 const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
@@ -467,6 +473,15 @@ async function generateFixImage() {
 
   try {
     generateFixImageButton.disabled = true;
+    generateFixImageButton.textContent = "กำลังสร้างและวิเคราะห์...";
+    setResultPanelsVisible(false);
+    setSkeletonVisible(true);
+    if (auditLoadingCallout) {
+      auditLoadingCallout.textContent = "กำลังสร้างรูปใหม่ พร้อมวิเคราะห์ทันที";
+    }
+    scrollToLoadingState();
+    generatedImageDataUrl = "";
+    if (downloadGeneratedImageButton) downloadGeneratedImageButton.hidden = true;
     if (generatedFixImage) {
       generatedFixImage.hidden = true;
       generatedFixImage.removeAttribute("src");
@@ -475,11 +490,11 @@ async function generateFixImage() {
       generatedImageEmpty.hidden = false;
       generatedImageEmpty.innerHTML = `
         <strong>กำลัง Generate รูปใหม่</strong>
-        <p>รอสักครู่ ระบบกำลังใช้ Prompt ข้าง ๆ และรูปเดิมสร้างภาพเวอร์ชันปรับปรุง</p>
+        <p>กำลังสร้างรูปใหม่ พร้อมวิเคราะห์ทันที</p>
       `;
     }
     if (generatedImageStatus) generatedImageStatus.textContent = "Generating...";
-    setRequestStatus("กำลัง Generate รูปใหม่ด้วย GPT Image 2.0 low...", "loading");
+    setRequestStatus("กำลังสร้างรูปใหม่ พร้อมวิเคราะห์ทันที", "loading");
 
     const response = await fetch(GENERATE_FIX_IMAGE_ENDPOINT, {
       method: "POST",
@@ -491,6 +506,11 @@ async function generateFixImage() {
         prompt,
         imageBase64: selectedImageDataUrl.split(",")[1],
         mimeType: selectedMimeType,
+        fileName: selectedFileName,
+        fileSize: selectedFileSize,
+        productName: productNameInput?.value?.trim() || AUTO_PRODUCT_PLACEHOLDER,
+        targetMarket: targetMarketInput?.value?.trim() || "TH",
+        objective: objectiveInput?.value?.trim() || "meta_ads_conversion",
       }),
     });
 
@@ -506,18 +526,33 @@ async function generateFixImage() {
       throw new Error(result?.error || "Generate รูปใหม่ไม่สำเร็จ");
     }
 
-    if (!result.imageDataUrl) {
-      throw new Error("ไม่พบรูปที่ Generate กลับมา");
-    }
-
-    if (generatedFixImage) {
-      generatedFixImage.src = result.imageDataUrl;
+    generatedImageDataUrl = result.imageDataUrl || "";
+    generatedImageFileName = result.fileName || generatedImageFileName;
+    if (generatedImageDataUrl && generatedFixImage) {
+      generatedFixImage.src = generatedImageDataUrl;
       generatedFixImage.hidden = false;
     }
-    if (generatedImageEmpty) generatedImageEmpty.hidden = true;
-    if (generatedImageStatus) generatedImageStatus.textContent = "Generated";
-    setRequestStatus("Generate รูปใหม่สำเร็จแล้ว", "success");
+    if (generatedImageEmpty) generatedImageEmpty.hidden = Boolean(generatedImageDataUrl);
+    if (!generatedImageDataUrl && generatedImageEmpty) {
+      generatedImageEmpty.hidden = false;
+      generatedImageEmpty.innerHTML = `
+        <strong>ใช้ผลวิเคราะห์เดิม</strong>
+        <p>ชื่อไฟล์รูปนี้เคยถูกวิเคราะห์แล้ว ระบบจึงดึงผลเดิมมาแสดงโดยไม่สร้างรูปซ้ำ</p>
+      `;
+    }
+    if (downloadGeneratedImageButton) downloadGeneratedImageButton.hidden = !generatedImageDataUrl;
+    if (generatedImageStatus) generatedImageStatus.textContent = result.reusedHistory ? "ใช้ผลเดิม" : "Generated + Analyzed";
+    if (result.analysis) {
+      renderAudit(result.analysis, { generatedMode: true });
+    }
+    if (result.usage) {
+      setUsagePill(result.usage);
+      freeLimitExhausted = isFreeLimitExhausted(result.usage);
+      updateGuestGate();
+    }
+    setRequestStatus(result.reusedHistory ? "พบชื่อไฟล์รูปนี้ในประวัติ จึงดึงผลเดิมมาแสดงแล้ว" : "Generate รูปใหม่และวิเคราะห์สำเร็จแล้ว", "success");
   } catch (error) {
+    setSkeletonVisible(false);
     if (generatedImageEmpty) {
       generatedImageEmpty.hidden = false;
       generatedImageEmpty.innerHTML = `
@@ -529,10 +564,27 @@ async function generateFixImage() {
     setRequestStatus(error.message || "Generate รูปใหม่ไม่สำเร็จ", "error");
   } finally {
     generateFixImageButton.disabled = false;
+    generateFixImageButton.textContent = "Generate แก้รูปใหม่ + พร้อมวิเคราะห์ ใช้ 1 เครดิต";
   }
 }
 
-function renderAudit(data) {
+function downloadGeneratedImage() {
+  if (!generatedImageDataUrl) {
+    setRequestStatus("ยังไม่มีรูป Generate สำหรับดาวน์โหลด", "error");
+    return;
+  }
+
+  const link = document.createElement("a");
+  link.href = generatedImageDataUrl;
+  link.download = generatedImageFileName || "generated-ad-fix.png";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setRequestStatus(`ดาวน์โหลดรูปแล้ว: ${link.download}`, "success");
+}
+
+function renderAudit(data, options = {}) {
+  currentAuditResult = data;
   setSkeletonVisible(false);
   setResultPanelsVisible(true);
   if (auditStatusBadge) auditStatusBadge.textContent = "Analyzed";
@@ -572,6 +624,8 @@ function renderAudit(data) {
   });
 
   if (strengthsList) strengthsList.innerHTML = listToHtml(data.strengths);
+  if (weaknessInsightGroup) weaknessInsightGroup.hidden = Boolean(options.generatedMode);
+  if (fixesInsightGroup) fixesInsightGroup.hidden = Boolean(options.generatedMode);
   if (weaknessesList) weaknessesList.innerHTML = listToHtml(data.weaknesses);
   if (fixesList) fixesList.innerHTML = listToHtml(data.fixes_now);
   if (fixPromptOutput) fixPromptOutput.value = buildFixPrompt(data);
@@ -709,6 +763,9 @@ async function analyzeWithBackend() {
     runAuditButton.disabled = true;
     setResultPanelsVisible(false);
     setSkeletonVisible(true);
+    if (auditLoadingCallout) {
+      auditLoadingCallout.textContent = "รอสักครู่ AI กำลังวิเคราะห์";
+    }
     scrollToLoadingState();
     runAuditButton.textContent = "กำลังวิเคราะห์...";
     if (auditStatusBadge) auditStatusBadge.textContent = "Loading";
@@ -763,7 +820,7 @@ async function analyzeWithBackend() {
     setRequestStatus(error.message || "เกิดข้อผิดพลาดระหว่างวิเคราะห์", "error");
   } finally {
     runAuditButton.disabled = false;
-    runAuditButton.textContent = "วิเคราะห์เลย";
+    runAuditButton.textContent = "วิเคราะห์เลย ใช้ 1 เครดิต";
   }
 }
 
@@ -810,6 +867,7 @@ clearAdsImageButton?.addEventListener("click", () => {
 runAuditButton?.addEventListener("click", analyzeWithBackend);
 copyFixPromptButton?.addEventListener("click", copyFixPrompt);
 generateFixImageButton?.addEventListener("click", generateFixImage);
+downloadGeneratedImageButton?.addEventListener("click", downloadGeneratedImage);
 
 heroLoginButton?.addEventListener("click", async () => {
   try {

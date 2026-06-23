@@ -162,7 +162,7 @@
               <img id="auditSelectedImage" src="assets/banners/โฆษณา.png" alt="Uploaded preview" />
             </div>
             <div class="audit-upload-preview-actions">
-              <button class="green-button" id="runAuditButton" type="button" hidden>วิเคราะห์เลย</button>
+              <button class="green-button" id="runAuditButton" type="button" hidden>วิเคราะห์เลย ใช้ 1 เครดิต</button>
               <button class="soft-button" id="clearAdsImageButton" type="button" hidden>ล้างรูป</button>
             </div>
           </div>
@@ -368,7 +368,7 @@
               <h2>Prompt สำหรับแก้ไข</h2>
               <div class="audit-prompt-actions">
                 <button class="soft-button audit-copy-button" id="copyFixPromptButton" type="button">คัดลอก Prompt</button>
-                <button class="green-button audit-generate-button" id="generateFixImageButton" type="button">Generate ทำรูปใหม่</button>
+                <button class="green-button audit-generate-button" id="generateFixImageButton" type="button">Generate แก้รูปใหม่ + พร้อมวิเคราะห์ ใช้ 1 เครดิต</button>
               </div>
             </div>
             <p class="audit-prompt-caption">ใช้ prompt นี้สำหรับให้ AI ช่วยแก้ภาพ โดยอิงจากรายการ “สิ่งที่ควรแก้ทันที” ด้านบน</p>
@@ -378,7 +378,10 @@
           <article class="audit-card audit-generated-card">
             <div class="audit-card-heading">
               <h2>รูปที่ Generate ใหม่</h2>
-              <span id="generatedImageStatus">รอ Generate</span>
+              <div class="audit-generated-actions">
+                <span id="generatedImageStatus">รอ Generate</span>
+                <button class="soft-button audit-download-button" id="downloadGeneratedImageButton" type="button" hidden>ดาวน์โหลดรูป</button>
+              </div>
             </div>
             <div class="audit-generated-frame">
               <img id="generatedFixImage" alt="รูปโฆษณาที่ Generate ใหม่" hidden />
