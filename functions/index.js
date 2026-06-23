@@ -546,22 +546,26 @@ async function getUserUsageProfile(user) {
   const snapshot = await userRef.get();
   const profileData = snapshot.exists ? snapshot.data() || {} : {};
   const adCheckCredits = Math.max(0, Number(profileData.adCheckCredits || 0));
-  const isPrivileged = isAdminEmail(user.email) || isProProfile(profileData);
+  const isAdmin = isAdminEmail(user.email);
+  const isPrivileged = isAdmin || isProProfile(profileData);
   return {
     userRef,
-    plan: isPrivileged ? "pro" : "free",
-    dailyLimit: isPrivileged ? 10 : 1,
+    plan: isAdmin ? "admin" : isPrivileged ? "pro" : "free",
+    dailyLimit: isAdmin ? 999 : isPrivileged ? 10 : 1,
     adCheckCredits,
+    isAdmin,
     isPrivileged,
   };
 }
 
 async function getAdCheckUsageSummary(user) {
   const usage = await getUserUsageProfile(user);
-  const usedToday = usage.isPrivileged
+  const usedToday = usage.isAdmin
+    ? 0
+    : usage.isPrivileged
     ? await countTodayAdChecks(usage.userRef)
     : (await hasAnyAdCheck(usage.userRef)) ? 1 : 0;
-  const remaining = Math.max(0, usage.dailyLimit - usedToday);
+  const remaining = usage.isAdmin ? usage.dailyLimit : Math.max(0, usage.dailyLimit - usedToday);
 
   return {
     plan: usage.plan,
@@ -569,7 +573,9 @@ async function getAdCheckUsageSummary(user) {
     usedToday,
     remaining,
     credits: usage.adCheckCredits,
-    label: usage.isPrivileged
+    label: usage.isAdmin
+      ? "Admin ใช้งานได้ไม่จำกัด"
+      : usage.isPrivileged
       ? `วันนี้ Check ได้อีก ${remaining}/${usage.dailyLimit}`
       : usage.adCheckCredits > 0
         ? `มี Credit Check ADS เหลือ ${usage.adCheckCredits} ครั้ง`
@@ -1294,6 +1300,10 @@ async function countTodayAdChecks(userRef) {
 
 async function enforceAdCheckQuota(user) {
   const usage = await getUserUsageProfile(user);
+  if (usage.isAdmin) {
+    return usage;
+  }
+
   if (usage.isPrivileged) {
     const usedToday = await countTodayAdChecks(usage.userRef);
     if (usedToday >= usage.dailyLimit) {
