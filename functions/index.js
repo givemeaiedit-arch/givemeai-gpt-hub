@@ -41,19 +41,19 @@ const TOPUP_PACKAGES = {
   "credit-50": {
     price: 49,
     credits: 12,
-    label: "Credit Check ADS 12 ครั้ง",
+    label: "Credit 12 ครั้ง",
     type: "credit",
   },
   "credit-100": {
     price: 99,
     credits: 28,
-    label: "Credit Check ADS 28 ครั้ง",
+    label: "Credit 28 ครั้ง",
     type: "credit",
   },
   "credit-200": {
     price: 199,
     credits: 65,
-    label: "Credit Check ADS 65 ครั้ง",
+    label: "Credit 65 ครั้ง",
     type: "credit",
   },
   "pro-monthly": {
@@ -70,9 +70,9 @@ const TOPUP_PACKAGES = {
     type: "pro-lifetime",
   },
 };
-TOPUP_PACKAGES["credit-50"].label = "Credit Check ADS 12 ครั้ง";
-TOPUP_PACKAGES["credit-100"].label = "Credit Check ADS 28 ครั้ง";
-TOPUP_PACKAGES["credit-200"].label = "Credit Check ADS 65 ครั้ง";
+TOPUP_PACKAGES["credit-50"].label = "Credit 12 ครั้ง";
+TOPUP_PACKAGES["credit-100"].label = "Credit 28 ครั้ง";
+TOPUP_PACKAGES["credit-200"].label = "Credit 65 ครั้ง";
 TOPUP_PACKAGES["pro-monthly"].label = "Pro 30 วัน";
 TOPUP_PACKAGES["pro-lifetime"].label = "Master ตลอดชีพ";
 TOPUP_PACKAGES["pro-lifetime"].type = "master-lifetime";
@@ -580,7 +580,7 @@ async function getAdCheckUsageSummary(user) {
       : usage.isPrivileged
       ? `วันนี้ Check ได้อีก ${remaining}/${usage.dailyLimit}`
       : usage.adCheckCredits > 0
-        ? `มี Credit Check ADS เหลือ ${usage.adCheckCredits} ครั้ง`
+        ? `มี Credit เหลือ ${usage.adCheckCredits} ครั้ง`
       : remaining > 0
         ? `ใช้ฟรีได้อีก ${remaining}/${usage.dailyLimit} ครั้ง`
         : "ใช้สิทธิ์ทดลองใช้ฟรีครบแล้ว",
