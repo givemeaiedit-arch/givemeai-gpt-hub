@@ -77,6 +77,8 @@ let selectedImagePreviewDataUrl = "";
 let selectedMimeType = "image/jpeg";
 let selectedFileName = "";
 let selectedFileSize = 0;
+let selectedImageWidth = 0;
+let selectedImageHeight = 0;
 let currentUser = null;
 let usagePill = null;
 let uploadPreviewImage = null;
@@ -376,6 +378,8 @@ function setDefaultPreview() {
   selectedMimeType = "image/jpeg";
   selectedFileName = "";
   selectedFileSize = 0;
+  selectedImageWidth = 0;
+  selectedImageHeight = 0;
   if (adsPreviewImage) adsPreviewImage.src = "assets/banners/โฆษณา.png";
   if (uploadPreviewImage) uploadPreviewImage.src = "assets/banners/โฆษณา.png";
   if (previewOverlayTitle) previewOverlayTitle.textContent = "พร้อมเชื่อม API วิเคราะห์ภาพ";
@@ -506,11 +510,10 @@ function personaToHtml(items) {
     .join("");
 }
 
-function formatCompactNumber(value) {
+function formatAudienceNumber(value) {
   const number = Number(value || 0);
-  if (number >= 1000000) return `${(number / 1000000).toFixed(number % 1000000 === 0 ? 0 : 1)}M`;
-  if (number >= 1000) return `${(number / 1000).toFixed(number % 1000 === 0 ? 0 : 1)}K`;
-  return String(number);
+  if (!Number.isFinite(number) || number <= 0) return "0";
+  return Math.round(number).toLocaleString("th-TH");
 }
 
 function renderStars(score) {
@@ -685,6 +688,8 @@ async function generateFixImage() {
         mimeType: selectedMimeType,
         fileName: selectedFileName,
         fileSize: selectedFileSize,
+        sourceImageWidth: selectedImageWidth,
+        sourceImageHeight: selectedImageHeight,
         productName: productNameInput?.value?.trim() || AUTO_PRODUCT_PLACEHOLDER,
         targetMarket: targetMarketInput?.value?.trim() || "TH",
         objective: objectiveInput?.value?.trim() || "meta_ads_conversion",
@@ -841,9 +846,9 @@ function renderAudit(data, options = {}) {
   }
 
   if (audienceSizeNumber) {
-    const min = formatCompactNumber(data.audience_size_estimate?.min || 0);
-    const max = formatCompactNumber(data.audience_size_estimate?.max || 0);
-    audienceSizeNumber.textContent = `${min} - ${max}`;
+    const min = formatAudienceNumber(data.audience_size_estimate?.min || 0);
+    const max = formatAudienceNumber(data.audience_size_estimate?.max || 0);
+    audienceSizeNumber.textContent = `${min} - ${max} คน`;
   }
   if (audienceSizeConfidence) audienceSizeConfidence.textContent = data.audience_size_estimate?.confidence || "-";
   if (audienceSizeRationale) audienceSizeRationale.textContent = data.audience_size_estimate?.rationale || "-";
@@ -1077,6 +1082,9 @@ adsImageInput?.addEventListener("change", async (event) => {
     selectedMimeType = file.type || "image/jpeg";
     selectedFileName = file.name || "";
     selectedFileSize = file.size || 0;
+    const sourceImage = await loadImageFromDataUrl(dataUrl).catch(() => null);
+    selectedImageWidth = sourceImage?.naturalWidth || 0;
+    selectedImageHeight = sourceImage?.naturalHeight || 0;
     if (adsPreviewImage) adsPreviewImage.src = dataUrl;
     if (uploadPreviewImage) uploadPreviewImage.src = dataUrl;
     if (previewOverlayTitle) previewOverlayTitle.textContent = "ภาพพร้อมวิเคราะห์";

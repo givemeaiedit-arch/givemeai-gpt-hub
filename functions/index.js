@@ -1658,6 +1658,17 @@ function buildGeneratedFileName(fileName) {
   return `generated-fix-${baseName}.png`;
 }
 
+function getOpenAiImageSizeFromSource(payload) {
+  const width = Number(payload?.sourceImageWidth || payload?.imageWidth || 0);
+  const height = Number(payload?.sourceImageHeight || payload?.imageHeight || 0);
+  if (!width || !height) return "1024x1024";
+
+  const ratio = width / height;
+  if (ratio >= 1.15) return "1536x1024";
+  if (ratio <= 0.87) return "1024x1536";
+  return "1024x1024";
+}
+
 async function dataUrlToImagePayload(imageDataUrl) {
   const match = String(imageDataUrl || "").match(/^data:(image\/(?:png|jpeg|jpg|webp));base64,(.+)$/i);
   if (match) {
@@ -1844,21 +1855,23 @@ async function generateAdFixImageForUser(req, payload) {
 
   const extension = mimeType === "image/png" ? "png" : mimeType === "image/webp" ? "webp" : "jpg";
   const imageBuffer = Buffer.from(String(payload.imageBase64), "base64");
+  const outputSize = getOpenAiImageSizeFromSource(payload);
   const form = new FormData();
   form.set("model", OPENAI_IMAGE_MODEL);
   form.set("quality", "low");
-  form.set("size", "1024x1024");
+  form.set("size", outputSize);
   form.set(
     "prompt",
     [
       prompt,
       "",
       "Create a polished Thai Meta Ads creative based on the uploaded original ad.",
+      "Preserve the uploaded source image aspect ratio and composition framing as closely as the image API size allows. Do not force a square layout when the source is portrait or landscape.",
       "Keep the same product and brand direction, but improve readability, hierarchy, trust signal, proof, and CTA.",
       "Meta policy safety is mandatory: do not directly call out personal attributes, health conditions, debt, age, body shape, hair loss, illness, or sensitive traits of the viewer.",
       "Avoid exaggerated before-after, guaranteed results, 100% claims, cure claims, get-rich-fast claims, fake UI buttons, fake notifications, fake chats, clickbait, insults, fear pressure, and prohibited products.",
       "Use careful wording such as interested people, may help, supports, learn more, ask for details, and results may vary when relevant.",
-      "Return a finished square social ad image suitable for Facebook and Instagram feed.",
+      "Return a finished social ad image suitable for Facebook and Instagram placement.",
     ].join("\n"),
   );
   form.set("image", new Blob([imageBuffer], { type: mimeType }), `ad-source.${extension}`);
@@ -1931,6 +1944,7 @@ async function generateAdFixImageForUser(req, payload) {
     fileName: generatedFileName,
     model: OPENAI_IMAGE_MODEL,
     quality: "low",
+    size: outputSize,
     generatedAt: new Date().toISOString(),
     analysis: {
       ...result,
