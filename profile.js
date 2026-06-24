@@ -180,6 +180,12 @@ function renderAdCheckHistory(container, items) {
       const weaknesses = Array.isArray(result.weaknesses) ? result.weaknesses : [];
       const fixes = Array.isArray(result.fixes_now) ? result.fixes_now : [];
       const hooks = Array.isArray(result.hook_options) ? result.hook_options : [];
+      const isGeneratedFix = Boolean(item.isGeneratedFix || result.generated_fix);
+      const previewSrc =
+        item.generatedImagePreviewDataUrl ||
+        item.generatedImageUrl ||
+        item.imagePreviewDataUrl ||
+        "";
       const audience = result.primary_audience || {};
       const audienceHighlights = [
         audience.demographic,
@@ -193,10 +199,11 @@ function renderAdCheckHistory(container, items) {
           <summary class="ad-history-summary">
             <div class="ad-history-thumb">
               ${
-                item.imagePreviewDataUrl
-                  ? `<img src="${item.imagePreviewDataUrl}" alt="${escapeHtml(item.productName || item.fileName || "Ad preview")}" />`
+                previewSrc
+                  ? `<img src="${escapeHtml(previewSrc)}" alt="${escapeHtml(item.productName || item.fileName || "Ad preview")}" />`
                   : `<span>ไม่มีรูปเก่า</span>`
               }
+              ${isGeneratedFix ? `<em>Generate ใหม่</em>` : ""}
             </div>
 
             <div class="ad-history-copy">
@@ -207,6 +214,7 @@ function renderAdCheckHistory(container, items) {
                 <span>${escapeHtml(item.fileName || "-")}</span>
                 <span>${escapeHtml(formatDate(item.checkedAt))}</span>
                 <span>${escapeHtml(item.targetMarket || "TH")}</span>
+                ${isGeneratedFix ? `<span>รูปแก้ไขใหม่</span>` : ""}
               </div>
             </div>
 
@@ -220,6 +228,24 @@ function renderAdCheckHistory(container, items) {
 
           <div class="ad-history-body">
             <div class="ad-history-facts">
+              ${
+                isGeneratedFix && item.sourceImagePreviewDataUrl
+                  ? `
+                    <article class="ad-history-before-after">
+                      <span>รูปต้นฉบับ</span>
+                      <img src="${escapeHtml(item.sourceImagePreviewDataUrl)}" alt="${escapeHtml(item.sourceFileName || "Original ad")}" />
+                    </article>
+                    <article class="ad-history-before-after">
+                      <span>รูป Generate ใหม่</span>
+                      ${
+                        previewSrc
+                          ? `<img src="${escapeHtml(previewSrc)}" alt="${escapeHtml(item.fileName || "Generated ad")}" />`
+                          : `<strong>ไม่มีรูปที่บันทึกไว้</strong>`
+                      }
+                    </article>
+                  `
+                  : ""
+              }
               <article>
                 <span>ชื่อไฟล์</span>
                 <strong>${escapeHtml(item.fileName || "-")}</strong>

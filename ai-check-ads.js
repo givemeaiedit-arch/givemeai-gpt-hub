@@ -69,6 +69,8 @@ const AD_CHECK_USAGE_ENDPOINT =
   "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/getAdCheckUsage";
 const GENERATE_FIX_IMAGE_ENDPOINT =
   "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/generateAdFixImage";
+const UPDATE_GENERATED_PREVIEW_ENDPOINT =
+  "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/updateGeneratedAdPreview";
 
 let selectedImageDataUrl = "";
 let selectedImagePreviewDataUrl = "";
@@ -418,6 +420,32 @@ async function createHistoryPreview(dataUrl) {
   return canvas.toDataURL("image/jpeg", 0.76);
 }
 
+async function saveGeneratedPreview(fileName, imageDataUrl, idToken) {
+  if (!fileName || !imageDataUrl || !idToken) return;
+
+  const generatedImagePreviewDataUrl = String(imageDataUrl).startsWith("data:image/")
+    ? await createHistoryPreview(imageDataUrl).catch(() => "")
+    : "";
+  const generatedImageUrl = /^https?:\/\//i.test(String(imageDataUrl)) ? String(imageDataUrl) : "";
+
+  if (!generatedImagePreviewDataUrl && !generatedImageUrl && !selectedImagePreviewDataUrl) return;
+
+  await fetch(UPDATE_GENERATED_PREVIEW_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({
+      fileName,
+      generatedImagePreviewDataUrl,
+      generatedImageUrl,
+      sourceImagePreviewDataUrl: selectedImagePreviewDataUrl || "",
+      sourceFileName: selectedFileName || "",
+    }),
+  }).catch(() => {});
+}
+
 async function refreshUsage() {
   if (!currentUser) {
     freeLimitExhausted = false;
@@ -678,6 +706,9 @@ async function generateFixImage() {
     stopGenerateProgress(100);
     generatedImageDataUrl = result.imageDataUrl || "";
     generatedImageFileName = result.fileName || generatedImageFileName;
+    if (generatedImageDataUrl && generatedImageFileName) {
+      await saveGeneratedPreview(generatedImageFileName, generatedImageDataUrl, idToken);
+    }
     if (generatedImageDataUrl && generatedFixImage) {
       generatedFixImage.src = generatedImageDataUrl;
       generatedFixImage.hidden = false;

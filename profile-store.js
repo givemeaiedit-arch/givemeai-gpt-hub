@@ -210,6 +210,11 @@ async function fetchAdCheckHistory(user) {
       updatedAt: toIsoString(data.updatedAt),
       duplicateHits: Number(data.duplicateHits || 0),
       imagePreviewDataUrl: sanitizeImagePreview(data.imagePreviewDataUrl),
+      sourceImagePreviewDataUrl: sanitizeImagePreview(data.sourceImagePreviewDataUrl),
+      generatedImagePreviewDataUrl: sanitizeImagePreview(data.generatedImagePreviewDataUrl),
+      generatedImageUrl: data.generatedImageUrl || "",
+      sourceFileName: data.sourceFileName || "",
+      isGeneratedFix: Boolean(data.isGeneratedFix || data.result?.generated_fix),
       result: data.result && typeof data.result === "object" ? data.result : {},
     };
   });

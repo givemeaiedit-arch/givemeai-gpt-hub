@@ -1342,6 +1342,11 @@ function buildHistoryResponse(data) {
       checkedAt: timestampToIso(data.checkedAt),
       checkedBy: data.userEmail || "",
       imagePreviewDataUrl: data.imagePreviewDataUrl || "",
+      sourceImagePreviewDataUrl: data.sourceImagePreviewDataUrl || "",
+      generatedImagePreviewDataUrl: data.generatedImagePreviewDataUrl || "",
+      generatedImageUrl: data.generatedImageUrl || "",
+      sourceFileName: data.sourceFileName || "",
+      isGeneratedFix: Boolean(data.isGeneratedFix),
     },
   };
 }
@@ -1382,6 +1387,11 @@ async function saveAdCheckHistory(user, payload, result) {
   const fileKey = toFileKey(fileName);
   const checkedAt = FieldValue.serverTimestamp();
   const imagePreviewDataUrl = sanitizeImagePreviewDataUrl(payload.imagePreviewDataUrl);
+  const sourceImagePreviewDataUrl = sanitizeImagePreviewDataUrl(payload.sourceImagePreviewDataUrl);
+  const generatedImagePreviewDataUrl = sanitizeImagePreviewDataUrl(payload.generatedImagePreviewDataUrl);
+  const generatedImageUrl = /^https?:\/\//i.test(String(payload.generatedImageUrl || ""))
+    ? String(payload.generatedImageUrl).trim()
+    : "";
   const historyData = {
     uid: user.uid,
     userEmail: user.email,
@@ -1397,6 +1407,11 @@ async function saveAdCheckHistory(user, payload, result) {
     objective: payload.objective || "meta_ads_conversion",
     notes: payload.notes || "",
     imagePreviewDataUrl,
+    sourceImagePreviewDataUrl,
+    generatedImagePreviewDataUrl,
+    generatedImageUrl,
+    sourceFileName: payload.sourceFileName || "",
+    isGeneratedFix: Boolean(payload.isGeneratedFix),
     result,
     score: Number(result.overall_score || 0),
     checkedAt,
@@ -1417,6 +1432,60 @@ async function saveAdCheckHistory(user, payload, result) {
   ]);
 
   return { fileKey, fileName };
+}
+
+async function updateGeneratedAdPreviewForUser(req, payload) {
+  const user = await verifySignedInUser(req);
+  await ensureUserProfile(user);
+
+  const fileName = String(payload?.fileName || "").trim();
+  if (!fileName) {
+    throw new Error("Missing fileName");
+  }
+
+  const fileKey = toFileKey(fileName);
+  const generatedImagePreviewDataUrl = sanitizeImagePreviewDataUrl(payload.generatedImagePreviewDataUrl);
+  const sourceImagePreviewDataUrl = sanitizeImagePreviewDataUrl(payload.sourceImagePreviewDataUrl);
+  const generatedImageUrl = /^https?:\/\//i.test(String(payload.generatedImageUrl || ""))
+    ? String(payload.generatedImageUrl).trim()
+    : "";
+  const updatedAt = FieldValue.serverTimestamp();
+  const patch = {
+    isGeneratedFix: true,
+    updatedAt,
+  };
+
+  if (generatedImagePreviewDataUrl) {
+    patch.generatedImagePreviewDataUrl = generatedImagePreviewDataUrl;
+    patch.imagePreviewDataUrl = generatedImagePreviewDataUrl;
+  }
+  if (sourceImagePreviewDataUrl) {
+    patch.sourceImagePreviewDataUrl = sourceImagePreviewDataUrl;
+  }
+  if (generatedImageUrl) {
+    patch.generatedImageUrl = generatedImageUrl;
+  }
+  if (payload.sourceFileName) {
+    patch.sourceFileName = String(payload.sourceFileName).trim();
+  }
+
+  const userHistoryRef = adminDb
+    .collection("users")
+    .doc(user.uid)
+    .collection("adCheckHistory")
+    .doc(fileKey);
+  const globalHistoryRef = adminDb.collection("adCheckHistory").doc(`${user.uid}_${fileKey}`);
+
+  await Promise.all([
+    userHistoryRef.set(patch, { merge: true }),
+    globalHistoryRef.set(patch, { merge: true }),
+  ]);
+
+  return {
+    ok: true,
+    fileName,
+    imageSaved: Boolean(generatedImagePreviewDataUrl || generatedImageUrl),
+  };
 }
 
 async function awardAdCheckScore(user, fileKey, fileName) {
@@ -1834,6 +1903,11 @@ async function generateAdFixImageForUser(req, payload) {
     {
       ...payload,
       imagePreviewDataUrl: buildGeneratedPreviewDataUrl(imageDataUrl),
+      sourceImagePreviewDataUrl: payload.imagePreviewDataUrl || "",
+      generatedImagePreviewDataUrl: buildGeneratedPreviewDataUrl(imageDataUrl),
+      generatedImageUrl: /^https?:\/\//i.test(String(imageDataUrl)) ? imageDataUrl : "",
+      sourceFileName: payload.fileName || "",
+      isGeneratedFix: true,
       mimeType: generatedPayload.mimeType,
       fileName: generatedFileName,
       productName: payload.productName || "Generated ad creative",
@@ -1866,6 +1940,11 @@ async function generateAdFixImageForUser(req, payload) {
         productName: payload.productName || "Generated ad creative",
         checkedBy: user.email,
         imagePreviewDataUrl: buildGeneratedPreviewDataUrl(imageDataUrl),
+        sourceImagePreviewDataUrl: payload.imagePreviewDataUrl || "",
+        generatedImagePreviewDataUrl: buildGeneratedPreviewDataUrl(imageDataUrl),
+        generatedImageUrl: /^https?:\/\//i.test(String(imageDataUrl)) ? imageDataUrl : "",
+        sourceFileName: payload.fileName || "",
+        isGeneratedFix: true,
       },
       scoreAward,
     },
@@ -1969,6 +2048,39 @@ export const generateAdFixImage = onRequest(
     try {
       const payload = await readJsonBody(req);
       const result = await generateAdFixImageForUser(req, payload);
+      sendJson(res, 200, result);
+    } catch (error) {
+      sendJson(res, error.statusCode || 400, {
+        error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  },
+);
+
+export const updateGeneratedAdPreview = onRequest(
+  {
+    region: "asia-southeast1",
+    cors: true,
+    timeoutSeconds: 60,
+    memory: "256MiB",
+  },
+  async (req, res) => {
+    setCors(res);
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      const payload = await readJsonBody(req);
+      const result = await updateGeneratedAdPreviewForUser(req, payload);
       sendJson(res, 200, result);
     } catch (error) {
       sendJson(res, error.statusCode || 400, {

@@ -772,6 +772,12 @@ function openHistoryDialog(historyId) {
   const finalVerdictReason = result?.final_verdict?.reason || "-";
   const creativePotential = result.creative_potential || "-";
   const hasNotes = item.notes && item.notes !== "-";
+  const isGeneratedFix = Boolean(item.isGeneratedFix || result.generated_fix);
+  const previewSrc =
+    item.generatedImagePreviewDataUrl ||
+    item.generatedImageUrl ||
+    item.imagePreviewDataUrl ||
+    "";
   const autoProductText = "ให้ AI ดูจากภาพโฆษณาและระบุชื่อสินค้าหรือประเภทสินค้าที่ใกล้เคียงที่สุด";
   const dialogTitle =
     item.productName && item.productName !== autoProductText
@@ -793,9 +799,20 @@ function openHistoryDialog(historyId) {
   adminHistoryDialogBody.innerHTML = `
     <div class="admin-history-preview">
       ${
-        item.imagePreviewDataUrl
-          ? `<img src="${escapeHtml(item.imagePreviewDataUrl)}" alt="${escapeHtml(item.fileName || "Ad preview")}" />`
+        previewSrc
+          ? `<img src="${escapeHtml(previewSrc)}" alt="${escapeHtml(item.fileName || "Ad preview")}" />`
           : `<div class="admin-history-preview-empty">ไม่มีรูปที่บันทึกไว้</div>`
+      }
+      ${isGeneratedFix ? `<p class="admin-history-generated-label">รูป Generate ใหม่</p>` : ""}
+      ${
+        isGeneratedFix && item.sourceImagePreviewDataUrl
+          ? `
+            <div class="admin-history-source-preview">
+              <span>รูปต้นฉบับ</span>
+              <img src="${escapeHtml(item.sourceImagePreviewDataUrl)}" alt="${escapeHtml(item.sourceFileName || "Original ad")}" />
+            </div>
+          `
+          : ""
       }
     </div>
     <div class="admin-history-detail">
@@ -1034,6 +1051,11 @@ function normalizeHistoryDoc(entry) {
     mimeType: data.mimeType || "",
     notes: data.notes || "",
     imagePreviewDataUrl: data.imagePreviewDataUrl || "",
+    sourceImagePreviewDataUrl: data.sourceImagePreviewDataUrl || "",
+    generatedImagePreviewDataUrl: data.generatedImagePreviewDataUrl || "",
+    generatedImageUrl: data.generatedImageUrl || "",
+    sourceFileName: data.sourceFileName || "",
+    isGeneratedFix: Boolean(data.isGeneratedFix || data.result?.generated_fix),
     result: data.result || null,
   };
 }
