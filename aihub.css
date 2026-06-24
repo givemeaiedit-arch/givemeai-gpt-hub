@@ -4040,7 +4040,8 @@ meter::-webkit-meter-optimum-value {
 }
 
 .lesson-hub-visual {
-  min-height: 230px;
+  aspect-ratio: 16 / 9;
+  min-height: 0;
   margin: 0;
   overflow: hidden;
   background:
@@ -5543,7 +5544,7 @@ meter::-webkit-meter-optimum-value {
   }
 
   .lesson-hub-visual {
-    min-height: 190px;
+    min-height: 0;
   }
 
   .tool-content {
