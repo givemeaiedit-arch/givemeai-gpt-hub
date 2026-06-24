@@ -40,20 +40,20 @@ const TOPUP_REJECT_REASON = "ตรวจสลิปไม่ผ่าน";
 const TOPUP_PACKAGES = {
   "credit-50": {
     price: 49,
-    credits: 8,
-    label: "Credit Check ADS 8 ครั้ง",
+    credits: 12,
+    label: "Credit Check ADS 12 ครั้ง",
     type: "credit",
   },
   "credit-100": {
     price: 99,
-    credits: 20,
-    label: "Credit Check ADS 20 ครั้ง",
+    credits: 28,
+    label: "Credit Check ADS 28 ครั้ง",
     type: "credit",
   },
   "credit-200": {
     price: 199,
-    credits: 45,
-    label: "Credit Check ADS 45 ครั้ง",
+    credits: 65,
+    label: "Credit Check ADS 65 ครั้ง",
     type: "credit",
   },
   "pro-monthly": {
@@ -70,9 +70,9 @@ const TOPUP_PACKAGES = {
     type: "pro-lifetime",
   },
 };
-TOPUP_PACKAGES["credit-50"].label = "Credit Check ADS 8 ครั้ง";
-TOPUP_PACKAGES["credit-100"].label = "Credit Check ADS 20 ครั้ง";
-TOPUP_PACKAGES["credit-200"].label = "Credit Check ADS 45 ครั้ง";
+TOPUP_PACKAGES["credit-50"].label = "Credit Check ADS 12 ครั้ง";
+TOPUP_PACKAGES["credit-100"].label = "Credit Check ADS 28 ครั้ง";
+TOPUP_PACKAGES["credit-200"].label = "Credit Check ADS 65 ครั้ง";
 TOPUP_PACKAGES["pro-monthly"].label = "Pro 30 วัน";
 TOPUP_PACKAGES["pro-lifetime"].label = "Master ตลอดชีพ";
 TOPUP_PACKAGES["pro-lifetime"].type = "master-lifetime";
