@@ -127,7 +127,7 @@
           <p class="nav-group">บัญชี</p>
           <a class="nav-item${isActive("profile")}" href="profile.html"><span class="nav-icon">♙</span>โปรไฟล์ของฉัน</a>
           <a class="nav-item${isActive("leaderboard")}" href="leaderboard.html"><span class="nav-icon">★</span>Leaderboard</a>
-          <a class="nav-item admin-only${isActive("admin")}" href="admin.html" hidden><span class="nav-icon">A</span>Admin Panel</a>
+          <a class="nav-item admin-only${isActive("admin")}" href="admin.html?page=overview" hidden><span class="nav-icon">A</span>Admin Panel</a>
         </nav>
 
         <section class="upgrade-card" aria-label="อัปเกรดเป็น Pro">
@@ -176,7 +176,7 @@
             <span>3</span>
           </button>
 
-          <a class="soft-button admin-only top-admin-link" href="admin.html" hidden>Admin Panel</a>
+          <a class="soft-button admin-only top-admin-link" href="admin.html?page=overview" hidden>Admin Panel</a>
 
           <button class="login-chip" id="loginButton" type="button">
             <span>Login Gmail</span>

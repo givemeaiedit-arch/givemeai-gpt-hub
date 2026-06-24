@@ -5671,6 +5671,11 @@ meter::-webkit-meter-optimum-value {
   scroll-margin-top: 118px;
 }
 
+.admin-anchor-section[hidden],
+.admin-grid[hidden] {
+  display: none !important;
+}
+
 .admin-head-menu {
   position: sticky;
   top: 16px;
@@ -5708,6 +5713,13 @@ meter::-webkit-meter-optimum-value {
   background: linear-gradient(135deg, var(--orange), #ff8d15);
 }
 
+.admin-head-link.active {
+  color: #ffffff;
+  border-color: rgba(255, 100, 0, 0.52);
+  background: linear-gradient(135deg, var(--orange), #ff8d15);
+  box-shadow: 0 14px 28px rgba(255, 100, 0, 0.18);
+}
+
 .admin-stat-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -5740,6 +5752,37 @@ meter::-webkit-meter-optimum-value {
 #adminTodayPackageBreakdown {
   color: #d35400;
   font-size: clamp(1rem, 1.6vw, 1.25rem);
+}
+
+.admin-topup-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0 18px;
+}
+
+.admin-topup-summary-grid article {
+  border: 1px solid rgba(255, 100, 0, 0.14);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff, #fff8f2);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+  padding: 16px;
+}
+
+.admin-topup-summary-grid span {
+  display: block;
+  margin-bottom: 8px;
+  color: #6b7280;
+  font-weight: 800;
+  font-size: 0.88rem;
+}
+
+.admin-topup-summary-grid strong {
+  display: block;
+  color: #111827;
+  font-size: clamp(1.15rem, 2.2vw, 1.75rem);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .admin-grid {
@@ -5904,7 +5947,8 @@ meter::-webkit-meter-optimum-value {
 }
 
 @media (max-width: 760px) {
-  .admin-stat-grid {
+  .admin-stat-grid,
+  .admin-topup-summary-grid {
     grid-template-columns: 1fr;
   }
 

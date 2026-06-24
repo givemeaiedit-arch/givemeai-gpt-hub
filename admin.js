@@ -29,6 +29,12 @@ const adminLatestTime = document.querySelector("#adminLatestTime");
 const adminTodaySignupCount = document.querySelector("#adminTodaySignupCount");
 const adminTodayPaidCount = document.querySelector("#adminTodayPaidCount");
 const adminTodayPackageBreakdown = document.querySelector("#adminTodayPackageBreakdown");
+const adminTopupAllCount = document.querySelector("#adminTopupAllCount");
+const adminTopupTodayUsers = document.querySelector("#adminTopupTodayUsers");
+const adminTopupWeekUsers = document.querySelector("#adminTopupWeekUsers");
+const adminTopupMonthUsers = document.querySelector("#adminTopupMonthUsers");
+const adminTopupTodayPackages = document.querySelector("#adminTopupTodayPackages");
+const adminTopupMonthAmount = document.querySelector("#adminTopupMonthAmount");
 const adminViewsToday = document.querySelector("#adminViewsToday");
 const adminVisitorsToday = document.querySelector("#adminVisitorsToday");
 const adminViewsWeek = document.querySelector("#adminViewsWeek");
@@ -88,6 +94,47 @@ let allPrompts = [];
 let remotePromptMap = new Map();
 let currentAdmin = null;
 let selectedProfileUid = "";
+
+const ADMIN_PAGE_SECTIONS = {
+  overview: ["adminOverviewSection", "adminStatsSection", "adminTrafficStatsSection", "adminTrafficSection"],
+  traffic: ["adminTrafficStatsSection", "adminTrafficSection"],
+  users: ["adminUsersSection", "adminProfileSection"],
+  history: ["adminHistorySection"],
+  topup: ["adminTopupSection"],
+  community: ["adminCommunitySection"],
+  prompts: ["adminPromptSection"],
+  profile: ["adminUsersSection", "adminProfileSection"],
+};
+
+function getAdminPage() {
+  const page = new URLSearchParams(window.location.search).get("page") || "overview";
+  return ADMIN_PAGE_SECTIONS[page] ? page : "overview";
+}
+
+function applyAdminPageMode() {
+  const page = getAdminPage();
+  const visibleIds = new Set(ADMIN_PAGE_SECTIONS[page]);
+
+  document.querySelectorAll(".admin-anchor-section").forEach((section) => {
+    section.hidden = !visibleIds.has(section.id);
+  });
+
+  document.querySelectorAll("[data-admin-page-link]").forEach((link) => {
+    const isActive = link.dataset.adminPageLink === page;
+    link.classList.toggle("active", isActive);
+    if (isActive) {
+      link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+
+  const adminGrid = document.querySelector(".admin-grid");
+  if (adminGrid) {
+    const hasVisibleChild = [...adminGrid.querySelectorAll(".admin-anchor-section")].some((section) => !section.hidden);
+    adminGrid.hidden = !hasVisibleChild;
+  }
+}
 
 function isAdminUser(user) {
   return ADMIN_EMAILS.has(String(user?.email || "").trim().toLowerCase());
@@ -155,8 +202,12 @@ function isSameLocalDate(value, targetDate = new Date()) {
   );
 }
 
+function getTopupPaidDate(order) {
+  return order?.approvedAt || order?.paidAt || order?.reviewedAt || order?.createdAt;
+}
+
 function getTodayPaidOrders() {
-  return allTopupOrders.filter((order) => order.status === "approved" && isSameLocalDate(order.approvedAt || order.createdAt));
+  return allTopupOrders.filter((order) => order.status === "approved" && isSameLocalDate(getTopupPaidDate(order)));
 }
 
 function summarizeTodayPackages(orders) {
@@ -179,6 +230,22 @@ function isWithinDays(value, days) {
   const now = Date.now();
   const windowStart = now - days * 24 * 60 * 60 * 1000;
   return date.getTime() >= windowStart;
+}
+
+function getApprovedTopupOrders(days = null) {
+  return allTopupOrders.filter((order) => {
+    if (order.status !== "approved") return false;
+    const paidDate = getTopupPaidDate(order);
+    return days ? isWithinDays(paidDate, days) : true;
+  });
+}
+
+function countUniqueTopupUsers(orders) {
+  return new Set(orders.map((order) => order.uid || order.email || order.id).filter(Boolean)).size;
+}
+
+function sumTopupAmount(orders) {
+  return orders.reduce((sum, order) => sum + Number(order.price || 0), 0);
 }
 
 function getPageViewVisitorKey(item) {
@@ -450,6 +517,22 @@ function renderTopupOrders(orders) {
     .join("");
 }
 
+function renderTopupSummary() {
+  const approvedOrders = getApprovedTopupOrders();
+  const todayOrders = approvedOrders.filter((order) => isSameLocalDate(getTopupPaidDate(order)));
+  const weekOrders = getApprovedTopupOrders(7);
+  const monthOrders = getApprovedTopupOrders(30);
+
+  if (adminTopupAllCount) adminTopupAllCount.textContent = String(allTopupOrders.length);
+  if (adminTopupTodayUsers) adminTopupTodayUsers.textContent = String(countUniqueTopupUsers(todayOrders));
+  if (adminTopupWeekUsers) adminTopupWeekUsers.textContent = String(countUniqueTopupUsers(weekOrders));
+  if (adminTopupMonthUsers) adminTopupMonthUsers.textContent = String(countUniqueTopupUsers(monthOrders));
+  if (adminTopupTodayPackages) adminTopupTodayPackages.textContent = summarizeTodayPackages(todayOrders);
+  if (adminTopupMonthAmount) {
+    adminTopupMonthAmount.textContent = `${sumTopupAmount(monthOrders).toLocaleString("th-TH")} บาท`;
+  }
+}
+
 function renderCommunityRequests(requests) {
   if (communityRequestsLabel) communityRequestsLabel.textContent = `${requests.length} รายการ`;
   if (!communityRequestsBody) return;
@@ -580,6 +663,7 @@ function renderAll() {
   renderHistory(history);
   renderTrafficDashboard();
   renderTopupOrders(allTopupOrders);
+  renderTopupSummary();
   renderCommunityRequests(communityRequests);
   renderAdminPrompts(prompts);
 
@@ -591,6 +675,7 @@ function renderAll() {
   }
   if (adminTodayPaidCount) adminTodayPaidCount.textContent = String(todayPaidUsers.size);
   if (adminTodayPackageBreakdown) adminTodayPackageBreakdown.textContent = summarizeTodayPackages(todayPaidOrders);
+  applyAdminPageMode();
 }
 
 function openSlipDialog(orderId) {

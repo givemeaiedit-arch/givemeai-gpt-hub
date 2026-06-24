@@ -26,7 +26,7 @@
           <a class="nav-item" href="ai-check-ads.html"><span class="nav-icon">◎</span>AI Check Ads</a>
           <a class="nav-item" href="topup.html"><span class="nav-icon">◔</span>เติมเงิน</a>
           <a class="nav-item" href="profile.html"><span class="nav-icon">◉</span>โปรไฟล์</a>
-          <a class="nav-item active" href="admin.html"><span class="nav-icon">A</span>Admin Panel</a>
+          <a class="nav-item active" href="admin.html?page=overview"><span class="nav-icon">A</span>Admin Panel</a>
         </nav>
 
         <section class="upgrade-card" aria-label="Admin Only">
@@ -76,7 +76,7 @@
           </div>
         </section>
 
-        <section class="admin-stat-grid admin-anchor-section" aria-label="ภาพรวม Admin">
+        <section class="admin-stat-grid admin-anchor-section" id="adminStatsSection" aria-label="ภาพรวม Admin">
           <article>
             <span>ผู้ใช้ทั้งหมด</span>
             <strong id="adminUserCount">0</strong>
@@ -103,7 +103,7 @@
           </article>
         </section>
 
-        <section class="admin-stat-grid admin-anchor-section" aria-label="Dashboard ยอดวิวหน้าเว็บ">
+        <section class="admin-stat-grid admin-anchor-section" id="adminTrafficStatsSection" aria-label="Dashboard ยอดวิวหน้าเว็บ">
           <article>
             <span>ยอดวิววันนี้</span>
             <strong id="adminViewsToday">0</strong>
@@ -131,14 +131,14 @@
         </section>
 
         <nav class="admin-head-menu" aria-label="เมนูหัวข้อแอดมิน">
-          <a class="admin-head-link" href="#adminOverviewSection">ภาพรวม</a>
-          <a class="admin-head-link" href="#adminTrafficSection">ยอดวิวเว็บ</a>
-          <a class="admin-head-link" href="#adminUsersSection">สมาชิก</a>
-          <a class="admin-head-link" href="#adminHistorySection">ประวัติ Check Ads</a>
-          <a class="admin-head-link" href="#adminTopupSection">ตรวจสลิป</a>
-          <a class="admin-head-link" href="#adminCommunitySection">คำขอเข้ากลุ่ม</a>
-          <a class="admin-head-link" href="#adminPromptSection">จัดการ Prompt</a>
-          <a class="admin-head-link" href="#adminProfileSection">โปรไฟล์ผู้ใช้</a>
+          <a class="admin-head-link" data-admin-page-link="overview" href="admin.html?page=overview">ภาพรวม</a>
+          <a class="admin-head-link" data-admin-page-link="traffic" href="admin.html?page=traffic">ยอดวิวเว็บ</a>
+          <a class="admin-head-link" data-admin-page-link="users" href="admin.html?page=users">สมาชิก</a>
+          <a class="admin-head-link" data-admin-page-link="history" href="admin.html?page=history">ประวัติ Check Ads</a>
+          <a class="admin-head-link" data-admin-page-link="topup" href="admin.html?page=topup">ประวัติเติมเงิน</a>
+          <a class="admin-head-link" data-admin-page-link="community" href="admin.html?page=community">คำขอเข้ากลุ่ม</a>
+          <a class="admin-head-link" data-admin-page-link="prompts" href="admin.html?page=prompts">จัดการ Prompt</a>
+          <a class="admin-head-link" data-admin-page-link="profile" href="admin.html?page=profile">โปรไฟล์ผู้ใช้</a>
         </nav>
 
         <section class="admin-grid">
@@ -208,8 +208,34 @@
 
         <section class="leaderboard-table-card admin-card admin-anchor-section" id="adminTopupSection">
           <div class="panel-heading">
-            <h2>คำขอเติมเงิน / ตรวจสลิป</h2>
+            <h2>ประวัติการเติมเงิน / ตรวจสลิป</h2>
             <span id="topupOrdersLabel">-</span>
+          </div>
+          <div class="admin-topup-summary-grid" aria-label="สรุปประวัติการเติมเงิน">
+            <article>
+              <span>รายการเติมเงินทั้งหมด</span>
+              <strong id="adminTopupAllCount">0</strong>
+            </article>
+            <article>
+              <span>วันนี้เติมกี่คน</span>
+              <strong id="adminTopupTodayUsers">0</strong>
+            </article>
+            <article>
+              <span>สัปดาห์นี้เติมกี่คน</span>
+              <strong id="adminTopupWeekUsers">0</strong>
+            </article>
+            <article>
+              <span>เดือนนี้เติมกี่คน</span>
+              <strong id="adminTopupMonthUsers">0</strong>
+            </article>
+            <article>
+              <span>แพ็กที่จ่ายวันนี้</span>
+              <strong id="adminTopupTodayPackages">-</strong>
+            </article>
+            <article>
+              <span>ยอดอนุมัติเดือนนี้</span>
+              <strong id="adminTopupMonthAmount">0 บาท</strong>
+            </article>
           </div>
           <div class="leaderboard-table-wrap">
             <table class="leaderboard-table admin-table">
@@ -386,7 +412,7 @@
       <a href="community.html"><span>◉</span>กลุ่ม</a>
       <a href="tools.html"><span>⌘</span>เครื่องมือ</a>
       <a href="profile.html"><span>◉</span>โปรไฟล์</a>
-      <a class="active" href="admin.html"><span>A</span>Admin</a>
+      <a class="active" href="admin.html?page=overview"><span>A</span>Admin</a>
     </nav>
 
     <script src="prompt-data.js"></script>
