@@ -5,14 +5,14 @@ export const LESSONS = [
     id: "lesson-1",
     page: "lesson-1.html",
     title: "บทที่ 1",
-    subtitle: "กำลังจัดเตรียม",
-    status: "เร็ว ๆ นี้",
-    summary: "เตรียมพื้นที่สำหรับบทเริ่มต้นของคอร์ส เพื่อใช้เป็นจุดเริ่มเรียนอย่างเป็นระบบ",
-    description: "หน้านี้กันไว้สำหรับบทนำของคอร์ส เมื่อมีวิดีโอจริงสามารถใส่แทนได้ทันทีโดยไม่ต้องเปลี่ยนโครงหน้าเรียน",
-    cover: "assets/banners/เริ่มต้นใช้งาน.png",
-    videoId: "",
-    available: false,
-    progress: 0,
+    subtitle: "วิดีโอเริ่มต้น",
+    status: "พร้อมเรียน",
+    summary: "บทเริ่มต้นสำหรับเข้าใจภาพรวม AI และเริ่มใช้งานได้ง่ายขึ้น",
+    description: "ดูวิดีโอแนะนำพื้นฐาน แล้วกดเรียนแล้วเพื่อรับ 50 คะแนนเข้าบัญชีของตัวเองได้ทันที",
+    cover: "assets/courses/lesson-1-cover.png",
+    videoId: "zwm5qU8XlmQ",
+    available: true,
+    progress: 25,
   },
   {
     id: "lesson-2",
@@ -49,4 +49,3 @@ export function getLessonById(lessonId) {
 export function getLessonIndex(lessonId) {
   return LESSONS.findIndex((lesson) => lesson.id === lessonId);
 }
-
