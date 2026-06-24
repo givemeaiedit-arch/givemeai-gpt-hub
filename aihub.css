@@ -1094,6 +1094,7 @@ meter::-webkit-meter-optimum-value {
   width: 28px;
   height: 28px;
   font-size: 0.86rem;
+  grid-row: 1 / span 2;
 }
 
 .update-list li:last-child {
@@ -1104,6 +1105,7 @@ meter::-webkit-meter-optimum-value {
 .update-list strong,
 .update-list small {
   display: block;
+  grid-column: 2;
 }
 
 .update-list strong {
