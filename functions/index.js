@@ -77,7 +77,7 @@ TOPUP_PACKAGES["pro-monthly"].label = "Pro 30 วัน";
 TOPUP_PACKAGES["pro-lifetime"].label = "Master ตลอดชีพ";
 TOPUP_PACKAGES["pro-lifetime"].type = "master-lifetime";
 const FREE_LIMIT_EXCEEDED_MESSAGE =
-  "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว สามารถเติมเงินเพิ่มในหน้าเติมเงิน หรือสมัคร Pro 289 บาทต่อเดือน เพื่อใช้ Check Ads ได้วันละ 10 ครั้ง พร้อมคอร์สเรียน AI มากกว่า 20 บทและเครื่องมือ AI ใหม่ ๆ ในอนาคต หากต้องการราคาพิเศษสำหรับองค์กร ติดต่อ Admin ได้ค่ะ ที่ page AI ภาพนี้ให้หน่อย";
+  "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว สามารถเติมเงินเพิ่มในหน้าเติมเงิน หรือสมัคร Pro 289 บาทต่อเดือน เพื่อใช้ Check Ads ได้วันละ 15 ครั้ง พร้อมคอร์สเรียน AI มากกว่า 20 บทและเครื่องมือ AI ใหม่ ๆ ในอนาคต หากต้องการราคาพิเศษสำหรับองค์กร ติดต่อ Admin ได้ค่ะ ที่ page AI ภาพนี้ให้หน่อย";
 
 const THUNDER_VERIFY_URL = "https://api.thunder.in.th/v2/verify/bank";
 
@@ -553,7 +553,7 @@ async function getUserUsageProfile(user) {
   return {
     userRef,
     plan: isAdmin ? "admin" : isPrivileged ? "pro" : "free",
-    dailyLimit: isAdmin ? 999 : isPrivileged ? 10 : FREE_AD_CHECK_LIMIT,
+    dailyLimit: isAdmin ? 999 : isPrivileged ? 15 : FREE_AD_CHECK_LIMIT,
     adCheckCredits,
     isAdmin,
     isPrivileged,
@@ -1315,7 +1315,7 @@ async function enforceAdCheckQuota(user) {
     const usedToday = await countTodayAdChecks(usage.userRef);
     if (usedToday >= usage.dailyLimit) {
       throw buildLimitErrorPayload(
-        "วันนี้ใช้สิทธิ์ Pro สำหรับ Check Ads ครบ 10 ครั้งแล้ว กรุณากลับมาใช้งานใหม่ในวันถัดไป หรือติดต่อ Admin Page หากต้องการเพิ่มสิทธิ์พิเศษ",
+        "วันนี้ใช้สิทธิ์ Pro สำหรับ Check Ads ครบ 15 ครั้งแล้ว กรุณากลับมาใช้งานใหม่ในวันถัดไป หรือติดต่อ Admin Page หากต้องการเพิ่มสิทธิ์พิเศษ",
       );
     }
     return usage;
