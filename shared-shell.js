@@ -27,6 +27,12 @@
       searchLabel: "ค้นหากลุ่มเรียนรู้",
       active: "community",
     },
+    "changelog.html": {
+      searchId: "changelogSearch",
+      searchPlaceholder: "ค้นหาอัปเดตล่าสุด...",
+      searchLabel: "ค้นหาอัปเดต",
+      active: "home",
+    },
     "prompts.html": {
       searchId: "promptShellSearch",
       searchPlaceholder: "ค้นหา Prompt เช่น ร้านอาหาร บ้าน รถ เสื้อผ้า...",
