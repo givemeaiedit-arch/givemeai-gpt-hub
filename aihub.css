@@ -1225,6 +1225,33 @@ meter::-webkit-meter-optimum-value {
   line-height: 1.65;
 }
 
+.changelog-points {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.changelog-points li {
+  position: relative;
+  padding-left: 22px;
+  color: #334155;
+  font-weight: 750;
+  line-height: 1.55;
+}
+
+.changelog-points li::before {
+  position: absolute;
+  left: 0;
+  top: 0.58em;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--orange);
+  content: "";
+}
+
 .changelog-action {
   display: inline-flex;
   width: fit-content;
