@@ -827,6 +827,10 @@ a.is-pro-locked,
   gap: 20px;
 }
 
+.course-row-lessons {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .course-card {
   overflow: hidden;
   border: 1px solid var(--faint);
@@ -898,6 +902,20 @@ a.is-pro-locked,
 
 .course-card b {
   color: #343b45;
+}
+
+.course-card-link {
+  display: inline-flex;
+  width: calc(100% - 32px);
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 16px 16px;
+  border-radius: 12px;
+  color: #ffffff;
+  background: var(--orange);
+  font-weight: 950;
+  box-shadow: 0 12px 24px rgba(255, 100, 0, 0.18);
 }
 
 meter {
@@ -1081,20 +1099,13 @@ meter::-webkit-meter-optimum-value {
 }
 
 .update-list li {
-  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 9px;
   border-bottom: 1px solid rgba(15, 23, 42, 0.07);
   padding-bottom: 12px;
   overflow-wrap: normal;
   word-break: normal;
-}
-
-.update-list span {
-  width: 28px;
-  height: 28px;
-  font-size: 0.86rem;
-  grid-row: 1 / span 2;
 }
 
 .update-list li:last-child {
@@ -1106,7 +1117,7 @@ meter::-webkit-meter-optimum-value {
 .update-list strong,
 .update-list small {
   display: block;
-  grid-column: 2;
+  grid-column: 1;
 }
 
 .update-list time {
@@ -1212,6 +1223,22 @@ meter::-webkit-meter-optimum-value {
   color: var(--muted);
   font-weight: 750;
   line-height: 1.65;
+}
+
+.changelog-action {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  border-radius: 999px;
+  padding: 0 14px;
+  color: #ffffff;
+  background: var(--orange);
+  font-size: 0.88rem;
+  font-weight: 950;
+  box-shadow: 0 10px 22px rgba(255, 100, 0, 0.16);
 }
 
 .changelog-tag {
