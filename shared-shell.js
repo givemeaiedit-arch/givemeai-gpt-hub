@@ -63,6 +63,12 @@
       searchLabel: "ค้นหา",
       active: "tools",
     },
+    "promo-image.html": {
+      searchId: "toolSearch",
+      searchPlaceholder: "ค้นหาหน้าอื่นใน AI Hub...",
+      searchLabel: "ค้นหา",
+      active: "tools",
+    },
     "profile.html": {
       searchId: "profileSearch",
       searchPlaceholder: "ค้นหาเมนูในโปรไฟล์...",

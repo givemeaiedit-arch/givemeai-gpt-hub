@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI สร้างภาพโปรโมท | GivemeAI</title>
+    <meta
+      name="description"
+      content="อัปโหลดภาพสินค้า ใส่รายละเอียด ราคา และสไตล์ เพื่อสร้างภาพโปรโมทพร้อมใช้งานด้วย AI"
+    />
+    <link rel="icon" href="assets/favicon.png" />
+    <link rel="stylesheet" href="aihub.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar"></aside>
+
+      <main class="main-content promo-page">
+        <p class="system-message" id="systemMessage">
+          อัปโหลดภาพสินค้า ใส่รายละเอียด แล้ว Generate ภาพโปรโมทพร้อมใช้งาน
+        </p>
+
+        <section class="promo-hero" aria-labelledby="promoTitle">
+          <div>
+            <p class="tools-kicker">PROMO IMAGE GENERATOR</p>
+            <h1 id="promoTitle">AI สร้างภาพโปรโมท</h1>
+            <p>
+              สร้างภาพโปรโมทสำหรับ Facebook, Instagram, TikTok, Shopee/Lazada,
+              เมนูคาเฟ่ และโพสต์ขายสินค้า โดยใช้ภาพที่คุณอัปโหลดเป็นต้นแบบ
+            </p>
+          </div>
+          <div class="promo-credit-card">
+            <span id="promoUsagePill" class="audit-usage-pill">กำลังโหลด Credit...</span>
+            <a class="soft-button" href="topup.html">เติม Credit</a>
+          </div>
+        </section>
+
+        <section class="audit-guest-notice" id="promoGuestNotice" hidden>
+          <h2>กรุณา Login ก่อนใช้งาน</h2>
+          <p>เครื่องมือนี้ต้องใช้บัญชี Gmail เพื่อหัก Credit และบันทึกผลลัพธ์ให้ถูกบัญชี</p>
+          <button class="orange-button" id="promoLoginButton" type="button">Login Gmail</button>
+        </section>
+
+        <section class="promo-workspace" aria-label="สร้างภาพโปรโมท">
+          <article class="audit-upload-card promo-upload-card" id="promoUploadCard">
+            <div class="audit-upload-dropzone" id="promoDropzone" role="button" tabindex="0">
+              <div class="audit-upload-icon">↑</div>
+              <strong>อัปโหลดภาพสินค้า</strong>
+              <p>รองรับ PNG, JPG, WEBP ภาพจะถูกใช้เป็นต้นแบบในการสร้างภาพโปรโมท</p>
+              <span class="audit-upload-browse">เลือกไฟล์</span>
+              <input id="promoImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+            </div>
+
+            <div class="audit-upload-preview" id="promoPreviewPanel" hidden>
+              <div class="audit-upload-preview-frame">
+                <img id="promoPreviewImage" alt="ภาพสินค้าที่อัปโหลด" />
+              </div>
+              <button class="soft-button" id="promoClearImageButton" type="button">ล้างรูป</button>
+            </div>
+          </article>
+
+          <article class="audit-request-card promo-form-card">
+            <div class="audit-request-grid promo-form-grid">
+              <label class="audit-field">
+                <span>ชื่อสินค้า</span>
+                <input id="promoProductName" type="text" placeholder="เช่น เซรั่มหน้าใส, เมนูกาแฟ, คอร์สเรียน AI" />
+              </label>
+              <label class="audit-field">
+                <span>ราคา / โปรโมชัน</span>
+                <input id="promoPrice" type="text" placeholder="เช่น 299 บาท, ซื้อ 1 แถม 1, ลด 20%" />
+              </label>
+              <label class="audit-field audit-field-wide">
+                <span>รายละเอียด / จุดขาย</span>
+                <textarea
+                  id="promoDetails"
+                  rows="4"
+                  placeholder="ใส่จุดเด่น กลุ่มลูกค้า ช่องทางติดต่อ หรือข้อความที่อยากให้มีในภาพ"
+                ></textarea>
+              </label>
+              <label class="audit-field audit-field-wide">
+                <span>สไตล์ภาพ</span>
+                <input
+                  id="promoStyle"
+                  type="text"
+                  placeholder="เช่น หรูหรา, มินิมอล, สีส้มดำ, คาเฟ่อบอุ่น, Shopee banner"
+                />
+              </label>
+            </div>
+
+            <div class="promo-actions">
+              <button class="green-button" id="generatePromoButton" type="button" disabled>
+                Generate รูป ใช้ 1 Credit
+              </button>
+              <p id="promoRequestStatus" class="audit-request-status">
+                อัปโหลดภาพและกรอกรายละเอียดให้ครบก่อน Generate
+              </p>
+            </div>
+          </article>
+
+          <section class="promo-loading" id="promoLoadingPanel" hidden>
+            <div class="audit-skeleton-grid">
+              <div class="audit-skeleton-card skeleton-tall"></div>
+              <div class="audit-skeleton-card skeleton-tall"></div>
+              <div class="audit-skeleton-card skeleton-wide"></div>
+            </div>
+            <p>รอสักครู่ AI กำลังสร้างภาพโปรโมท...</p>
+          </section>
+
+          <article class="audit-card promo-result-card" id="promoResultCard" hidden>
+            <div class="panel-heading">
+              <h2>รูปโปรโมทที่สร้างเสร็จแล้ว</h2>
+              <span id="promoModelBadge">GPT Image 2.0 low</span>
+            </div>
+            <figure class="promo-result-frame">
+              <img id="promoResultImage" alt="ภาพโปรโมทที่ Generate แล้ว" />
+            </figure>
+            <div class="promo-result-actions">
+              <a class="orange-button" id="downloadPromoImageButton" href="#" download="promo-image.png">ดาวน์โหลดรูป</a>
+              <button class="soft-button" id="copyPromoPromptButton" type="button">คัดลอก Prompt ที่ใช้</button>
+            </div>
+            <textarea id="promoPromptOutput" readonly></textarea>
+          </article>
+        </section>
+      </main>
+
+      <aside class="right-panel tools-panel" aria-label="คำแนะนำ">
+        <section class="side-card">
+          <div class="panel-heading">
+            <h2>วิธีใช้ให้ได้ภาพสวย</h2>
+          </div>
+          <ol class="lesson-list">
+            <li><span>1</span>ใช้ภาพสินค้าชัด แสงดี และไม่เบลอ</li>
+            <li><span>2</span>ใส่ราคา จุดขาย และช่องทางติดต่อให้ครบ</li>
+            <li><span>3</span>เลือกสไตล์ให้ตรงกับแบรนด์ เช่น หรูหรา มินิมอล หรือสนุกสดใส</li>
+          </ol>
+        </section>
+      </aside>
+    </div>
+
+    <script src="browser-check.js"></script>
+    <script type="module" src="app.js"></script>
+    <script src="shared-shell.js"></script>
+    <script type="module" src="promo-image.js"></script>
+  </body>
+</html>

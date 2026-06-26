@@ -1966,6 +1966,167 @@ async function generateAdFixImageForUser(req, payload) {
   };
 }
 
+function buildPromoImageFileName(fileName) {
+  const baseName = String(fileName || "promo-image")
+    .trim()
+    .replace(/\.[^.]+$/, "")
+    .replace(/[^\p{L}\p{N}\-_ ]/gu, "")
+    .replace(/\s+/g, "-")
+    .slice(0, 72) || "promo-image";
+  return `promo-${baseName}-${Date.now()}.png`;
+}
+
+async function enforcePromoImageCredit(user) {
+  const usage = await getUserUsageProfile(user);
+  if (usage.isAdmin || usage.isPrivileged) {
+    return usage;
+  }
+
+  if (usage.adCheckCredits > 0) {
+    return { ...usage, usesCredit: true };
+  }
+
+  const error = new Error("Credit ไม่พอ กรุณาเติม Credit ก่อน Generate รูป");
+  error.statusCode = 403;
+  error.code = "NO_CREDIT";
+  error.upgradeUrl = PRO_UPGRADE_URL;
+  throw error;
+}
+
+function buildPromoImagePrompt(payload) {
+  const productName = String(payload?.productName || "").trim() || "สินค้าจากภาพที่อัปโหลด";
+  const price = String(payload?.price || "").trim() || "ไม่ระบุราคา";
+  const details = String(payload?.details || "").trim() || "สร้างภาพโปรโมทที่อ่านง่ายและเหมาะกับการขาย";
+  const style = String(payload?.style || "").trim() || "modern premium Thai social media ad";
+
+  return [
+    "Create a polished promotional visual from the uploaded image.",
+    "Analyze the product, composition, mood, color cues, typography opportunities, and marketing angle from the uploaded image automatically.",
+    "Generate a social-media-ready Thai promotional artwork that feels production-ready and optimized for marketing use.",
+    "",
+    `Product name: ${productName}`,
+    `Price or promotion: ${price}`,
+    `Product details and selling points: ${details}`,
+    `Preferred style: ${style}`,
+    "",
+    "Design requirements:",
+    "- Keep the original product recognizable and make it the main focal point.",
+    "- Use harmonious colors that match the uploaded image.",
+    "- Add easy-to-read Thai promotional text with strong visual hierarchy.",
+    "- Make it suitable for Facebook ads, Instagram posts, TikTok covers, Shopee/Lazada banners, cafe menus, product posters, or lifestyle campaigns.",
+    "- Use cinematic lighting, clean composition, premium texture, and cohesive branding when appropriate.",
+    "- Avoid clutter, tiny unreadable text, fake UI buttons, fake notifications, misleading claims, or exaggerated promises.",
+    "- Do not mention any technical model name in the artwork.",
+    "- Return only the final promotional image.",
+  ].join("\n");
+}
+
+async function generatePromoImageForUser(req, payload) {
+  const user = await verifySignedInUser(req);
+  await ensureUserProfile(user);
+
+  const imageDataUrl = String(payload?.imageDataUrl || "");
+  if (!imageDataUrl) {
+    throw new Error("กรุณาอัปโหลดรูปก่อน Generate");
+  }
+
+  const sourceImage = await dataUrlToImagePayload(imageDataUrl);
+  if (!["image/jpeg", "image/png", "image/webp"].includes(sourceImage.mimeType)) {
+    throw new Error("Unsupported image type");
+  }
+
+  const productName = String(payload?.productName || "").trim();
+  const details = String(payload?.details || "").trim();
+  if (!productName || !details) {
+    throw new Error("กรุณาใส่ชื่อสินค้าและรายละเอียดก่อน Generate");
+  }
+
+  const quota = await enforcePromoImageCredit(user);
+  const apiKey = openAiApiKey.value();
+  if (!apiKey) {
+    throw new Error("Missing OPENAI_API_KEY secret");
+  }
+
+  const prompt = buildPromoImagePrompt(payload);
+  const extension =
+    sourceImage.mimeType === "image/png" ? "png" : sourceImage.mimeType === "image/webp" ? "webp" : "jpg";
+  const imageBuffer = Buffer.from(sourceImage.imageBase64, "base64");
+  const outputSize = getOpenAiImageSizeFromSource(payload);
+  const form = new FormData();
+  form.set("model", OPENAI_IMAGE_MODEL);
+  form.set("quality", "low");
+  form.set("size", outputSize);
+  form.set("prompt", prompt);
+  form.set("image", new Blob([imageBuffer], { type: sourceImage.mimeType }), `promo-source.${extension}`);
+
+  const apiResponse = await fetch("https://api.openai.com/v1/images/edits", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: form,
+  });
+
+  const responseJson = await apiResponse.json();
+  if (!apiResponse.ok) {
+    const message = responseJson?.error?.message || "OpenAI image generation failed";
+    throw new Error(message);
+  }
+
+  const image = responseJson?.data?.[0] || {};
+  const generatedImageDataUrl = image.b64_json
+    ? `data:image/png;base64,${image.b64_json}`
+    : image.url || "";
+  if (!generatedImageDataUrl) {
+    throw new Error("No generated image returned");
+  }
+
+  if (quota.usesCredit) {
+    await quota.userRef.set(
+      {
+        adCheckCredits: FieldValue.increment(-1),
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+  }
+
+  const fileName = buildPromoImageFileName(payload.fileName);
+  const historyId = toFileKey(fileName);
+  const historyPayload = {
+    uid: user.uid,
+    userEmail: user.email,
+    displayName: user.displayName,
+    fileName,
+    sourceFileName: payload.fileName || "",
+    productName,
+    price: payload.price || "",
+    details,
+    style: payload.style || "",
+    prompt,
+    model: OPENAI_IMAGE_MODEL,
+    quality: "low",
+    size: outputSize,
+    imagePreviewDataUrl: sanitizeImagePreviewDataUrl(imageDataUrl),
+    generatedImagePreviewDataUrl: buildGeneratedPreviewDataUrl(generatedImageDataUrl),
+    createdAt: FieldValue.serverTimestamp(),
+  };
+  await Promise.all([
+    quota.userRef.collection("promoImageHistory").doc(historyId).set(historyPayload, { merge: true }),
+    adminDb.collection("promoImageHistory").doc(`${user.uid}_${historyId}`).set(historyPayload, { merge: true }),
+  ]);
+
+  return {
+    imageDataUrl: generatedImageDataUrl,
+    fileName,
+    prompt,
+    model: OPENAI_IMAGE_MODEL,
+    quality: "low",
+    size: outputSize,
+    usage: await getAdCheckUsageSummary(user),
+  };
+}
+
 export const analyzeAdCreative = onRequest(
   {
     region: "asia-southeast1",
@@ -2067,6 +2228,41 @@ export const generateAdFixImage = onRequest(
       sendJson(res, error.statusCode || 400, {
         error: error.message || "Unknown error",
         code: error.code || "UNKNOWN_ERROR",
+      });
+    }
+  },
+);
+
+export const generatePromoImage = onRequest(
+  {
+    region: "asia-southeast1",
+    cors: true,
+    secrets: [openAiApiKey],
+    timeoutSeconds: 120,
+    memory: "512MiB",
+  },
+  async (req, res) => {
+    setCors(res);
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      sendJson(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    try {
+      const payload = await readJsonBody(req);
+      const result = await generatePromoImageForUser(req, payload);
+      sendJson(res, 200, result);
+    } catch (error) {
+      sendJson(res, error.statusCode || 400, {
+        error: error.message || "Unknown error",
+        code: error.code || "UNKNOWN_ERROR",
+        upgradeUrl: error.upgradeUrl || "",
       });
     }
   },
