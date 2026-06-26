@@ -1,4 +1,5 @@
-import { signInWithGoogle, watchAuth } from "./auth-shared.js";
+import { collection, getDocs, limit, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirebaseServices, signInWithGoogle, watchAuth } from "./auth-shared.js";
 
 const USAGE_ENDPOINT =
   "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/getAdCheckUsage";
@@ -25,6 +26,8 @@ const promoResultImage = document.querySelector("#promoResultImage");
 const downloadPromoImageButton = document.querySelector("#downloadPromoImageButton");
 const copyPromoPromptButton = document.querySelector("#copyPromoPromptButton");
 const promoPromptOutput = document.querySelector("#promoPromptOutput");
+const promoHistoryList = document.querySelector("#promoHistoryList");
+const promoHistoryCount = document.querySelector("#promoHistoryCount");
 
 let currentUser = null;
 let selectedImageDataUrl = "";
@@ -61,6 +64,81 @@ async function loadUsage() {
   } catch (error) {
     promoUsagePill.textContent = error.message || "โหลด Credit ไม่สำเร็จ";
     promoUsagePill.dataset.plan = "free";
+  }
+}
+
+function formatHistoryDate(value) {
+  const date = value?.toDate?.() || (value ? new Date(value) : null);
+  if (!date || Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString("th-TH", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function renderHistory(items) {
+  if (!promoHistoryList) return;
+  if (promoHistoryCount) promoHistoryCount.textContent = `${items.length} รายการ`;
+  if (!items.length) {
+    promoHistoryList.innerHTML = '<p class="promo-history-empty">ยังไม่มีประวัติ Generate รูป</p>';
+    return;
+  }
+
+  promoHistoryList.innerHTML = items
+    .map((item) => {
+      const title = escapeHtml(item.productName || "รูปโปรโมท");
+      const subtitle = escapeHtml([item.price, item.style].filter(Boolean).join(" · ") || item.fileName || "");
+      const image = item.generatedImagePreviewDataUrl || item.imagePreviewDataUrl || "";
+      const safeDate = escapeHtml(formatHistoryDate(item.createdAt));
+      return `
+        <article class="promo-history-item">
+          <div class="promo-history-thumb">
+            ${image ? `<img src="${image}" alt="" loading="lazy" />` : "<span>AI</span>"}
+          </div>
+          <div>
+            <strong>${title}</strong>
+            <p>${subtitle}</p>
+            <small>${safeDate}</small>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+async function loadPromoHistory() {
+  if (!promoHistoryList || !currentUser) {
+    if (promoHistoryList) {
+      promoHistoryList.innerHTML = '<p class="promo-history-empty">Login เพื่อดูประวัติรูปที่เคย Generate</p>';
+    }
+    if (promoHistoryCount) promoHistoryCount.textContent = "-";
+    return;
+  }
+
+  try {
+    const svc = getFirebaseServices();
+    if (!svc?.db) throw new Error("Firebase ยังไม่พร้อม");
+    const historyQuery = query(
+      collection(svc.db, "users", currentUser.uid, "promoImageHistory"),
+      orderBy("createdAt", "desc"),
+      limit(8),
+    );
+    const snapshot = await getDocs(historyQuery);
+    renderHistory(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+  } catch (error) {
+    if (promoHistoryCount) promoHistoryCount.textContent = "-";
+    promoHistoryList.innerHTML = `<p class="promo-history-empty">โหลด History ไม่สำเร็จ: ${error.message || "ไม่ทราบสาเหตุ"}</p>`;
   }
 }
 
@@ -185,6 +263,7 @@ async function generatePromoImage() {
     if (promoResultCard) promoResultCard.hidden = false;
     setStatus("Generate รูปโปรโมทสำเร็จแล้ว", "success");
     await loadUsage();
+    await loadPromoHistory();
     promoResultCard?.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
     const message =
@@ -254,11 +333,13 @@ watchAuth(async ({ user }) => {
   if (currentUser) {
     setStatus("พร้อมใช้งาน อัปโหลดรูปและกรอกรายละเอียดได้เลย", "success");
     await loadUsage();
+    await loadPromoHistory();
   } else {
     if (promoUsagePill) {
       promoUsagePill.textContent = "Login เพื่อดู Credit";
       promoUsagePill.dataset.plan = "free";
     }
+    await loadPromoHistory();
     setStatus("กรุณา Login Gmail ก่อนใช้งาน", "error");
   }
   updateGenerateState();
