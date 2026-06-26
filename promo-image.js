@@ -28,8 +28,16 @@ const copyPromoPromptButton = document.querySelector("#copyPromoPromptButton");
 const promoPromptOutput = document.querySelector("#promoPromptOutput");
 const promoHistoryList = document.querySelector("#promoHistoryList");
 const promoHistoryCount = document.querySelector("#promoHistoryCount");
+const promoDetailModal = document.querySelector("#promoDetailModal");
+const promoDetailImage = document.querySelector("#promoDetailImage");
+const promoDetailTitle = document.querySelector("#promoDetailTitle");
+const promoDetailMeta = document.querySelector("#promoDetailMeta");
+const promoDetailPrompt = document.querySelector("#promoDetailPrompt");
+const copyHistoryPromptButton = document.querySelector("#copyHistoryPromptButton");
 
 let currentUser = null;
+let historyItems = [];
+let activeHistoryItem = null;
 let selectedImageDataUrl = "";
 let selectedImagePreviewDataUrl = "";
 let selectedFileName = "";
@@ -90,6 +98,7 @@ function escapeHtml(value) {
 
 function renderHistory(items) {
   if (!promoHistoryList) return;
+  historyItems = items;
   if (promoHistoryCount) promoHistoryCount.textContent = `${items.length} รายการ`;
   if (!items.length) {
     promoHistoryList.innerHTML = '<p class="promo-history-empty">ยังไม่มีประวัติ Generate รูป</p>';
@@ -102,8 +111,9 @@ function renderHistory(items) {
       const subtitle = escapeHtml([item.price, item.style].filter(Boolean).join(" · ") || item.fileName || "");
       const image = item.generatedImagePreviewDataUrl || item.imagePreviewDataUrl || item.imageDataUrl || "";
       const safeDate = escapeHtml(formatHistoryDate(item.createdAt));
+      const safeId = escapeHtml(item.id || "");
       return `
-        <article class="promo-history-item">
+        <button class="promo-history-item" type="button" data-history-id="${safeId}">
           <div class="promo-history-thumb">
             ${image ? `<img src="${image}" alt="" loading="lazy" />` : "<span>AI</span>"}
           </div>
@@ -112,10 +122,42 @@ function renderHistory(items) {
             <p>${subtitle}</p>
             <small>${safeDate}</small>
           </div>
-        </article>
+        </button>
       `;
     })
     .join("");
+}
+
+function openHistoryDetail(item) {
+  if (!item || !promoDetailModal) return;
+  activeHistoryItem = item;
+  const image = item.generatedImagePreviewDataUrl || item.imagePreviewDataUrl || item.imageDataUrl || "";
+  const title = item.productName || "รูปโปรโมท";
+  if (promoDetailImage) {
+    promoDetailImage.src = image || "";
+    promoDetailImage.hidden = !image;
+  }
+  if (promoDetailTitle) promoDetailTitle.textContent = title;
+  if (promoDetailPrompt) promoDetailPrompt.value = item.prompt || "ไม่มีข้อมูล Prompt ในรายการนี้";
+  if (promoDetailMeta) {
+    const rows = [
+      ["ราคา / โปรโมชัน", item.price || "-"],
+      ["สไตล์", item.style || "-"],
+      ["ไฟล์", item.fileName || "-"],
+      ["เวลา", formatHistoryDate(item.createdAt) || "-"],
+    ];
+    promoDetailMeta.innerHTML = rows
+      .map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`)
+      .join("");
+  }
+  promoDetailModal.hidden = false;
+  document.body.classList.add("modal-open");
+}
+
+function closeHistoryDetail() {
+  if (!promoDetailModal) return;
+  promoDetailModal.hidden = true;
+  document.body.classList.remove("modal-open");
 }
 
 function createPreviewDataUrl(dataUrl, maxSize = 360) {
@@ -351,6 +393,35 @@ copyPromoPromptButton?.addEventListener("click", async () => {
     }, 1400);
   } catch {
     setStatus("คัดลอก Prompt ไม่สำเร็จ", "error");
+  }
+});
+
+promoHistoryList?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-history-id]");
+  if (!button) return;
+  const item = historyItems.find((entry) => entry.id === button.dataset.historyId);
+  openHistoryDetail(item);
+});
+
+document.querySelectorAll("[data-promo-modal-close]").forEach((element) => {
+  element.addEventListener("click", closeHistoryDetail);
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !promoDetailModal?.hidden) {
+    closeHistoryDetail();
+  }
+});
+
+copyHistoryPromptButton?.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(activeHistoryItem?.prompt || "");
+    copyHistoryPromptButton.textContent = "คัดลอกแล้ว";
+    setTimeout(() => {
+      copyHistoryPromptButton.textContent = "คัดลอก Prompt";
+    }, 1400);
+  } catch {
+    setStatus("คัดลอก Prompt จาก History ไม่สำเร็จ", "error");
   }
 });
 

@@ -149,6 +149,28 @@
       </aside>
     </div>
 
+    <div class="promo-detail-modal" id="promoDetailModal" hidden>
+      <div class="promo-detail-backdrop" data-promo-modal-close></div>
+      <section class="promo-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="promoDetailTitle">
+        <button class="promo-detail-close" type="button" data-promo-modal-close aria-label="ปิดรายละเอียด">×</button>
+        <div class="promo-detail-layout">
+          <figure class="promo-detail-image-frame">
+            <img id="promoDetailImage" alt="รูปโปรโมทจาก History" />
+          </figure>
+          <div class="promo-detail-content">
+            <p class="tools-kicker">HISTORY DETAIL</p>
+            <h2 id="promoDetailTitle">รายละเอียดรูปโปรโมท</h2>
+            <dl class="promo-detail-meta" id="promoDetailMeta"></dl>
+            <div class="promo-detail-prompt-head">
+              <h3>Prompt เต็ม</h3>
+              <button class="soft-button" id="copyHistoryPromptButton" type="button">คัดลอก Prompt</button>
+            </div>
+            <textarea id="promoDetailPrompt" readonly></textarea>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <script src="browser-check.js"></script>
     <script type="module" src="app.js"></script>
     <script src="shared-shell.js"></script>
