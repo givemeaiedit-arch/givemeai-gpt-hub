@@ -7051,6 +7051,25 @@ meter::-webkit-meter-optimum-value {
   backdrop-filter: blur(14px);
 }
 
+.promo-topup-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 16px;
+  padding: 13px 18px;
+  color: #fff;
+  background: linear-gradient(135deg, #ff7a00, #ff4d00);
+  box-shadow: 0 16px 34px rgba(255, 106, 0, 0.32);
+  font-weight: 950;
+  text-decoration: none;
+}
+
+.promo-topup-button::after {
+  content: "→";
+  margin-left: 8px;
+}
+
 .promo-workspace {
   display: grid;
   gap: 18px;
