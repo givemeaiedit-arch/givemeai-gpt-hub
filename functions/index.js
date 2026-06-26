@@ -2107,7 +2107,7 @@ async function generatePromoImageForUser(req, payload) {
     model: OPENAI_IMAGE_MODEL,
     quality: "low",
     size: outputSize,
-    imagePreviewDataUrl: sanitizeImagePreviewDataUrl(imageDataUrl),
+    imagePreviewDataUrl: sanitizeImagePreviewDataUrl(payload.imagePreviewDataUrl || imageDataUrl),
     generatedImagePreviewDataUrl: buildGeneratedPreviewDataUrl(generatedImageDataUrl),
     createdAt: FieldValue.serverTimestamp(),
   };

@@ -42,60 +42,62 @@
         </section>
 
         <section class="promo-workspace" aria-label="สร้างภาพโปรโมท">
-          <article class="audit-upload-card promo-upload-card" id="promoUploadCard">
-            <div class="audit-upload-dropzone" id="promoDropzone" role="button" tabindex="0">
-              <div class="audit-upload-icon">↑</div>
-              <strong>อัปโหลดภาพสินค้า</strong>
-              <p>รองรับ PNG, JPG, WEBP ภาพจะถูกใช้เป็นต้นแบบในการสร้างภาพโปรโมท</p>
-              <span class="audit-upload-browse">เลือกไฟล์</span>
-              <input id="promoImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
-            </div>
-
-            <div class="audit-upload-preview" id="promoPreviewPanel" hidden>
-              <div class="audit-upload-preview-frame">
-                <img id="promoPreviewImage" alt="ภาพสินค้าที่อัปโหลด" />
+          <section class="promo-input-row" aria-label="อัปโหลดรูปและใส่รายละเอียด">
+            <article class="audit-upload-card promo-upload-card" id="promoUploadCard">
+              <div class="audit-upload-dropzone" id="promoDropzone" role="button" tabindex="0">
+                <div class="audit-upload-icon">↑</div>
+                <strong>อัปโหลดภาพสินค้า</strong>
+                <p>รองรับ PNG, JPG, WEBP ภาพจะถูกใช้เป็นต้นแบบในการสร้างภาพโปรโมท</p>
+                <span class="audit-upload-browse">เลือกไฟล์</span>
+                <input id="promoImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
               </div>
-              <button class="soft-button" id="promoClearImageButton" type="button">ล้างรูป</button>
-            </div>
-          </article>
 
-          <article class="audit-request-card promo-form-card">
-            <div class="audit-request-grid promo-form-grid">
-              <label class="audit-field">
-                <span>ชื่อสินค้า</span>
-                <input id="promoProductName" type="text" placeholder="เช่น เซรั่มหน้าใส, เมนูกาแฟ, คอร์สเรียน AI" />
-              </label>
-              <label class="audit-field">
-                <span>ราคา / โปรโมชัน</span>
-                <input id="promoPrice" type="text" placeholder="เช่น 299 บาท, ซื้อ 1 แถม 1, ลด 20%" />
-              </label>
-              <label class="audit-field audit-field-wide">
-                <span>รายละเอียด / จุดขาย</span>
-                <textarea
-                  id="promoDetails"
-                  rows="4"
-                  placeholder="ใส่จุดเด่น กลุ่มลูกค้า ช่องทางติดต่อ หรือข้อความที่อยากให้มีในภาพ"
-                ></textarea>
-              </label>
-              <label class="audit-field audit-field-wide">
-                <span>สไตล์ภาพ</span>
-                <input
-                  id="promoStyle"
-                  type="text"
-                  placeholder="เช่น หรูหรา, มินิมอล, สีส้มดำ, คาเฟ่อบอุ่น, Shopee banner"
-                />
-              </label>
-            </div>
+              <div class="audit-upload-preview" id="promoPreviewPanel" hidden>
+                <div class="audit-upload-preview-frame">
+                  <img id="promoPreviewImage" alt="ภาพสินค้าที่อัปโหลด" />
+                </div>
+                <button class="soft-button" id="promoClearImageButton" type="button">ล้างรูป</button>
+              </div>
+            </article>
 
-            <div class="promo-actions">
-              <button class="green-button" id="generatePromoButton" type="button" disabled>
-                Generate รูป ใช้ 1 Credit
-              </button>
-              <p id="promoRequestStatus" class="audit-request-status">
-                อัปโหลดภาพและกรอกรายละเอียดให้ครบก่อน Generate
-              </p>
-            </div>
-          </article>
+            <article class="audit-request-card promo-form-card">
+              <div class="audit-request-grid promo-form-grid">
+                <label class="audit-field">
+                  <span>ชื่อสินค้า</span>
+                  <input id="promoProductName" type="text" placeholder="เช่น เซรั่มหน้าใส, เมนูกาแฟ, คอร์สเรียน AI" />
+                </label>
+                <label class="audit-field">
+                  <span>ราคา / โปรโมชัน</span>
+                  <input id="promoPrice" type="text" placeholder="เช่น 299 บาท, ซื้อ 1 แถม 1, ลด 20%" />
+                </label>
+                <label class="audit-field audit-field-wide">
+                  <span>รายละเอียด / จุดขาย</span>
+                  <textarea
+                    id="promoDetails"
+                    rows="4"
+                    placeholder="ใส่จุดเด่น กลุ่มลูกค้า ช่องทางติดต่อ หรือข้อความที่อยากให้มีในภาพ"
+                  ></textarea>
+                </label>
+                <label class="audit-field audit-field-wide">
+                  <span>สไตล์ภาพ</span>
+                  <input
+                    id="promoStyle"
+                    type="text"
+                    placeholder="เช่น หรูหรา, มินิมอล, สีส้มดำ, คาเฟ่อบอุ่น, Shopee banner"
+                  />
+                </label>
+              </div>
+
+              <div class="promo-actions">
+                <button class="green-button" id="generatePromoButton" type="button" disabled>
+                  Generate รูป ใช้ 1 Credit
+                </button>
+                <p id="promoRequestStatus" class="audit-request-status">
+                  อัปโหลดภาพและกรอกรายละเอียดให้ครบก่อน Generate
+                </p>
+              </div>
+            </article>
+          </section>
 
           <section class="promo-loading" id="promoLoadingPanel" hidden>
             <div class="audit-skeleton-grid">

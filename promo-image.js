@@ -31,6 +31,7 @@ const promoHistoryCount = document.querySelector("#promoHistoryCount");
 
 let currentUser = null;
 let selectedImageDataUrl = "";
+let selectedImagePreviewDataUrl = "";
 let selectedFileName = "";
 let selectedMimeType = "";
 let selectedImageWidth = 0;
@@ -99,7 +100,7 @@ function renderHistory(items) {
     .map((item) => {
       const title = escapeHtml(item.productName || "รูปโปรโมท");
       const subtitle = escapeHtml([item.price, item.style].filter(Boolean).join(" · ") || item.fileName || "");
-      const image = item.generatedImagePreviewDataUrl || item.imagePreviewDataUrl || "";
+      const image = item.generatedImagePreviewDataUrl || item.imagePreviewDataUrl || item.imageDataUrl || "";
       const safeDate = escapeHtml(formatHistoryDate(item.createdAt));
       return `
         <article class="promo-history-item">
@@ -115,6 +116,23 @@ function renderHistory(items) {
       `;
     })
     .join("");
+}
+
+function createPreviewDataUrl(dataUrl, maxSize = 360) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxSize / Math.max(img.naturalWidth || 1, img.naturalHeight || 1));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round((img.naturalWidth || 1) * scale));
+      canvas.height = Math.max(1, Math.round((img.naturalHeight || 1) * scale));
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/jpeg", 0.78));
+    };
+    img.onerror = () => resolve("");
+    img.src = dataUrl;
+  });
 }
 
 async function loadPromoHistory() {
@@ -174,6 +192,7 @@ async function handleFile(file) {
     setStatus("กำลังอ่านรูปที่อัปโหลด...", "loading");
     const image = await readImageFile(file);
     selectedImageDataUrl = image.dataUrl;
+    selectedImagePreviewDataUrl = await createPreviewDataUrl(image.dataUrl);
     selectedFileName = image.fileName;
     selectedMimeType = image.mimeType;
     selectedImageWidth = image.width;
@@ -191,6 +210,7 @@ async function handleFile(file) {
 
 function clearImage() {
   selectedImageDataUrl = "";
+  selectedImagePreviewDataUrl = "";
   selectedFileName = "";
   selectedMimeType = "";
   selectedImageWidth = 0;
@@ -237,6 +257,7 @@ async function generatePromoImage() {
       },
       body: JSON.stringify({
         imageDataUrl: selectedImageDataUrl,
+        imagePreviewDataUrl: selectedImagePreviewDataUrl,
         fileName: selectedFileName,
         mimeType: selectedMimeType,
         imageWidth: selectedImageWidth,
@@ -263,6 +284,16 @@ async function generatePromoImage() {
     if (promoResultCard) promoResultCard.hidden = false;
     setStatus("Generate รูปโปรโมทสำเร็จแล้ว", "success");
     await loadUsage();
+    renderHistory([
+      {
+        productName,
+        price,
+        style,
+        fileName: data.fileName,
+        imageDataUrl: data.imageDataUrl,
+        createdAt: new Date(),
+      },
+    ]);
     await loadPromoHistory();
     promoResultCard?.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
