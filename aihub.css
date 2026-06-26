@@ -4186,6 +4186,30 @@ meter::-webkit-meter-optimum-value {
   margin-bottom: 18px;
 }
 
+.course-category-section {
+  scroll-margin-top: 96px;
+}
+
+.course-category-intro {
+  max-width: 820px;
+  margin: -4px 0 18px;
+  color: var(--muted);
+  font-weight: 750;
+  line-height: 1.65;
+}
+
+.section-pill {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0 12px;
+  color: #9a3412;
+  background: #fff7ed;
+  font-size: 0.82rem;
+  font-weight: 950;
+}
+
 .lesson-hub-grid {
   display: grid;
   gap: 18px;
@@ -4218,6 +4242,45 @@ meter::-webkit-meter-optimum-value {
   height: 100%;
   object-fit: contain;
   background: #05070a;
+}
+
+.ads-course-card {
+  border-style: dashed;
+  background: linear-gradient(180deg, #ffffff, #fffaf5);
+}
+
+.ads-course-card .soft-button:disabled {
+  cursor: not-allowed;
+  color: #9a3412;
+  background: #fff7ed;
+  opacity: 1;
+}
+
+.ads-course-placeholder {
+  display: grid;
+  place-items: center;
+}
+
+.ads-course-placeholder span {
+  display: inline-flex;
+  min-width: 106px;
+  min-height: 106px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 100, 0, 0.28);
+  border-radius: 28px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 60% 28%, rgba(255, 255, 255, 0.18), transparent 36%),
+    linear-gradient(135deg, #ff6400, #111827);
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  box-shadow: 0 18px 36px rgba(255, 100, 0, 0.24);
+}
+
+.pending-status {
+  color: #9a3412;
+  background: #fff7ed;
 }
 
 .lesson-hub-copy {

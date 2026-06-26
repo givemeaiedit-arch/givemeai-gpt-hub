@@ -95,25 +95,26 @@
           <div>
             <p class="tools-kicker">COURSE HUB</p>
             <h1 id="coursesTitle">คอร์สเรียนทั้งหมด</h1>
-            <p>หน้านี้แยกบทเรียนออกเป็นหน้าของแต่ละบทชัดเจน เพื่อรองรับปุ่มเรียนแล้ว รับคะแนน 50 คะแนนต่อบท และเก็บคะแนนสะสมของแต่ละบัญชีไว้ใน Firebase</p>
+            <p>หน้านี้แบ่งคอร์สเป็น 2 หมวดใหญ่ คือ AI ทำงาน และ AI ยิง Ads โฆษณา เพื่อให้เลือกเรียนตามเป้าหมายได้ง่ายขึ้น</p>
             <div class="hero-actions">
-              <a class="orange-button" href="lesson-2.html"><span>▶</span> เริ่มบทที่ 2</a>
+              <a class="orange-button" href="#ai-work-courses"><span>▶</span> เริ่มหมวด AI ทำงาน</a>
               <a class="dark-button" href="leaderboard.html"><span>★</span> ดู Leaderboard</a>
             </div>
           </div>
 
           <div class="courses-hero-stats" aria-label="สรุปคะแนนบทเรียน">
-            <article><strong>3</strong><span>บทเรียนในชุดนี้</span></article>
+            <article><strong>2</strong><span>หมวดคอร์สหลัก</span></article>
+            <article><strong>8</strong><span>บทเรียนทั้งหมด</span></article>
             <article><strong>50</strong><span>คะแนนที่ได้รับต่อบท</span></article>
-            <article><strong>150</strong><span>คะแนนรวมเมื่อเรียนครบทุกบท</span></article>
           </div>
         </section>
 
-        <section class="content-section">
+        <section class="content-section course-category-section" id="ai-work-courses">
           <div class="section-heading">
-            <h2>เลือกบทเรียน</h2>
+            <h2>หมวด AI ทำงาน</h2>
             <a href="leaderboard.html">ดูตารางคะแนน →</a>
           </div>
+          <p class="course-category-intro">คอร์สพื้นฐานสำหรับใช้ AI ช่วยทำงาน สร้างภาพโปรโมท และต่อยอดการทำคอนเทนต์ให้เร็วขึ้น</p>
 
           <div class="lesson-hub-grid">
             <article class="lesson-hub-card" id="course-1" data-course-id="lesson-1" data-course-title="บทที่ 1" data-course-subtitle="วิดีโอพร้อมดู" data-course-progress="25" data-course-status="รับคะแนนได้">
@@ -171,6 +172,96 @@
             </article>
           </div>
         </section>
+
+        <section class="content-section course-category-section" id="ai-ads-courses">
+          <div class="section-heading">
+            <h2>หมวด AI ยิง Ads โฆษณา</h2>
+            <span class="section-pill">เตรียมเปิดเร็ว ๆ นี้</span>
+          </div>
+          <p class="course-category-intro">ชุดบทเรียนสำหรับเจ้าของธุรกิจและทีมการตลาดที่ต้องการใช้ AI ช่วยวิเคราะห์สื่อ วางแคมเปญ และจัดการ Ads อย่างเป็นระบบ</p>
+
+          <div class="lesson-hub-grid ads-course-grid">
+            <article class="lesson-hub-card ads-course-card is-coming-soon">
+              <figure class="lesson-hub-visual ads-course-placeholder">
+                <span>ADS 01</span>
+              </figure>
+              <div class="lesson-hub-copy">
+                <span class="tool-status pending-status">รอใส่ปกและคลิป</span>
+                <h3>บทที่ 1 ทำไมต้องใช้ AI ยิง Ads</h3>
+                <p>เตรียมบทเรียนอธิบายภาพรวมว่า AI ช่วยลดเวลาวิเคราะห์ ยิงแอด และวางแผนโฆษณาได้อย่างไร</p>
+                <div class="lesson-hub-meta">
+                  <span>คะแนน: 50</span>
+                  <span>สถานะ: กำลังเตรียมเนื้อหา</span>
+                </div>
+                <button class="soft-button" type="button" disabled>รอเปิดบทเรียน</button>
+              </div>
+            </article>
+
+            <article class="lesson-hub-card ads-course-card is-coming-soon">
+              <figure class="lesson-hub-visual ads-course-placeholder">
+                <span>ADS 02</span>
+              </figure>
+              <div class="lesson-hub-copy">
+                <span class="tool-status pending-status">รอใส่ปกและคลิป</span>
+                <h3>บทที่ 2 การทำให้ Chat GPT เชื่อมต่อ Ads</h3>
+                <p>เตรียมบทเรียนสำหรับการวางโครงให้ ChatGPT ช่วยอ่านข้อมูล วิเคราะห์ และช่วยคิดงานที่เกี่ยวกับ Ads</p>
+                <div class="lesson-hub-meta">
+                  <span>คะแนน: 50</span>
+                  <span>สถานะ: กำลังเตรียมเนื้อหา</span>
+                </div>
+                <button class="soft-button" type="button" disabled>รอเปิดบทเรียน</button>
+              </div>
+            </article>
+
+            <article class="lesson-hub-card ads-course-card is-coming-soon">
+              <figure class="lesson-hub-visual ads-course-placeholder">
+                <span>ADS 03</span>
+              </figure>
+              <div class="lesson-hub-copy">
+                <span class="tool-status pending-status">รอใส่ปกและคลิป</span>
+                <h3>บทที่ 3 การทำเปิด-ปิด Ads อัตโนมัติด้วย Codex</h3>
+                <p>เตรียมบทเรียนแนว Automation เพื่อให้เข้าใจการใช้ Codex ช่วยออกแบบขั้นตอนเปิด-ปิด Ads แบบเป็นระบบ</p>
+                <div class="lesson-hub-meta">
+                  <span>คะแนน: 50</span>
+                  <span>สถานะ: กำลังเตรียมเนื้อหา</span>
+                </div>
+                <button class="soft-button" type="button" disabled>รอเปิดบทเรียน</button>
+              </div>
+            </article>
+
+            <article class="lesson-hub-card ads-course-card is-coming-soon">
+              <figure class="lesson-hub-visual ads-course-placeholder">
+                <span>ADS 04</span>
+              </figure>
+              <div class="lesson-hub-copy">
+                <span class="tool-status pending-status">รอใส่ปกและคลิป</span>
+                <h3>บทที่ 4 การ Check สื่อสำหรับยิง Ads</h3>
+                <p>เตรียมบทเรียนสอนวิธีดูคะแนน Hook, Offer, Proof, CTA และจุดที่ควรแก้ก่อนนำสื่อไปยิง Ads</p>
+                <div class="lesson-hub-meta">
+                  <span>คะแนน: 50</span>
+                  <span>สถานะ: กำลังเตรียมเนื้อหา</span>
+                </div>
+                <button class="soft-button" type="button" disabled>รอเปิดบทเรียน</button>
+              </div>
+            </article>
+
+            <article class="lesson-hub-card ads-course-card is-coming-soon">
+              <figure class="lesson-hub-visual ads-course-placeholder">
+                <span>ADS 05</span>
+              </figure>
+              <div class="lesson-hub-copy">
+                <span class="tool-status pending-status">รอใส่ปกและคลิป</span>
+                <h3>บทที่ 5 การใช้ AI สร้างแคมเปญยิง Ads</h3>
+                <p>เตรียมบทเรียนสำหรับใช้ AI ช่วยคิดแคมเปญ ตั้งมุมโฆษณา และแตกไอเดียครีเอทีฟสำหรับธุรกิจจริง</p>
+                <div class="lesson-hub-meta">
+                  <span>คะแนน: 50</span>
+                  <span>สถานะ: กำลังเตรียมเนื้อหา</span>
+                </div>
+                <button class="soft-button" type="button" disabled>รอเปิดบทเรียน</button>
+              </div>
+            </article>
+          </div>
+        </section>
       </main>
 
       <aside class="right-panel course-panel" aria-label="ข้อมูลเสริมคอร์ส">
@@ -179,9 +270,8 @@
             <h2>ลำดับการเรียน</h2>
           </div>
           <ol class="lesson-list">
-            <li><span>1</span>บทที่ 1 <b>รับ 50 คะแนน</b></li>
-            <li><span>2</span>บทที่ 2 <b>รับ 50 คะแนน</b></li>
-            <li><span>3</span>บทที่ 3 <b>รับ 50 คะแนน</b></li>
+            <li><span>1</span>AI ทำงาน <b>เปิดแล้ว 3 บท</b></li>
+            <li><span>2</span>AI ยิง Ads โฆษณา <em>กำลังเตรียม 5 บท</em></li>
           </ol>
         </section>
 
