@@ -25,6 +25,7 @@ const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
 const ADMIN_PANEL_URL = "https://givemeaiedit-arch.github.io/givemeai-gpt-hub/admin.html";
 const AD_CHECK_POINTS = 15;
 const FREE_AD_CHECK_LIMIT = 2;
+const PRO_DAILY_CREDIT_LIMIT = 15;
 const AD_CHECK_SCORE_KEYS = [
   "hook_scroll_stop",
   "audience_signal",
@@ -77,7 +78,7 @@ TOPUP_PACKAGES["pro-monthly"].label = "Pro 30 วัน";
 TOPUP_PACKAGES["pro-lifetime"].label = "Master ตลอดชีพ";
 TOPUP_PACKAGES["pro-lifetime"].type = "master-lifetime";
 const FREE_LIMIT_EXCEEDED_MESSAGE =
-  "ใช้สิทธิ์ตรวจเช็คฟรีครบแล้ว สามารถเติมเงินเพิ่มในหน้าเติมเงิน หรือสมัคร Pro 289 บาทต่อเดือน เพื่อใช้ Check Ads ได้วันละ 15 ครั้ง พร้อมคอร์สเรียน AI มากกว่า 20 บทและเครื่องมือ AI ใหม่ ๆ ในอนาคต หากต้องการราคาพิเศษสำหรับองค์กร ติดต่อ Admin ได้ค่ะ ที่ page AI ภาพนี้ให้หน่อย";
+  "เครดิตฟรีครบแล้ว สามารถเติม Credit เพิ่มในหน้าเติมเงิน หรือสมัคร Pro 289 บาทต่อเดือน เพื่อใช้เครื่องมือ AI ได้วันละ 15 เครดิต พร้อมคอร์สเรียน AI มากกว่า 20 บทและเครื่องมือ AI ใหม่ ๆ ในอนาคต หากต้องการราคาพิเศษสำหรับองค์กร ติดต่อ Admin ได้ค่ะ ที่ page AI ภาพนี้ให้หน่อย";
 
 const THUNDER_VERIFY_URL = "https://api.thunder.in.th/v2/verify/bank";
 
@@ -553,7 +554,7 @@ async function getUserUsageProfile(user) {
   return {
     userRef,
     plan: isAdmin ? "admin" : isPrivileged ? "pro" : "free",
-    dailyLimit: isAdmin ? 999 : isPrivileged ? 15 : FREE_AD_CHECK_LIMIT,
+    dailyLimit: isAdmin ? 999 : isPrivileged ? PRO_DAILY_CREDIT_LIMIT : FREE_AD_CHECK_LIMIT,
     adCheckCredits,
     isAdmin,
     isPrivileged,
@@ -575,18 +576,20 @@ async function getAdCheckUsageSummary(user) {
     usedToday,
     remaining,
     credits: usage.adCheckCredits,
+    paidCredits: usage.adCheckCredits,
     label: usage.isAdmin
-      ? "Admin ใช้งานได้ไม่จำกัด"
+      ? "Admin ใช้ Credit ได้ไม่จำกัด"
       : usage.isPrivileged
-      ? `วันนี้ Check ได้อีก ${remaining}/${usage.dailyLimit}`
+      ? `วันนี้ใช้ Credit ได้อีก ${remaining}/${usage.dailyLimit}${
+          usage.adCheckCredits > 0 ? ` | Credit เติมเงิน ${usage.adCheckCredits}` : ""
+        }`
       : usage.adCheckCredits > 0
-        ? `มี Credit เหลือ ${usage.adCheckCredits} ครั้ง`
+        ? `Credit เติมเงินคงเหลือ ${usage.adCheckCredits}`
       : remaining > 0
-        ? `ใช้ฟรีได้อีก ${remaining}/${usage.dailyLimit} ครั้ง`
-        : "ใช้สิทธิ์ทดลองใช้ฟรีครบแล้ว",
+        ? `เครดิตฟรีเหลือ ${remaining}/${usage.dailyLimit}`
+        : "เครดิตฟรีหมดแล้ว",
   };
 }
-
 async function notifyTelegramCommunityRequest(request) {
   const chatId = getTelegramSecretValue(telegramAdminChatId);
   if (!getTelegramSecretValue(telegramBotToken) || !chatId) {
@@ -1055,7 +1058,8 @@ async function legacyApproveTopupOrderForAdmin(adminUser, orderId) {
       userPatch.tier = "pro";
       userPatch.memberLevel = "pro";
       userPatch.subscriptionStatus = "active";
-      userPatch.dailyAdCheckLimit = 10;
+      userPatch.dailyAdCheckLimit = PRO_DAILY_CREDIT_LIMIT;
+      userPatch.dailyCreditLimit = PRO_DAILY_CREDIT_LIMIT;
       userPatch.proActivatedAt = FieldValue.serverTimestamp();
       userPatch.proSource = "topup";
       userPatch.proTopupOrderId = cleanOrderId;
@@ -1155,7 +1159,8 @@ async function reviewTopupOrder(decision, actor, orderId, options = {}) {
         userPatch.tier = accessLevel;
         userPatch.memberLevel = accessLevel;
         userPatch.subscriptionStatus = "active";
-        userPatch.dailyAdCheckLimit = 10;
+        userPatch.dailyAdCheckLimit = PRO_DAILY_CREDIT_LIMIT;
+        userPatch.dailyCreditLimit = PRO_DAILY_CREDIT_LIMIT;
         userPatch.proActivatedAt = FieldValue.serverTimestamp();
         userPatch.proSource = "topup";
         userPatch.proTopupOrderId = cleanOrderId;
@@ -1289,20 +1294,32 @@ async function hasAnyAdCheck(userRef) {
   return !snapshot.empty;
 }
 
+function getBangkokDayStartUtc(now = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Bangkok",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return new Date(Date.UTC(Number(values.year), Number(values.month) - 1, Number(values.day), -7, 0, 0, 0));
+}
+
 async function countAdChecks(userRef, limit = 100) {
-  const snapshot = await userRef.collection("adCheckHistory").limit(limit).get();
-  return snapshot.size;
+  const [adCheckSnapshot, promoImageSnapshot] = await Promise.all([
+    userRef.collection("adCheckHistory").limit(limit).get(),
+    userRef.collection("promoImageHistory").limit(limit).get(),
+  ]);
+  return Math.min(limit, adCheckSnapshot.size + promoImageSnapshot.size);
 }
 
 async function countTodayAdChecks(userRef) {
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const snapshot = await userRef
-    .collection("adCheckHistory")
-    .where("checkedAt", ">=", Timestamp.fromDate(start))
-    .limit(10)
-    .get();
-  return snapshot.size;
+  const start = Timestamp.fromDate(getBangkokDayStartUtc());
+  const [adCheckSnapshot, promoImageSnapshot] = await Promise.all([
+    userRef.collection("adCheckHistory").where("checkedAt", ">=", start).limit(100).get(),
+    userRef.collection("promoImageHistory").where("createdAt", ">=", start).limit(100).get(),
+  ]);
+  return adCheckSnapshot.size + promoImageSnapshot.size;
 }
 
 async function enforceAdCheckQuota(user) {
@@ -1313,12 +1330,15 @@ async function enforceAdCheckQuota(user) {
 
   if (usage.isPrivileged) {
     const usedToday = await countTodayAdChecks(usage.userRef);
-    if (usedToday >= usage.dailyLimit) {
-      throw buildLimitErrorPayload(
-        "วันนี้ใช้สิทธิ์ Pro สำหรับ Check Ads ครบ 15 ครั้งแล้ว กรุณากลับมาใช้งานใหม่ในวันถัดไป หรือติดต่อ Admin Page หากต้องการเพิ่มสิทธิ์พิเศษ",
-      );
+    if (usedToday < usage.dailyLimit) {
+      return usage;
     }
-    return usage;
+    if (usage.adCheckCredits > 0) {
+      return { ...usage, usesCredit: true, dailyCreditExhausted: true };
+    }
+    throw buildLimitErrorPayload(
+      "วันนี้ใช้ Credit รายวันของ Pro ครบ 15 เครดิตแล้ว กรุณากลับมาใช้งานใหม่ในวันถัดไป หรือเติม Credit เพิ่มเพื่อใช้งานต่อทันที",
+    );
   }
 
   if (usage.adCheckCredits > 0) {
@@ -1331,7 +1351,6 @@ async function enforceAdCheckQuota(user) {
 
   return usage;
 }
-
 function buildHistoryResponse(data) {
   return {
     ...(data.result || {}),
@@ -1977,22 +1996,8 @@ function buildPromoImageFileName(fileName) {
 }
 
 async function enforcePromoImageCredit(user) {
-  const usage = await getUserUsageProfile(user);
-  if (usage.isAdmin || usage.isPrivileged) {
-    return usage;
-  }
-
-  if (usage.adCheckCredits > 0) {
-    return { ...usage, usesCredit: true };
-  }
-
-  const error = new Error("Credit ไม่พอ กรุณาเติม Credit ก่อน Generate รูป");
-  error.statusCode = 403;
-  error.code = "NO_CREDIT";
-  error.upgradeUrl = PRO_UPGRADE_URL;
-  throw error;
+  return enforceAdCheckQuota(user);
 }
-
 function buildPromoImagePrompt(payload) {
   const productName = String(payload?.productName || "").trim() || "สินค้าจากภาพที่อัปโหลด";
   const price = String(payload?.price || "").trim() || "ไม่ระบุราคา";

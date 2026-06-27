@@ -1457,7 +1457,7 @@ async function loadUserProfile(uid) {
             </select>
           </label>
           <label>
-            <span>เครดิต Check Ads</span>
+            <span>Credit กลาง</span>
             <input name="adCheckCredits" type="number" min="0" step="1" value="${Number(profile.adCheckCredits || 0)}"${isLockedAdmin ? " disabled" : ""} />
           </label>
           <div class="admin-profile-form-actions">

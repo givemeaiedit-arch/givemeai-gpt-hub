@@ -221,7 +221,7 @@ function setUsagePill(usage) {
 
   usagePill.hidden = false;
   usagePill.dataset.plan = usage.plan || "free";
-  usagePill.textContent = String(usage.label || "").replace("วันนี้ Check ได้อีก", "วันนี้วิเคราะห์ได้อีก");
+  usagePill.textContent = String(usage.label || "");
 }
 
 function isAdminUser(user) {
