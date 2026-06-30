@@ -86,6 +86,22 @@
                     placeholder="เช่น หรูหรา, มินิมอล, สีส้มดำ, คาเฟ่อบอุ่น, Shopee banner"
                   />
                 </label>
+                <label class="audit-field">
+                  <span>อัตราส่วนภาพ</span>
+                  <input id="promoAspectRatio" type="text" placeholder="เช่น 1:1, 4:5, 9:16, 16:9" list="promoAspectRatioOptions" />
+                  <datalist id="promoAspectRatioOptions">
+                    <option value="1:1"></option>
+                    <option value="4:5"></option>
+                    <option value="9:16"></option>
+                    <option value="16:9"></option>
+                  </datalist>
+                </label>
+                <label class="audit-field promo-reference-field">
+                  <span>รูปอ้างอิงเพิ่มเติม</span>
+                  <input id="promoReferenceInput" type="file" accept="image/png,image/jpeg,image/webp" multiple />
+                  <small>เลือกได้สูงสุด 4 รูป เช่น mood, สี, style, ตัวอย่าง layout</small>
+                </label>
+                <div class="promo-reference-list audit-field-wide" id="promoReferenceList" hidden></div>
               </div>
 
               <div class="promo-actions">

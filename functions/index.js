@@ -1678,6 +1678,13 @@ function buildGeneratedFileName(fileName) {
 }
 
 function getOpenAiImageSizeFromSource(payload) {
+  const requestedRatio = parseAspectRatio(payload?.aspectRatio);
+  if (requestedRatio) {
+    if (requestedRatio >= 1.15) return "1536x1024";
+    if (requestedRatio <= 0.87) return "1024x1536";
+    return "1024x1024";
+  }
+
   const width = Number(payload?.sourceImageWidth || payload?.imageWidth || 0);
   const height = Number(payload?.sourceImageHeight || payload?.imageHeight || 0);
   if (!width || !height) return "1024x1024";
@@ -1686,6 +1693,19 @@ function getOpenAiImageSizeFromSource(payload) {
   if (ratio >= 1.15) return "1536x1024";
   if (ratio <= 0.87) return "1024x1536";
   return "1024x1024";
+}
+
+function parseAspectRatio(value) {
+  const match = String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace("x", ":")
+    .match(/^(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)$/);
+  if (!match) return 0;
+  const width = Number(match[1]);
+  const height = Number(match[2]);
+  if (!width || !height) return 0;
+  return width / height;
 }
 
 async function dataUrlToImagePayload(imageDataUrl) {
@@ -2003,6 +2023,8 @@ function buildPromoImagePrompt(payload) {
   const price = String(payload?.price || "").trim() || "ไม่ระบุราคา";
   const details = String(payload?.details || "").trim() || "สร้างภาพโปรโมทที่อ่านง่ายและเหมาะกับการขาย";
   const style = String(payload?.style || "").trim() || "modern premium Thai social media ad";
+  const aspectRatio = String(payload?.aspectRatio || "").trim() || "use the closest suitable aspect ratio from the source image";
+  const referenceCount = Array.isArray(payload?.referenceImageDataUrls) ? payload.referenceImageDataUrls.length : 0;
 
   return [
     "Create a polished promotional visual from the uploaded image.",
@@ -2013,6 +2035,10 @@ function buildPromoImagePrompt(payload) {
     `Price or promotion: ${price}`,
     `Product details and selling points: ${details}`,
     `Preferred style: ${style}`,
+    `Target aspect ratio: ${aspectRatio}`,
+    referenceCount
+      ? `Additional reference images: ${referenceCount} image(s). Use them only for visual direction such as mood, color, composition, typography style, layout inspiration, or brand feel. Keep the main uploaded product image as the source of truth.`
+      : "Additional reference images: none.",
     "",
     "Design requirements:",
     "- Keep the original product recognizable and make it the main focal point.",
@@ -2039,6 +2065,16 @@ async function generatePromoImageForUser(req, payload) {
   if (!["image/jpeg", "image/png", "image/webp"].includes(sourceImage.mimeType)) {
     throw new Error("Unsupported image type");
   }
+  const referenceImageDataUrls = Array.isArray(payload?.referenceImageDataUrls)
+    ? payload.referenceImageDataUrls.filter(Boolean).slice(0, 4)
+    : [];
+  const referenceImages = [];
+  for (const referenceImageDataUrl of referenceImageDataUrls) {
+    const referenceImage = await dataUrlToImagePayload(referenceImageDataUrl);
+    if (["image/jpeg", "image/png", "image/webp"].includes(referenceImage.mimeType)) {
+      referenceImages.push(referenceImage);
+    }
+  }
 
   const productName = String(payload?.productName || "").trim();
   const details = String(payload?.details || "").trim();
@@ -2062,7 +2098,16 @@ async function generatePromoImageForUser(req, payload) {
   form.set("quality", "low");
   form.set("size", outputSize);
   form.set("prompt", prompt);
-  form.set("image", new Blob([imageBuffer], { type: sourceImage.mimeType }), `promo-source.${extension}`);
+  form.append("image", new Blob([imageBuffer], { type: sourceImage.mimeType }), `promo-source.${extension}`);
+  referenceImages.forEach((referenceImage, index) => {
+    const referenceExtension =
+      referenceImage.mimeType === "image/png" ? "png" : referenceImage.mimeType === "image/webp" ? "webp" : "jpg";
+    form.append(
+      "image",
+      new Blob([Buffer.from(referenceImage.imageBase64, "base64")], { type: referenceImage.mimeType }),
+      `promo-reference-${index + 1}.${referenceExtension}`,
+    );
+  });
 
   const apiResponse = await fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
@@ -2108,6 +2153,8 @@ async function generatePromoImageForUser(req, payload) {
     price: payload.price || "",
     details,
     style: payload.style || "",
+    aspectRatio: payload.aspectRatio || "",
+    referenceImageCount: referenceImages.length,
     prompt,
     model: OPENAI_IMAGE_MODEL,
     quality: "low",

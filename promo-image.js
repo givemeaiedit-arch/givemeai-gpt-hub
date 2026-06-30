@@ -18,6 +18,9 @@ const promoProductName = document.querySelector("#promoProductName");
 const promoPrice = document.querySelector("#promoPrice");
 const promoDetails = document.querySelector("#promoDetails");
 const promoStyle = document.querySelector("#promoStyle");
+const promoAspectRatio = document.querySelector("#promoAspectRatio");
+const promoReferenceInput = document.querySelector("#promoReferenceInput");
+const promoReferenceList = document.querySelector("#promoReferenceList");
 const generatePromoButton = document.querySelector("#generatePromoButton");
 const promoRequestStatus = document.querySelector("#promoRequestStatus");
 const promoLoadingPanel = document.querySelector("#promoLoadingPanel");
@@ -44,6 +47,7 @@ let selectedFileName = "";
 let selectedMimeType = "";
 let selectedImageWidth = 0;
 let selectedImageHeight = 0;
+let selectedReferenceImages = [];
 
 function setStatus(message, tone = "") {
   if (!promoRequestStatus) return;
@@ -57,6 +61,32 @@ function updateGenerateState() {
   if (generatePromoButton) {
     generatePromoButton.disabled = !ready;
   }
+}
+
+function normalizeAspectRatio(value) {
+  const text = String(value || "").trim().toLowerCase().replace("x", ":");
+  const match = text.match(/^(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)$/);
+  if (!match) return "";
+  const width = Number(match[1]);
+  const height = Number(match[2]);
+  if (!width || !height) return "";
+  return `${match[1]}:${match[2]}`;
+}
+
+function renderReferenceImages() {
+  if (!promoReferenceList) return;
+  promoReferenceList.hidden = selectedReferenceImages.length === 0;
+  promoReferenceList.innerHTML = selectedReferenceImages
+    .map(
+      (item, index) => `
+        <div class="promo-reference-chip">
+          <img src="${item.previewDataUrl || item.dataUrl}" alt="" />
+          <span>${escapeHtml(item.fileName || `Ref ${index + 1}`)}</span>
+          <button type="button" data-remove-reference="${index}" aria-label="ลบรูปอ้างอิง">×</button>
+        </div>
+      `,
+    )
+    .join("");
 }
 
 async function loadUsage() {
@@ -250,6 +280,30 @@ async function handleFile(file) {
   }
 }
 
+async function handleReferenceFiles(files) {
+  const incoming = Array.from(files || []).slice(0, Math.max(0, 4 - selectedReferenceImages.length));
+  if (!incoming.length) return;
+
+  try {
+    setStatus("กำลังอ่านรูปอ้างอิงเพิ่มเติม...", "loading");
+    for (const file of incoming) {
+      const image = await readImageFile(file);
+      selectedReferenceImages.push({
+        dataUrl: image.dataUrl,
+        previewDataUrl: await createPreviewDataUrl(image.dataUrl, 160),
+        fileName: image.fileName,
+        mimeType: image.mimeType,
+      });
+    }
+    renderReferenceImages();
+    setStatus(`เพิ่มรูปอ้างอิงแล้ว ${selectedReferenceImages.length}/4 รูป`, "success");
+  } catch (error) {
+    setStatus(error.message || "อ่านรูปอ้างอิงไม่สำเร็จ", "error");
+  } finally {
+    if (promoReferenceInput) promoReferenceInput.value = "";
+  }
+}
+
 function clearImage() {
   selectedImageDataUrl = "";
   selectedImagePreviewDataUrl = "";
@@ -278,6 +332,7 @@ async function generatePromoImage() {
   const price = promoPrice?.value.trim() || "";
   const details = promoDetails?.value.trim() || "";
   const style = promoStyle?.value.trim() || "";
+  const aspectRatio = normalizeAspectRatio(promoAspectRatio?.value || "");
   if (!productName || !details) {
     setStatus("กรุณาใส่ชื่อสินค้าและรายละเอียดก่อน Generate", "error");
     return;
@@ -304,6 +359,8 @@ async function generatePromoImage() {
         mimeType: selectedMimeType,
         imageWidth: selectedImageWidth,
         imageHeight: selectedImageHeight,
+        aspectRatio,
+        referenceImageDataUrls: selectedReferenceImages.map((item) => item.dataUrl),
         productName,
         price,
         details,
@@ -331,6 +388,8 @@ async function generatePromoImage() {
         productName,
         price,
         style,
+        aspectRatio,
+        referenceImageCount: selectedReferenceImages.length,
         fileName: data.fileName,
         imageDataUrl: data.imageDataUrl,
         createdAt: new Date(),
@@ -382,6 +441,16 @@ promoImageInput?.addEventListener("change", () => {
   const file = promoImageInput.files?.[0];
   if (file) handleFile(file);
 });
+promoReferenceInput?.addEventListener("change", () => {
+  handleReferenceFiles(promoReferenceInput.files);
+});
+promoReferenceList?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-remove-reference]");
+  if (!button) return;
+  const index = Number(button.dataset.removeReference);
+  selectedReferenceImages = selectedReferenceImages.filter((_, itemIndex) => itemIndex !== index);
+  renderReferenceImages();
+});
 promoClearImageButton?.addEventListener("click", clearImage);
 generatePromoButton?.addEventListener("click", generatePromoImage);
 copyPromoPromptButton?.addEventListener("click", async () => {
@@ -425,7 +494,7 @@ copyHistoryPromptButton?.addEventListener("click", async () => {
   }
 });
 
-[promoProductName, promoDetails].forEach((input) => {
+[promoProductName, promoDetails, promoAspectRatio].forEach((input) => {
   input?.addEventListener("input", updateGenerateState);
 });
 
