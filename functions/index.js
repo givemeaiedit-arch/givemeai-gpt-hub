@@ -578,7 +578,7 @@ async function getAdCheckUsageSummary(user) {
     credits: usage.adCheckCredits,
     paidCredits: usage.adCheckCredits,
     label: usage.isAdmin
-      ? "Admin ใช้ Credit ได้ไม่จำกัด"
+      ? "Admin ไม่ใช้ Credit"
       : usage.isPrivileged
       ? `วันนี้ใช้ Credit ได้อีก ${remaining}/${usage.dailyLimit}${
           usage.adCheckCredits > 0 ? ` | Credit เติมเงิน ${usage.adCheckCredits}` : ""

@@ -126,12 +126,7 @@ function createActionButton(className, id, text) {
 }
 
 function ensureAuditUiEnhancements() {
-  if (runAuditButton) {
-    runAuditButton.textContent = "วิเคราะห์เลย ใช้ 1 เครดิต";
-  }
-  if (generateFixImageButton) {
-    generateFixImageButton.textContent = "Generate แก้รูปใหม่ + พร้อมวิเคราะห์ ใช้ 1 เครดิต";
-  }
+  updateCreditButtonLabels();
   if (fixPromptOutput) {
     fixPromptOutput.readOnly = false;
     defaultFixPrompt = fixPromptOutput.value;
@@ -197,6 +192,18 @@ function ensureAuditUiEnhancements() {
   }
 }
 
+function updateCreditButtonLabels() {
+  const isAdmin = isAdminUser(currentUser);
+  if (runAuditButton) {
+    runAuditButton.textContent = isAdmin ? "วิเคราะห์เลย (Admin ไม่ใช้ Credit)" : "วิเคราะห์เลย ใช้ 1 เครดิต";
+  }
+  if (generateFixImageButton) {
+    generateFixImageButton.textContent = isAdmin
+      ? "Generate แก้รูปใหม่ + พร้อมวิเคราะห์ (Admin ไม่ใช้ Credit)"
+      : "Generate แก้รูปใหม่ + พร้อมวิเคราะห์ ใช้ 1 เครดิต";
+  }
+}
+
 function setUpgradeNotice(visible, message = FREE_LIMIT_MESSAGE, url = PRO_UPGRADE_URL) {
   if (!auditUpgradeNotice) return;
   auditUpgradeNotice.hidden = !visible;
@@ -221,7 +228,7 @@ function setUsagePill(usage) {
 
   usagePill.hidden = false;
   usagePill.dataset.plan = usage.plan || "free";
-  usagePill.textContent = String(usage.label || "");
+  usagePill.textContent = usage.plan === "admin" ? "Admin ไม่ใช้ Credit" : String(usage.label || "");
 }
 
 function isAdminUser(user) {
@@ -307,6 +314,7 @@ function updateAdminUi() {
   adminOnlyElements.forEach((element) => {
     element.hidden = !isAdmin;
   });
+  updateCreditButtonLabels();
   updateGuestGate();
 }
 
@@ -753,7 +761,7 @@ async function generateFixImage() {
     setRequestStatus(error.message || "Generate รูปใหม่ไม่สำเร็จ", "error");
   } finally {
     generateFixImageButton.disabled = false;
-    generateFixImageButton.textContent = "Generate แก้รูปใหม่ + พร้อมวิเคราะห์ ใช้ 1 เครดิต";
+    updateCreditButtonLabels();
   }
 }
 
@@ -1060,7 +1068,7 @@ async function analyzeWithBackend() {
     setRequestStatus(error.message || "เกิดข้อผิดพลาดระหว่างวิเคราะห์", "error");
   } finally {
     runAuditButton.disabled = false;
-    runAuditButton.textContent = "วิเคราะห์เลย ใช้ 1 เครดิต";
+    updateCreditButtonLabels();
   }
 }
 

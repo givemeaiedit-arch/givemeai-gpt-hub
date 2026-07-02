@@ -5,6 +5,7 @@ const USAGE_ENDPOINT =
   "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/getAdCheckUsage";
 const GENERATE_PROMO_ENDPOINT =
   "https://asia-southeast1-givemeai-gpt-hub.cloudfunctions.net/generatePromoImage";
+const ADMIN_EMAILS = new Set(["givemeai.edit@gmail.com"]);
 
 const promoGuestNotice = document.querySelector("#promoGuestNotice");
 const promoLoginButton = document.querySelector("#promoLoginButton");
@@ -61,6 +62,16 @@ function updateGenerateState() {
   if (generatePromoButton) {
     generatePromoButton.disabled = !ready;
   }
+  updateCreditButtonLabel();
+}
+
+function isAdminUser(user) {
+  return ADMIN_EMAILS.has(String(user?.email || "").trim().toLowerCase());
+}
+
+function updateCreditButtonLabel() {
+  if (!generatePromoButton) return;
+  generatePromoButton.textContent = isAdminUser(currentUser) ? "Generate รูป (Admin ไม่ใช้ Credit)" : "Generate รูป ใช้ 1 Credit";
 }
 
 function normalizeAspectRatio(value) {
@@ -98,7 +109,7 @@ async function loadUsage() {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data?.error || "โหลด Credit ไม่สำเร็จ");
-    promoUsagePill.textContent = data.label || `Credit คงเหลือ ${data.credits || 0}`;
+    promoUsagePill.textContent = data.plan === "admin" ? "Admin ไม่ใช้ Credit" : data.label || `Credit คงเหลือ ${data.credits || 0}`;
     promoUsagePill.dataset.plan = data.plan || "free";
   } catch (error) {
     promoUsagePill.textContent = error.message || "โหลด Credit ไม่สำเร็จ";
