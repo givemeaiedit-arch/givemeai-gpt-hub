@@ -2098,12 +2098,13 @@ async function generatePromoImageForUser(req, payload) {
   form.set("quality", "low");
   form.set("size", outputSize);
   form.set("prompt", prompt);
-  form.append("image", new Blob([imageBuffer], { type: sourceImage.mimeType }), `promo-source.${extension}`);
+  const imageFieldName = referenceImages.length ? "image[]" : "image";
+  form.append(imageFieldName, new Blob([imageBuffer], { type: sourceImage.mimeType }), `promo-source.${extension}`);
   referenceImages.forEach((referenceImage, index) => {
     const referenceExtension =
       referenceImage.mimeType === "image/png" ? "png" : referenceImage.mimeType === "image/webp" ? "webp" : "jpg";
     form.append(
-      "image",
+      imageFieldName,
       new Blob([Buffer.from(referenceImage.imageBase64, "base64")], { type: referenceImage.mimeType }),
       `promo-reference-${index + 1}.${referenceExtension}`,
     );
