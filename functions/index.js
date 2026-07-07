@@ -24,7 +24,7 @@ const PRIMARY_ADMIN_EMAIL = "givemeai.edit@gmail.com";
 const PRO_UPGRADE_URL = "https://www.facebook.com/AiCreativesN/";
 const ADMIN_PANEL_URL = "https://givemeaiedit-arch.github.io/givemeai-gpt-hub/admin.html";
 const AD_CHECK_POINTS = 15;
-const FREE_AD_CHECK_LIMIT = 2;
+const FREE_AD_CHECK_LIMIT = 15;
 const PRO_DAILY_CREDIT_LIMIT = 15;
 const AD_CHECK_SCORE_KEYS = [
   "hook_scroll_stop",
