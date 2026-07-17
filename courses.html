@@ -104,7 +104,7 @@
 
           <div class="courses-hero-stats" aria-label="สรุปคะแนนบทเรียน">
             <article><strong>2</strong><span>หมวดคอร์สหลัก</span></article>
-            <article><strong>8</strong><span>บทเรียนทั้งหมด</span></article>
+            <article><strong>25</strong><span>บทเรียนทั้งหมด</span></article>
             <article><strong>50</strong><span>คะแนนที่ได้รับต่อบท</span></article>
           </div>
         </section>
@@ -116,61 +116,7 @@
           </div>
           <p class="course-category-intro">คอร์สพื้นฐานสำหรับใช้ AI ช่วยทำงาน สร้างภาพโปรโมท และต่อยอดการทำคอนเทนต์ให้เร็วขึ้น</p>
 
-          <div class="lesson-hub-grid">
-            <article class="lesson-hub-card" id="course-1" data-course-id="lesson-1" data-course-title="บทที่ 1" data-course-subtitle="วิดีโอพร้อมดู" data-course-progress="25" data-course-status="รับคะแนนได้">
-              <figure class="lesson-hub-visual">
-                <img src="assets/courses/lesson-1-cover.png" alt="หน้าปกบทที่ 1 ทำไมต้องใช้ AI" />
-              </figure>
-              <div class="lesson-hub-copy">
-                <span class="tool-status">พร้อมดู</span>
-                <h3>บทที่ 1</h3>
-                <p>บทเริ่มต้นสำหรับเข้าใจภาพรวม AI ดูวิดีโอภายในหน้าเว็บ แล้วกดเรียนแล้วเพื่อรับ 50 คะแนนได้ทันที</p>
-                <div class="lesson-hub-meta">
-                  <span>คะแนน: 50</span>
-                  <span>สถานะ: เปิดรับคะแนน</span>
-                </div>
-                <div class="tool-actions">
-                  <a class="orange-button" href="lesson-1.html">เปิดบทเรียน</a>
-                </div>
-              </div>
-            </article>
-
-            <article class="lesson-hub-card" id="course-2" data-course-id="lesson-2" data-course-title="บทที่ 2" data-course-subtitle="วิดีโอพร้อมดู" data-course-progress="55" data-course-status="รับคะแนนได้">
-              <figure class="lesson-hub-visual">
-                <img src="assets/courses/lesson-2-cover.png" alt="หน้าปกบทที่ 2 การเขียน prompt สร้างภาพโปรโมท" />
-              </figure>
-              <div class="lesson-hub-copy">
-                <span class="tool-status">พร้อมดู</span>
-                <h3>บทที่ 2</h3>
-                <p>ดูวิดีโอภายในหน้าเว็บ แล้วกดเรียนแล้วเมื่อจบบท เพื่อรับ 50 คะแนนเข้าบัญชีของตัวเองทันที</p>
-                <div class="lesson-hub-meta">
-                  <span>คะแนน: 50</span>
-                  <span>สถานะ: เปิดรับคะแนน</span>
-                </div>
-                <div class="tool-actions">
-                  <a class="orange-button" href="lesson-2.html">เปิดบทเรียน</a>
-                </div>
-              </div>
-            </article>
-
-            <article class="lesson-hub-card" id="course-3" data-course-id="lesson-3" data-course-title="บทที่ 3" data-course-subtitle="วิดีโอพร้อมดู" data-course-progress="85" data-course-status="รับคะแนนได้">
-              <figure class="lesson-hub-visual">
-                <img src="assets/courses/lesson-3-cover.png" alt="หน้าปกบทที่ 3 เริ่มต้นใช้งานสร้างรูปด้วย ChatGPT Image 2.0" />
-              </figure>
-              <div class="lesson-hub-copy">
-                <span class="tool-status">พร้อมดู</span>
-                <h3>บทที่ 3</h3>
-                <p>บทต่อเนื่องสำหรับเรียนหลังบทที่ 2 เมื่อดูจบแล้วกดรับคะแนนเพื่อสะสมแต้มและขยับอันดับใน Leaderboard ได้ทันที</p>
-                <div class="lesson-hub-meta">
-                  <span>คะแนน: 50</span>
-                  <span>สถานะ: เปิดรับคะแนน</span>
-                </div>
-                <div class="tool-actions">
-                  <a class="orange-button" href="lesson-3.html">เปิดบทเรียน</a>
-                </div>
-              </div>
-            </article>
-          </div>
+          <div class="lesson-hub-grid" id="aiWorkCourseGrid"></div>
         </section>
 
         <section class="content-section course-category-section" id="ai-ads-courses">
@@ -270,7 +216,7 @@
             <h2>ลำดับการเรียน</h2>
           </div>
           <ol class="lesson-list">
-            <li><span>1</span>AI ทำงาน <b>เปิดแล้ว 3 บท</b></li>
+            <li><span>1</span>AI ทำงาน <b>เปิดแล้ว 20 บท</b></li>
             <li><span>2</span>AI ยิง Ads โฆษณา <em>กำลังเตรียม 5 บท</em></li>
           </ol>
         </section>
@@ -305,5 +251,6 @@
 
     <script src="shared-shell.js"></script>
     <script type="module" src="app.js"></script>
+    <script type="module" src="courses.js"></script>
   </body>
 </html>

@@ -280,6 +280,7 @@ function getPageLabel(value) {
     "lesson-1.html": "บทเรียน 1",
     "lesson-2.html": "บทเรียน 2",
     "lesson-3.html": "บทเรียน 3",
+    "lesson.html": "บทเรียน AI",
   };
   return map[page] || page;
 }

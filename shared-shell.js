@@ -105,6 +105,12 @@
       searchLabel: "ค้นหาบทเรียน",
       active: "courses",
     },
+    "lesson.html": {
+      searchId: "lessonSearch",
+      searchPlaceholder: "ค้นหาบทเรียนหรือเนื้อหา...",
+      searchLabel: "ค้นหาบทเรียน",
+      active: "courses",
+    },
   };
 
   const cfg = pageConfig[currentPage] || pageConfig["index.html"];

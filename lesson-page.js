@@ -2,7 +2,7 @@ import { signInWithGoogle, watchAuth } from "./auth-shared.js";
 import { getLessonById, getLessonIndex, LESSONS, LESSON_POINTS } from "./lesson-data.js";
 import { claimLessonScore, getResolvedProfile, hasClaimedLesson, recordLearning } from "./profile-store.js";
 
-const lessonId = document.body.dataset.lessonId;
+const lessonId = new URLSearchParams(window.location.search).get("id") || document.body.dataset.lessonId;
 const lesson = getLessonById(lessonId);
 
 const titleNode = document.querySelector("#lessonTitle");
@@ -62,7 +62,22 @@ function renderProLock() {
 }
 
 function renderLesson() {
-  if (!lesson) return;
+  if (!lesson) {
+    document.title = "ไม่พบบทเรียน | GivemeAI";
+    if (titleNode) titleNode.textContent = "ไม่พบบทเรียน";
+    if (subtitleNode) subtitleNode.textContent = "ลิงก์บทเรียนนี้ไม่ถูกต้องหรือไม่มีอยู่ในระบบ";
+    if (descriptionNode) descriptionNode.textContent = "กลับไปเลือกบทเรียนที่เปิดให้เรียนจากหน้าคอร์สทั้งหมด";
+    if (mediaNode) {
+      mediaNode.innerHTML = `
+        <div class="lesson-video-placeholder">
+          <strong>ไม่พบข้อมูลบทเรียน</strong>
+          <p><a class="orange-button" href="courses.html">กลับไปหน้าคอร์สเรียน</a></p>
+        </div>
+      `;
+    }
+    if (claimButton) claimButton.disabled = true;
+    return;
+  }
 
   document.title = `${lesson.title} | GivemeAI`;
   if (titleNode) titleNode.textContent = lesson.title;
