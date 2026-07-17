@@ -165,7 +165,7 @@ export const LESSONS = [
     status: "พร้อมเรียน",
     summary: "ใช้ ChatGPT ช่วยคิดและปรับ Prompt สำหรับงาน AI ประเภทต่าง ๆ",
     description: "เรียนวิธีบอกเป้าหมาย บริบท และรูปแบบผลลัพธ์ให้ ChatGPT ช่วยร่าง Prompt ที่ชัดเจน ก่อนนำไปใช้สร้างภาพ วิดีโอ หรือคอนเทนต์",
-    cover: "assets/banners/เริ่มต้นใช้งาน.png",
+    cover: "assets/courses/lesson-13-cover.png",
     videoId: "rJOY6vsoHoQ",
     available: true,
     progress: 65,
