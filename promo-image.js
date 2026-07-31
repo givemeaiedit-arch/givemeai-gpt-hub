@@ -46,6 +46,9 @@ const reuseHistoryButton = document.querySelector("#reuseHistoryButton");
 const promoFormCard = document.querySelector("#promoFormCard");
 
 let currentUser = null;
+let promoUsage = null;
+let promoUsageState = "idle";
+let isGeneratingPromo = false;
 let historyItems = [];
 let activeHistoryItem = null;
 let selectedImageDataUrl = "";
@@ -64,7 +67,9 @@ function setStatus(message, tone = "") {
 
 function updateGenerateState() {
   const hasRequiredText = promoProductName?.value.trim() && promoDetails?.value.trim();
-  const ready = Boolean(currentUser && selectedImageDataUrl && hasRequiredText);
+  const ready = Boolean(
+    currentUser && selectedImageDataUrl && hasRequiredText && hasAvailablePromoCredit() && !isGeneratingPromo,
+  );
   if (generatePromoButton) {
     generatePromoButton.disabled = !ready;
   }
@@ -75,9 +80,47 @@ function isAdminUser(user) {
   return ADMIN_EMAILS.has(String(user?.email || "").trim().toLowerCase());
 }
 
+function hasAvailablePromoCredit() {
+  return Boolean(
+    isAdminUser(currentUser) ||
+      (promoUsageState === "ready" &&
+        (Number(promoUsage?.remaining || 0) > 0 || Number(promoUsage?.credits || 0) > 0)),
+  );
+}
+
+function applyPromoUsage(usage) {
+  promoUsage = usage || null;
+  promoUsageState = promoUsage ? "ready" : "error";
+  if (promoUsagePill) {
+    promoUsagePill.textContent =
+      promoUsage?.plan === "admin"
+        ? "Admin ไม่ใช้ Credit"
+        : promoUsage?.label || `Credit คงเหลือ ${promoUsage?.credits || 0}`;
+    promoUsagePill.dataset.plan = promoUsage?.plan || "free";
+  }
+  updateGenerateState();
+}
+
 function updateCreditButtonLabel() {
   if (!generatePromoButton) return;
-  generatePromoButton.textContent = isAdminUser(currentUser) ? "Generate รูป (Admin ไม่ใช้ Credit)" : "Generate รูป ใช้ 1 Credit";
+  if (isGeneratingPromo) {
+    generatePromoButton.textContent = "กำลัง Generate รูป...";
+  } else if (isAdminUser(currentUser)) {
+    generatePromoButton.textContent = "Generate รูป (Admin ไม่ใช้ Credit)";
+  } else if (currentUser && promoUsageState === "loading") {
+    generatePromoButton.textContent = "กำลังตรวจสอบ Credit...";
+  } else if (currentUser && promoUsageState === "error") {
+    generatePromoButton.textContent = "ตรวจสอบ Credit ไม่สำเร็จ";
+  } else if (
+    currentUser &&
+    promoUsageState === "ready" &&
+    Number(promoUsage?.remaining || 0) <= 0 &&
+    Number(promoUsage?.credits || 0) <= 0
+  ) {
+    generatePromoButton.textContent = "Credit หมด กรุณาเติม Credit";
+  } else {
+    generatePromoButton.textContent = "Generate รูป ใช้ 1 Credit";
+  }
 }
 
 function normalizeAspectRatio(value) {
@@ -108,6 +151,10 @@ function renderReferenceImages() {
 
 async function loadUsage() {
   if (!currentUser || !promoUsagePill) return;
+  promoUsage = null;
+  promoUsageState = "loading";
+  promoUsagePill.textContent = "กำลังตรวจสอบ Credit...";
+  updateGenerateState();
   try {
     const token = await currentUser.getIdToken();
     const response = await fetch(USAGE_ENDPOINT, {
@@ -115,11 +162,15 @@ async function loadUsage() {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data?.error || "โหลด Credit ไม่สำเร็จ");
-    promoUsagePill.textContent = data.plan === "admin" ? "Admin ไม่ใช้ Credit" : data.label || `Credit คงเหลือ ${data.credits || 0}`;
-    promoUsagePill.dataset.plan = data.plan || "free";
+    applyPromoUsage(data.usage || data);
   } catch (error) {
+    promoUsage = null;
+    promoUsageState = "error";
     promoUsagePill.textContent = error.message || "โหลด Credit ไม่สำเร็จ";
     promoUsagePill.dataset.plan = "free";
+    setStatus("ตรวจสอบ Credit ไม่สำเร็จ กรุณารีเฟรชหน้าแล้วลองอีกครั้ง", "error");
+  } finally {
+    updateGenerateState();
   }
 }
 
@@ -408,6 +459,16 @@ async function generatePromoImage() {
     setStatus("กรุณา Login Gmail ก่อนใช้งาน", "error");
     return;
   }
+  if (!hasAvailablePromoCredit()) {
+    const message =
+      promoUsageState === "error"
+        ? "ตรวจสอบ Credit ไม่สำเร็จ กรุณารีเฟรชหน้าแล้วลองอีกครั้ง"
+        : promoUsageState === "ready"
+          ? "Credit และสิทธิ์ใช้ฟรีหมดแล้ว กรุณาเติม Credit ก่อน Generate รูป"
+          : "กำลังตรวจสอบ Credit กรุณารอสักครู่";
+    setStatus(message, "error");
+    return;
+  }
   if (!selectedImageDataUrl) {
     setStatus("กรุณาอัปโหลดภาพสินค้าก่อน", "error");
     return;
@@ -424,7 +485,8 @@ async function generatePromoImage() {
   }
 
   try {
-    generatePromoButton.disabled = true;
+    isGeneratingPromo = true;
+    updateGenerateState();
     if (promoLoadingPanel) promoLoadingPanel.hidden = false;
     if (promoResultCard) promoResultCard.hidden = true;
     setStatus("กำลังสร้างภาพโปรโมท ใช้เวลาไม่นานครับ...", "loading");
@@ -467,7 +529,11 @@ async function generatePromoImage() {
     if (promoPromptOutput) promoPromptOutput.value = data.prompt || "";
     if (promoResultCard) promoResultCard.hidden = false;
     setStatus("Generate รูปโปรโมทสำเร็จแล้ว", "success");
-    await loadUsage();
+    if (data.usage) {
+      applyPromoUsage(data.usage);
+    } else {
+      await loadUsage();
+    }
     renderHistory([
       {
         productName,
@@ -493,6 +559,7 @@ async function generatePromoImage() {
         : error.message || "Generate รูปไม่สำเร็จ";
     setStatus(message, "error");
   } finally {
+    isGeneratingPromo = false;
     if (promoLoadingPanel) promoLoadingPanel.hidden = true;
     updateGenerateState();
   }
@@ -593,11 +660,23 @@ reuseHistoryButton?.addEventListener("click", () => {
 
 watchAuth(async ({ user }) => {
   currentUser = user || null;
+  promoUsage = null;
+  promoUsageState = currentUser ? "loading" : "idle";
+  updateGenerateState();
   if (promoGuestNotice) promoGuestNotice.hidden = Boolean(currentUser);
   if (currentUser) {
-    setStatus("พร้อมใช้งาน อัปโหลดรูปและกรอกรายละเอียดได้เลย", "success");
+    setStatus("กำลังตรวจสอบ Credit...", "loading");
     await loadUsage();
     await loadPromoHistory();
+    if (promoUsageState === "ready") {
+      const hasAvailableCredit = hasAvailablePromoCredit();
+      setStatus(
+        hasAvailableCredit
+          ? "พร้อมใช้งาน อัปโหลดรูปและกรอกรายละเอียดได้เลย"
+          : "Credit และสิทธิ์ใช้ฟรีหมดแล้ว กรุณาเติม Credit ก่อน Generate รูป",
+        hasAvailableCredit ? "success" : "error",
+      );
+    }
   } else {
     if (promoUsagePill) {
       promoUsagePill.textContent = "Login เพื่อดู Credit";
