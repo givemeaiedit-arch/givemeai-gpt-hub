@@ -60,7 +60,7 @@
               </div>
             </article>
 
-            <article class="audit-request-card promo-form-card">
+            <article class="audit-request-card promo-form-card" id="promoFormCard">
               <div class="audit-request-grid promo-form-grid">
                 <label class="audit-field">
                   <span>ชื่อสินค้า</span>
@@ -170,9 +170,29 @@
       <section class="promo-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="promoDetailTitle">
         <button class="promo-detail-close" type="button" data-promo-modal-close aria-label="ปิดรายละเอียด">×</button>
         <div class="promo-detail-layout">
-          <figure class="promo-detail-image-frame">
-            <img id="promoDetailImage" alt="รูปโปรโมทจาก History" />
-          </figure>
+          <div class="promo-detail-visuals">
+            <figure class="promo-detail-image-card">
+              <figcaption>
+                <strong>ภาพผลลัพธ์</strong>
+                <span>ภาพที่สร้างโดย AI</span>
+              </figcaption>
+              <div class="promo-detail-image-frame">
+                <img id="promoDetailImage" alt="ภาพผลลัพธ์ที่สร้างโดย AI จาก History" />
+                <div class="promo-detail-image-empty" id="promoDetailImageEmpty" hidden>
+                  รายการเก่านี้ยังไม่ได้บันทึกภาพผลลัพธ์ไว้
+                </div>
+              </div>
+            </figure>
+            <figure class="promo-detail-image-card promo-detail-source-card">
+              <figcaption>
+                <strong>ภาพต้นฉบับ</strong>
+                <span>ภาพที่ใช้เป็นต้นแบบ</span>
+              </figcaption>
+              <div class="promo-detail-source-frame">
+                <img id="promoDetailSourceImage" alt="ภาพต้นฉบับจาก History" />
+              </div>
+            </figure>
+          </div>
           <div class="promo-detail-content">
             <p class="tools-kicker">HISTORY DETAIL</p>
             <h2 id="promoDetailTitle">รายละเอียดรูปโปรโมท</h2>
@@ -182,6 +202,10 @@
               <button class="soft-button" id="copyHistoryPromptButton" type="button">คัดลอก Prompt</button>
             </div>
             <textarea id="promoDetailPrompt" readonly></textarea>
+            <div class="promo-detail-reuse">
+              <button class="orange-button" id="reuseHistoryButton" type="button">สร้างอีกครั้ง</button>
+              <p>นำข้อมูลเดิมกลับไปใส่ในฟอร์ม เพื่อให้ตรวจสอบหรือแก้ไขก่อนกด Generate</p>
+            </div>
           </div>
         </div>
       </section>

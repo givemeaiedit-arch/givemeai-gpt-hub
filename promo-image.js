@@ -33,11 +33,17 @@ const promoPromptOutput = document.querySelector("#promoPromptOutput");
 const promoHistoryList = document.querySelector("#promoHistoryList");
 const promoHistoryCount = document.querySelector("#promoHistoryCount");
 const promoDetailModal = document.querySelector("#promoDetailModal");
+const promoDetailDialog = promoDetailModal?.querySelector(".promo-detail-dialog");
 const promoDetailImage = document.querySelector("#promoDetailImage");
+const promoDetailImageEmpty = document.querySelector("#promoDetailImageEmpty");
+const promoDetailSourceImage = document.querySelector("#promoDetailSourceImage");
+const promoDetailSourceCard = promoDetailSourceImage?.closest(".promo-detail-source-card");
 const promoDetailTitle = document.querySelector("#promoDetailTitle");
 const promoDetailMeta = document.querySelector("#promoDetailMeta");
 const promoDetailPrompt = document.querySelector("#promoDetailPrompt");
 const copyHistoryPromptButton = document.querySelector("#copyHistoryPromptButton");
+const reuseHistoryButton = document.querySelector("#reuseHistoryButton");
+const promoFormCard = document.querySelector("#promoFormCard");
 
 let currentUser = null;
 let historyItems = [];
@@ -137,6 +143,14 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
+function getHistoryResultImage(item) {
+  return item?.generatedImagePreviewDataUrl || item?.generatedImageUrl || item?.imageDataUrl || "";
+}
+
+function getHistorySourceImage(item) {
+  return item?.sourceImagePreviewDataUrl || item?.imagePreviewDataUrl || "";
+}
+
 function renderHistory(items) {
   if (!promoHistoryList) return;
   historyItems = items;
@@ -150,7 +164,7 @@ function renderHistory(items) {
     .map((item) => {
       const title = escapeHtml(item.productName || "รูปโปรโมท");
       const subtitle = escapeHtml([item.price, item.style].filter(Boolean).join(" · ") || item.fileName || "");
-      const image = item.generatedImagePreviewDataUrl || item.imagePreviewDataUrl || item.imageDataUrl || "";
+      const image = getHistoryResultImage(item) || getHistorySourceImage(item);
       const safeDate = escapeHtml(formatHistoryDate(item.createdAt));
       const safeId = escapeHtml(item.id || "");
       return `
@@ -172,11 +186,22 @@ function renderHistory(items) {
 function openHistoryDetail(item) {
   if (!item || !promoDetailModal) return;
   activeHistoryItem = item;
-  const image = item.generatedImagePreviewDataUrl || item.imagePreviewDataUrl || item.imageDataUrl || "";
+  const resultImage = getHistoryResultImage(item);
+  const sourceImage = getHistorySourceImage(item);
   const title = item.productName || "รูปโปรโมท";
   if (promoDetailImage) {
-    promoDetailImage.src = image || "";
-    promoDetailImage.hidden = !image;
+    promoDetailImage.src = resultImage || "";
+    promoDetailImage.hidden = !resultImage;
+  }
+  if (promoDetailImageEmpty) {
+    promoDetailImageEmpty.hidden = Boolean(resultImage);
+  }
+  if (promoDetailSourceImage) {
+    promoDetailSourceImage.src = sourceImage || "";
+    promoDetailSourceImage.hidden = !sourceImage;
+  }
+  if (promoDetailSourceCard) {
+    promoDetailSourceCard.hidden = !sourceImage;
   }
   if (promoDetailTitle) promoDetailTitle.textContent = title;
   if (promoDetailPrompt) promoDetailPrompt.value = item.prompt || "ไม่มีข้อมูล Prompt ในรายการนี้";
@@ -192,7 +217,56 @@ function openHistoryDetail(item) {
       .join("");
   }
   promoDetailModal.hidden = false;
+  if (promoDetailDialog) promoDetailDialog.scrollTop = 0;
   document.body.classList.add("modal-open");
+}
+
+function reuseHistoryItem(item) {
+  if (!item) return;
+
+  if (promoProductName) promoProductName.value = item.productName || "";
+  if (promoPrice) promoPrice.value = item.price || "";
+  if (promoDetails) promoDetails.value = item.details || "";
+  if (promoStyle) promoStyle.value = item.style || "";
+  if (promoAspectRatio) promoAspectRatio.value = item.aspectRatio || "";
+
+  const sourceImage = getHistorySourceImage(item);
+  if (sourceImage) {
+    const mimeTypeMatch = sourceImage.match(/^data:([^;,]+)/i);
+    selectedImageDataUrl = sourceImage;
+    selectedImagePreviewDataUrl = sourceImage;
+    selectedFileName = item.sourceFileName || item.fileName || "history-source-image.jpg";
+    selectedMimeType = mimeTypeMatch?.[1] || "image/jpeg";
+    selectedImageWidth = 0;
+    selectedImageHeight = 0;
+    if (promoImageInput) promoImageInput.value = "";
+    if (promoPreviewImage) promoPreviewImage.src = sourceImage;
+    if (promoPreviewPanel) promoPreviewPanel.hidden = false;
+    if (promoDropzone) promoDropzone.hidden = true;
+  } else {
+    clearImage();
+  }
+
+  selectedReferenceImages = [];
+  if (promoReferenceInput) promoReferenceInput.value = "";
+  renderReferenceImages();
+  if (promoResultCard) promoResultCard.hidden = true;
+  if (promoResultImage) promoResultImage.removeAttribute("src");
+  if (promoPromptOutput) promoPromptOutput.value = "";
+
+  closeHistoryDetail();
+  updateGenerateState();
+
+  const missingSourceMessage = sourceImage ? "" : " กรุณาอัปโหลดภาพต้นฉบับอีกครั้ง";
+  const missingReferencesMessage = item.referenceImageCount
+    ? ` รูปอ้างอิงเดิม ${item.referenceImageCount} รูปไม่ได้ถูกบันทึกไว้ กรุณาเลือกใหม่`
+    : "";
+  setStatus(
+    `ใส่ข้อมูลเดิมในฟอร์มแล้ว${missingSourceMessage}${missingReferencesMessage} ระบบยังไม่ได้สร้างภาพและยังไม่ใช้ Credit`,
+    sourceImage ? "success" : "error",
+  );
+  promoFormCard?.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.setTimeout(() => promoProductName?.focus({ preventScroll: true }), 350);
 }
 
 function closeHistoryDetail() {
@@ -398,11 +472,15 @@ async function generatePromoImage() {
       {
         productName,
         price,
+        details,
         style,
         aspectRatio,
         referenceImageCount: selectedReferenceImages.length,
         fileName: data.fileName,
-        imageDataUrl: data.imageDataUrl,
+        sourceFileName: selectedFileName,
+        sourceImagePreviewDataUrl: selectedImagePreviewDataUrl,
+        imagePreviewDataUrl: selectedImagePreviewDataUrl,
+        generatedImagePreviewDataUrl: data.generatedImagePreviewDataUrl || data.imageDataUrl,
         createdAt: new Date(),
       },
     ]);
@@ -503,6 +581,10 @@ copyHistoryPromptButton?.addEventListener("click", async () => {
   } catch {
     setStatus("คัดลอก Prompt จาก History ไม่สำเร็จ", "error");
   }
+});
+
+reuseHistoryButton?.addEventListener("click", () => {
+  reuseHistoryItem(activeHistoryItem);
 });
 
 [promoProductName, promoDetails, promoAspectRatio].forEach((input) => {

@@ -4,6 +4,7 @@ import { getAuth } from "firebase-admin/auth";
 import { FieldValue, Timestamp, getFirestore } from "firebase-admin/firestore";
 import { onRequest } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
+import sharp from "sharp";
 
 initializeApp();
 
@@ -1733,6 +1734,26 @@ function buildGeneratedPreviewDataUrl(imageDataUrl) {
   return text.startsWith("data:image/") && text.length <= 280000 ? text : "";
 }
 
+async function createStoredImagePreviewDataUrl(imageDataUrl) {
+  try {
+    const image = await dataUrlToImagePayload(imageDataUrl);
+    const previewBuffer = await sharp(Buffer.from(image.imageBase64, "base64"))
+      .rotate()
+      .resize({
+        width: 640,
+        height: 640,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .jpeg({ quality: 70, progressive: true })
+      .toBuffer();
+    const previewDataUrl = `data:image/jpeg;base64,${previewBuffer.toString("base64")}`;
+    return previewDataUrl.length <= 480000 ? previewDataUrl : "";
+  } catch {
+    return buildGeneratedPreviewDataUrl(imageDataUrl);
+  }
+}
+
 function boostGeneratedAdResult(result) {
   const boosted = JSON.parse(JSON.stringify(result || {}));
   const boost = 10 + Math.floor(Math.random() * 6);
@@ -2144,6 +2165,8 @@ async function generatePromoImageForUser(req, payload) {
 
   const fileName = buildPromoImageFileName(payload.fileName);
   const historyId = toFileKey(fileName);
+  const sourceImagePreviewDataUrl = sanitizeImagePreviewDataUrl(payload.imagePreviewDataUrl || imageDataUrl);
+  const generatedImagePreviewDataUrl = await createStoredImagePreviewDataUrl(generatedImageDataUrl);
   const historyPayload = {
     uid: user.uid,
     userEmail: user.email,
@@ -2160,8 +2183,8 @@ async function generatePromoImageForUser(req, payload) {
     model: OPENAI_IMAGE_MODEL,
     quality: "low",
     size: outputSize,
-    imagePreviewDataUrl: sanitizeImagePreviewDataUrl(payload.imagePreviewDataUrl || imageDataUrl),
-    generatedImagePreviewDataUrl: buildGeneratedPreviewDataUrl(generatedImageDataUrl),
+    imagePreviewDataUrl: sourceImagePreviewDataUrl,
+    generatedImagePreviewDataUrl,
     createdAt: FieldValue.serverTimestamp(),
   };
   await Promise.all([
@@ -2173,6 +2196,7 @@ async function generatePromoImageForUser(req, payload) {
     imageDataUrl: generatedImageDataUrl,
     fileName,
     prompt,
+    generatedImagePreviewDataUrl,
     model: OPENAI_IMAGE_MODEL,
     quality: "low",
     size: outputSize,
